@@ -1,0 +1,38 @@
+name: Update Multi-Repo Commits
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '0 * * * *' # Hourly updates
+  workflow_dispatch: # Allows manual triggering of the update
+
+jobs:
+  update-log:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitBook Repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.UPDATE_COMMITS }}
+
+      - name: Generate Commits List
+        env:
+          GH_TOKEN: ${{ secrets.UPDATE_COMMITS }}
+        run: |
+          git log -5 --pretty=format:"- [%ad] %s" --date=format:'%b %d, %Y' > last-commits-gitbook.md
+
+          # --- SECTION 2 : REPO APPLICATION ---
+          echo "### 🚀 Application Compagnon" >> last-commits.md
+          # On utilise l'API GitHub pour récupérer les commits du second repo
+          curl -H "Authorization: token $GH_TOKEN" \
+               -H "Accept: application/vnd.github.v3+json" \
+               "https://api.github.com/repos/rdeneau/shopfoo/commits?per_page=5" | \
+          jq -r '.[] | "- [" + (.commit.author.date | fromdateiso8601 | strftime("%b %d, %Y")) + "] " + .commit.message' > last-commits-shopfoo.md
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add last-commits.md
+          git commit -m "docs: mise à jour des logs multi-repo" || exit 0
+          git push
