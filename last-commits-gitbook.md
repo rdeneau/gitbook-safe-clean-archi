@@ -1,0 +1,5 @@
+- [Dec 22, 2025] feat: ✨ add update-commits.yml
+- [Dec 22, 2025] feat: 🔄️ [GITBOOK-4] new Welcome, old renamed Motivations
+- [Dec 20, 2025] feat: 🔄️ [GITBOOK-3] ✅ finish Welcome page, start Status page
+- [Dec 20, 2025] feat: 🔄️ [GITBOOK-2] Welcome - wip
+- [Dec 20, 2025] feat: 🔄️ [GITBOOK-1] No subject
