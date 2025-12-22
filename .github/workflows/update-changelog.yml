@@ -23,10 +23,17 @@ jobs:
           GH_TOKEN: ${{ secrets.UPDATE_COMMITS }}
         run: |
           echo '---' > changelog.md
+          echo 'description: Last 5 commits in both repositories.' >> changelog.md
           echo 'icon: github' >> changelog.md
           echo '---' >> changelog.md
+
           echo '' >> changelog.md
-          echo '# Changelog of Last 5 Commits from across the two repositories' >> changelog.md
+          echo '# Changelog' >> changelog.md
+
+          echo '' >> changelog.md
+          echo '{% hint style="info" %}' >> changelog.md
+          echo 'This page is auto-generated from a GitHub action.' >> changelog.md
+          echo '{% endhint %}' >> changelog.md
 
           echo '' >> changelog.md
           echo '## 📖 GitBook' >> changelog.md
