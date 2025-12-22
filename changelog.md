@@ -1,15 +1,15 @@
 ---
-icon: location-check
+icon: github
 ---
 
 # Changelog of Last 5 Commits from across the two repositories
 
 ## 📖 GitBook
+- [Dec 22, 2025] feat: ✨ include changelog.md in the TOC
+- [Dec 22, 2025] feat: ✨ link from status to changelog
+- [Dec 22, 2025] docs: 📝 update changelog.md [skip ci]
 - [Dec 22, 2025] refactor: ♻️ switch a single independent page "changelog.md" (as include is not available for my free plan)
 - [Dec 22, 2025] docs: 📝 update last-commits-xxx.md [skip ci]
-- [Dec 22, 2025] feat: ✨ include last commits in status page
-- [Dec 22, 2025] docs: 📝 update last-commits-xxx.md [skip ci]
-- [Dec 22, 2025] feat: ✨ add update-commits.yml
 
 ## 👉 Shopfoo
 - [Dec 22, 2025] feat: ✨ add commits.html for the GitHub page to embed in the Status page
