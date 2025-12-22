@@ -23,7 +23,7 @@ jobs:
           GH_TOKEN: ${{ secrets.UPDATE_COMMITS }}
         run: |
           echo '---' > changelog.md
-          echo 'icon: location-check' >> changelog.md
+          echo 'icon: github' >> changelog.md
           echo '---' >> changelog.md
           echo '' >> changelog.md
           echo '# Changelog of Last 5 Commits from across the two repositories' >> changelog.md

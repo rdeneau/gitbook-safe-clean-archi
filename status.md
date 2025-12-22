@@ -4,8 +4,6 @@ icon: location-check
 
 # Status
 
-[Changelog](changelog.md)
-
 ## 2025-12-20
 
 * Announcing the start of writing this book, as an entry to the [F# Advent Calendar in English 2025](https://sergeytihon.com/2025/11/03/f-advent-calendar-in-english-2025/) –  Thank you, Sergey Tihon 🙏
