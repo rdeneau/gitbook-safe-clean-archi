@@ -31,8 +31,8 @@ jobs:
 
       - name: Commit and Push
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add last-commits.md
-          git commit -m "docs: mise à jour des logs multi-repo" || exit 0
+          git config --local user.email "rdeneau@yahoo.fr"
+          git config --local user.name "Romain Deneau"
+          git add last-commits-gitbook.md last-commits-shopfoo.md
+          git commit -m "docs: 📝 update last-commits-xxx.md [skip ci]" || exit 0 # [skip ci] in the message to avoid triggering the action in an infinite loop
           git push
