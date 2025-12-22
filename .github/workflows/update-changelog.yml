@@ -22,22 +22,30 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.UPDATE_COMMITS }}
         run: |
-          # 1. Gitbook last 5 commits
+          echo '---' > changelog.md
+          echo 'icon: location-check' >> changelog.md
+          echo '---' >> changelog.md
+          echo '' >> changelog.md
+          echo '# Changelog of Last 5 Commits from across the two repositories' >> changelog.md
+
+          echo '' >> changelog.md
+          echo '## 📖 GitBook' >> changelog.md
           curl -s -H "Authorization: token $GH_TOKEN" \
                -H "Accept: application/vnd.github.v3+json" \
                "https://api.github.com/repos/rdeneau/gitbook-safe-clean-archi/commits?per_page=5" | \
-          jq -r '.[] | "- [" + (.commit.author.date | fromdateiso8601 | strftime("%b %d, %Y")) + "] " + (.commit.message | split("\n")[0])' > last-commits-gitbook.md
+          jq -r '.[] | "- [" + (.commit.author.date | fromdateiso8601 | strftime("%b %d, %Y")) + "] " + (.commit.message | split("\n")[0])' >> changelog.md
 
-          # 2. Shopfoo last 5 commits
+          echo '' >> changelog.md
+          echo '## 👉 Shopfoo' >> changelog.md
           curl -s -H "Authorization: token $GH_TOKEN" \
                -H "Accept: application/vnd.github.v3+json" \
                "https://api.github.com/repos/rdeneau/shopfoo/commits?per_page=5" | \
-          jq -r '.[] | "- [" + (.commit.author.date | fromdateiso8601 | strftime("%b %d, %Y")) + "] " + (.commit.message | split("\n")[0])' > last-commits-shopfoo.md
+          jq -r '.[] | "- [" + (.commit.author.date | fromdateiso8601 | strftime("%b %d, %Y")) + "] " + (.commit.message | split("\n")[0])' >> changelog.md
 
       - name: Commit and Push
         run: |
           git config --local user.email "rdeneau@yahoo.fr"
           git config --local user.name "Romain Deneau"
-          git add last-commits-gitbook.md last-commits-shopfoo.md
-          git commit -m "docs: 📝 update last-commits-xxx.md [skip ci]" || exit 0 # [skip ci] in the message to avoid triggering the action in an infinite loop
+          git add changelog.md
+          git commit -m "docs: 📝 update changelog.md [skip ci]" || exit 0 # [skip ci] in the message to avoid triggering the action in an infinite loop
           git push
