@@ -1,0 +1,43 @@
+name: Update Multi-Repo Commits
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '.github/workflows/**'
+      - 'last-commits-*.md'
+  schedule:
+    - cron: '0 * * * *' # Hourly updates
+  workflow_dispatch: # Allows manual triggering of the update
+
+jobs:
+  update-log:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitBook Repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.UPDATE_COMMITS }}
+
+      - name: Generate Commits List
+        env:
+          GH_TOKEN: ${{ secrets.UPDATE_COMMITS }}
+        run: |
+          # 1. Gitbook last 5 commits
+          curl -s -H "Authorization: token $GH_TOKEN" \
+               -H "Accept: application/vnd.github.v3+json" \
+               "https://api.github.com/repos/rdeneau/gitbook-safe-clean-archi/commits?per_page=5" | \
+          jq -r '.[] | "- [" + (.commit.author.date | fromdateiso8601 | strftime("%b %d, %Y")) + "] " + (.commit.message | split("\n")[0])' > last-commits-gitbook.md
+
+          # 2. Shopfoo last 5 commits
+          curl -s -H "Authorization: token $GH_TOKEN" \
+               -H "Accept: application/vnd.github.v3+json" \
+               "https://api.github.com/repos/rdeneau/shopfoo/commits?per_page=5" | \
+          jq -r '.[] | "- [" + (.commit.author.date | fromdateiso8601 | strftime("%b %d, %Y")) + "] " + (.commit.message | split("\n")[0])' > last-commits-shopfoo.md
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "rdeneau@yahoo.fr"
+          git config --local user.name "Romain Deneau"
+          git add last-commits-gitbook.md last-commits-shopfoo.md
+          git commit -m "docs: 📝 update last-commits-xxx.md [skip ci]" || exit 0 # [skip ci] in the message to avoid triggering the action in an infinite loop
+          git push
