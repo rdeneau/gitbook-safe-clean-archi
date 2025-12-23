@@ -3,7 +3,7 @@
 * [Welcome](README.md)
 * [Motivations](motivations.md)
 * [Status](status.md)
-* [Changelog](changelog.md)
+* [ChangelogWip](changelog.md)
 
 ## Architecture
 
