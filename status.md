@@ -11,11 +11,11 @@ icon: location-check
 
 ## Changelog
 
+<!-- CHANGELOG:START -->
 {% hint style="info" %}
-This section is auto-generated from a GitHub action. It displays the last five commits of both repositories.
+This section is auto-generated from a GitHub action. It displays the last 10 commits of both repositories.
 {% endhint %}
 
-<!-- CHANGELOG:START -->
 ### 📖 GitBook
 
 * \[Dec 23, 2025] refactor: ♻️ migrate to ChangelogGenerator.fsproj
@@ -23,6 +23,11 @@ This section is auto-generated from a GitHub action. It displays the last five c
 * \[Dec 22, 2025] fix: 🐛 update-changelog.yml
 * \[Dec 22, 2025] feat: 🔄️ [GITBOOK-5] improve changelog
 * \[Dec 22, 2025] feat: ✨ include changelog.md in the TOC
+* \[Dec 22, 2025] feat: ✨ link from status to changelog
+* \[Dec 22, 2025] refactor: ♻️ switch a single independent page "changelog.md" (as include is not available for my free plan)
+* \[Dec 22, 2025] docs: 📝 update last-commits-xxx.md [skip ci]
+* \[Dec 22, 2025] feat: ✨ include last commits in status page
+* \[Dec 22, 2025] docs: 📝 update last-commits-xxx.md [skip ci]
 
 ### 👉 Shopfoo
 
@@ -31,4 +36,9 @@ This section is auto-generated from a GitHub action. It displays the last five c
 * \[Dec 20, 2025] chore(ci):  🏗️ fix Azure auth
 * \[Dec 20, 2025] Add or update the Azure App Service build and deployment workflow config
 * \[Dec 20, 2025] chore(ci):  🏗️ force_deploy w/o semantic release
+* \[Dec 20, 2025] chore: 🏷️ release 1.0.0 [skip ci]
+* \[Dec 20, 2025] fix(ci):  🏗️ fix update-release-date
+* \[Dec 20, 2025] feat(about): ✨ add badges with package info
+* \[Dec 20, 2025] chore(ci): 🏗️ add semantic release
+* \[Dec 20, 2025] chore: 👷 update main_shopfoo.yml: add node, yarn; fix commands
 <!-- CHANGELOG:END -->

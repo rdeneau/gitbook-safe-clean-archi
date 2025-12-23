@@ -2,12 +2,15 @@
 open System.IO
 open FsHttp
 
-type CommitAuthor = { date: DateTime }
-type CommitDetails = { message: string; author: CommitAuthor }
-type Commit = { commit: CommitDetails }
+// Define types to match GitHub API response
+// See https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits
+type CommitAuthor = { date: DateTime; email: string; name: string }
+type Commit = { message: string; author: CommitAuthor }
+type CommitEnvelope = { commit: Commit }
 
-let [<Literal>] HARD_LIMIT = 20
-let [<Literal>] SOFT_LIMIT = 5
+let [<Literal>] ChangelogStartMarker = "<!-- CHANGELOG:START -->"
+let [<Literal>] ChangelogEndMarker = "<!-- CHANGELOG:END -->"
+let [<Literal>] Limit = 10
 
 let fetchCommits ghToken owner repo limit =
     http {
@@ -17,8 +20,7 @@ let fetchCommits ghToken owner repo limit =
         Accept "application/vnd.github.v3+json"
     }
     |> Request.send
-    //|> Response.toFormattedText |> printf "Response: %s"
-    |> Response.deserializeJson<Commit list>
+    |> Response.deserializeJson<CommitEnvelope list>
 
 let isUpdateStatusMdCommitMessage (message: string) =
     message.StartsWith("docs")
@@ -26,17 +28,18 @@ let isUpdateStatusMdCommitMessage (message: string) =
     && (message.Contains("update changelog.md") || message.Contains("update status.md"))
 
 let formatCommit (commit: Commit) =
-    let date = commit.commit.author.date.ToString("MMM dd, yyyy")
-    let message = commit.commit.message.Split('\n').[0] // First line of commit message
+    let date = commit.author.date.ToString("MMM dd, yyyy")
+    let message = commit.message.Split('\n').[0] // First line of commit message
     if message |> isUpdateStatusMdCommitMessage then ""
     else $"* \\[{date}] {message}"
 
-let generateChangelogSection ghToken title owner repo limit =
+let changelogSection ghToken title owner repo limit =
     let commits =
         fetchCommits ghToken owner repo limit
-        |> List.map formatCommit
-        |> List.filter (fun s -> s <> "")
-        |> List.truncate SOFT_LIMIT
+        |> Seq.map _.commit
+        |> Seq.map formatCommit
+        |> Seq.filter (fun s -> s <> "")
+        |> Seq.truncate Limit
 
     [
         $"### {title}"
@@ -45,6 +48,41 @@ let generateChangelogSection ghToken title owner repo limit =
     ]
     |> String.concat "\n"
 
+let hintInfo =
+    [
+        """{% hint style="info" %}"""
+        $"This section is auto-generated from a GitHub action. It displays the last %i{Limit} commits of both repositories."
+        "{% endhint %}"
+    ]
+    |> String.concat "\n"
+
+let updateChangelogFile ghToken =
+    let statusFilePath = Path.Combine(__SOURCE_DIRECTORY__, "..", "..", "status.md")
+    let statusContent = File.ReadAllText(statusFilePath)
+
+    let gitbookChangelog = changelogSection ghToken "📖 GitBook" "rdeneau" "gitbook-safe-clean-archi" (2 * Limit)
+    let shopfooChangelog = changelogSection ghToken "👉 Shopfoo" "rdeneau" "shopfoo" Limit
+
+    let newChangelog =
+        [
+            hintInfo
+            ""
+            gitbookChangelog
+            ""
+            shopfooChangelog
+        ]
+        |> String.concat "\n"
+
+    let startIndex = statusContent.IndexOf(ChangelogStartMarker) + ChangelogStartMarker.Length
+    let endIndex = statusContent.IndexOf(ChangelogEndMarker)
+
+    let newStatusContent =
+        let before = statusContent.Substring(0, startIndex)
+        let after = statusContent.Substring(endIndex)
+        $"{before}\n{newChangelog}\n{after}"
+
+    File.WriteAllText(statusFilePath, newStatusContent)
+
 [<EntryPoint>]
 let main argv =
     let ghToken =
@@ -52,29 +90,8 @@ let main argv =
         else Environment.GetEnvironmentVariable("GH_TOKEN")
 
     if String.IsNullOrEmpty(ghToken) then
-        printfn "Error: GitHub token not provided. Pass as an argument or set GH_TOKEN environment variable."
-        1 // Return error code
+        eprintfn "Error: GitHub token not provided. Pass as an argument or set GH_TOKEN environment variable."
+        1 // error
     else
-        let statusFilePath = Path.Combine(__SOURCE_DIRECTORY__, "..", "..", "status.md")
-        let statusContent = File.ReadAllText(statusFilePath)
-
-        let changelogStartMarker = "<!-- CHANGELOG:START -->"
-        let changelogEndMarker = "<!-- CHANGELOG:END -->"
-
-        let startIndex = statusContent.IndexOf(changelogStartMarker) + changelogStartMarker.Length
-        let endIndex = statusContent.IndexOf(changelogEndMarker)
-
-        let gitbookChangelog = generateChangelogSection ghToken "📖 GitBook" "rdeneau" "gitbook-safe-clean-archi" HARD_LIMIT
-        let shopfooChangelog = generateChangelogSection ghToken "👉 Shopfoo" "rdeneau" "shopfoo" SOFT_LIMIT
-
-        let newChangelog =
-            [ gitbookChangelog; shopfooChangelog ]
-            |> String.concat "\n\n"
-
-        let newStatusContent =
-            let before = statusContent.Substring(0, startIndex)
-            let after = statusContent.Substring(endIndex)
-            $"{before}\n{newChangelog}\n{after}"
-
-        File.WriteAllText(statusFilePath, newStatusContent)
-        0 // Return success code
+        updateChangelogFile ghToken
+        0 // success
