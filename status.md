@@ -18,11 +18,11 @@ This section is auto-generated from a GitHub action. It displays the last five c
 <!-- CHANGELOG:START -->
 ### 📖 GitBook
 
-* \[Dec 23, 2025] refactor: ♻️ improve ChangelogGenerator: skip update *.md commit messages
 * \[Dec 23, 2025] refactor: ♻️ migrate to ChangelogGenerator.fsproj
 * \[Dec 23, 2025] feat: 🔄️ [GITBOOK-6] ChangelogWip
 * \[Dec 22, 2025] fix: 🐛 update-changelog.yml
 * \[Dec 22, 2025] feat: 🔄️ [GITBOOK-5] improve changelog
+* \[Dec 22, 2025] feat: ✨ include changelog.md in the TOC
 
 ### 👉 Shopfoo
 
