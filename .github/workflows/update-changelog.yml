@@ -1,12 +1,9 @@
-name: Update Multi-Repo Commits
+name: 'Update Changelog in status.md'
 on:
   push:
     branches: [ main ]
     paths-ignore:
       - '.github/workflows/**'
-      - 'last-commits-*.md'
-  schedule:
-    - cron: '0 * * * *' # Hourly updates
   workflow_dispatch: # Allows manual triggering of the update
 
 jobs:
@@ -18,41 +15,24 @@ jobs:
         with:
           token: ${{ secrets.UPDATE_COMMITS }}
 
-      - name: Generate Commits List
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Run Changelog Generator
         env:
           GH_TOKEN: ${{ secrets.UPDATE_COMMITS }}
-        run: |
-          echo '---' > changelog.md
-          echo 'description: Last 5 commits in both repositories.' >> changelog.md
-          echo 'icon: github' >> changelog.md
-          echo '---' >> changelog.md
+        run: dotnet run --project tools/ChangelogGenerator/ChangelogGenerator.fsproj -- "$GH_TOKEN"
 
-          echo '' >> changelog.md
-          echo '# Changelog' >> changelog.md
-
-          echo '' >> changelog.md
-          echo '{% hint style="info" %}' >> changelog.md
-          echo 'This page is auto-generated from a GitHub action.' >> changelog.md
-          echo '{% endhint %}' >> changelog.md
-
-          echo '' >> changelog.md
-          echo '## 📖 GitBook' >> changelog.md
-          curl -s -H "Authorization: token $GH_TOKEN" \
-               -H "Accept: application/vnd.github.v3+json" \
-               "https://api.github.com/repos/rdeneau/gitbook-safe-clean-archi/commits?per_page=5" | \
-          jq -r '.[] | "- [" + (.commit.author.date | fromdateiso8601 | strftime("%b %d, %Y")) + "] " + (.commit.message | split("\n")[0])' >> changelog.md
-
-          echo '' >> changelog.md
-          echo '## 👉 Shopfoo' >> changelog.md
-          curl -s -H "Authorization: token $GH_TOKEN" \
-               -H "Accept: application/vnd.github.v3+json" \
-               "https://api.github.com/repos/rdeneau/shopfoo/commits?per_page=5" | \
-          jq -r '.[] | "- [" + (.commit.author.date | fromdateiso8601 | strftime("%b %d, %Y")) + "] " + (.commit.message | split("\n")[0])' >> changelog.md
-
-      - name: Commit and Push
+      - name: Commit and push if changed
         run: |
           git config --local user.email "rdeneau@yahoo.fr"
           git config --local user.name "Romain Deneau"
-          git add changelog.md
-          git commit -m "docs: 📝 update changelog.md [skip ci]" || exit 0 # [skip ci] in the message to avoid triggering the action in an infinite loop
-          git push
+          git add status.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "docs: 📝 update status.md with latest commits [skip ci]"
+            git push
+          fi

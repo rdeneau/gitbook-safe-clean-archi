@@ -8,3 +8,27 @@ icon: location-check
 
 * Announcing the start of writing this book, as an entry to the [F# Advent Calendar in English 2025](https://sergeytihon.com/2025/11/03/f-advent-calendar-in-english-2025/) –  Thank you, Sergey Tihon 🙏
 * _Shopfoo_ is functional and deployed for the playground. Some features are missing and the code can be improved. Still, the code can be explore in preview if needed.
+
+## Changelog
+
+{% hint style="info" %}
+This section is auto-generated from a GitHub action. It displays the last five commits of both repositories.
+{% endhint %}
+
+<!-- CHANGELOG:START -->
+### 📖 GitBook
+
+* \[Dec 23, 2025] refactor: ♻️ improve ChangelogGenerator: skip update *.md commit messages
+* \[Dec 23, 2025] refactor: ♻️ migrate to ChangelogGenerator.fsproj
+* \[Dec 23, 2025] feat: 🔄️ [GITBOOK-6] ChangelogWip
+* \[Dec 22, 2025] fix: 🐛 update-changelog.yml
+* \[Dec 22, 2025] feat: 🔄️ [GITBOOK-5] improve changelog
+
+### 👉 Shopfoo
+
+* \[Dec 22, 2025] feat: ✨ add commits.html for the GitHub page to embed in the Status page
+* \[Dec 22, 2025] chore: ⚙️ install FontAwesome 6
+* \[Dec 20, 2025] chore(ci):  🏗️ fix Azure auth
+* \[Dec 20, 2025] Add or update the Azure App Service build and deployment workflow config
+* \[Dec 20, 2025] chore(ci):  🏗️ force_deploy w/o semantic release
+<!-- CHANGELOG:END -->
