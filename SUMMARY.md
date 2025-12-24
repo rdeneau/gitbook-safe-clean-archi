@@ -14,11 +14,12 @@
 
 ## Front-end
 
-* [Elmish🚧](front-end/elmish.md)
+* [Elmish🚧](front-end/elmish/README.md)
+  * [Data flow 🚧](front-end/elmish/data-flow.md)
 * [Navigation 🚧](front-end/navigation.md)
 * [Remoting 🚧](front-end/remoting.md)
-* [Tests 🚧](front-end/tests.md)
 * [Translations 🚧](front-end/translations.md)
+* [Tests 🚧](front-end/tests.md)
 
 ## Appendices
 
