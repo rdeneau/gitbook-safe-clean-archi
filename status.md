@@ -18,6 +18,7 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 
 ### 📖 GitBook
 
+* \[Dec 24, 2025] feat: 🔄️ [GITBOOK-7] add "Elmish > Data flow" (draft)
 * \[Dec 23, 2025] refactor(ChangelogGen): ♻️ include hint, increase limit (5->10)
 * \[Dec 23, 2025] refactor: ♻️ migrate to ChangelogGenerator.fsproj
 * \[Dec 23, 2025] feat: 🔄️ [GITBOOK-6] ChangelogWip
@@ -27,7 +28,6 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 * \[Dec 22, 2025] feat: ✨ link from status to changelog
 * \[Dec 22, 2025] refactor: ♻️ switch a single independent page "changelog.md" (as include is not available for my free plan)
 * \[Dec 22, 2025] docs: 📝 update last-commits-xxx.md [skip ci]
-* \[Dec 22, 2025] feat: ✨ include last commits in status page
 
 ### 👉 Shopfoo
 
