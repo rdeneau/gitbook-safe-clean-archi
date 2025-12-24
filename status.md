@@ -31,14 +31,14 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 
 ### 👉 Shopfoo
 
-* \[Dec 22, 2025] feat: ✨ add commits.html for the GitHub page to embed in the Status page
-* \[Dec 22, 2025] chore: ⚙️ install FontAwesome 6
-* \[Dec 20, 2025] chore(ci):  🏗️ fix Azure auth
-* \[Dec 20, 2025] Add or update the Azure App Service build and deployment workflow config
-* \[Dec 20, 2025] chore(ci):  🏗️ force_deploy w/o semantic release
-* \[Dec 20, 2025] chore: 🏷️ release 1.0.0 [skip ci]
-* \[Dec 20, 2025] fix(ci):  🏗️ fix update-release-date
-* \[Dec 20, 2025] feat(about): ✨ add badges with package info
-* \[Dec 20, 2025] chore(ci): 🏗️ add semantic release
-* \[Dec 20, 2025] chore: 👷 update main_shopfoo.yml: add node, yarn; fix commands
+* \[Dec 24, 2025] chore: 🏷️ release 1.1.0 [skip ci]
+* \[Dec 24, 2025] docs: 🖼️ add version badge in the README.md
+* \[Dec 24, 2025] feat: 🖼️ improve product image rendering when broken or sold-out
+* \[Dec 24, 2025] feat: 🖼️ display a "sold-out" ribbon on the product image
+* \[Dec 24, 2025] feat: 🖼️ handle broken image url (at the UI level only)
+* \[Dec 24, 2025] feat: ✨ implement "define list/retail price" using ManagePriceFrom (previously ModifyPrice)
+* \[Dec 24, 2025] feat: ✨ implement "mark as sold-out" (missing checking stock = 0)
+* \[Dec 23, 2025] docs: 📝 update README.md / features: done, new
+* \[Dec 24, 2025] todo(ModifyPrice): 🚧 save button, use icon
+* \[Dec 24, 2025] feat: ✨ implement "remove list price"
 <!-- CHANGELOG:END -->
