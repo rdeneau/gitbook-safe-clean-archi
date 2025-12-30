@@ -128,7 +128,7 @@ let myWorkflow () : Effect<Reader Config, State AppState, Error> =
 
 ## What's Next
 
-Since F# doesn't have native algebraic effect support, we'll need to implement the pattern ourselves using F#'s generics and object-oriented capabilities. Our main source of inspiration will be Brian Berns' [AlgEff](https://github.com/brianberns/AlgEff) repository, which is very comprehensive, with lots of programming tips, but also with programming elements to avoid, such as class inheritance and interdependent types (instead of types declared top-down, the regular order in F#), and also too complex for our needs.
+Since F# doesn't have native algebraic effect support, we'll need to implement the pattern ourselves using F#'s generics and object-oriented capabilities.
 
 In the following sections, we'll see how to:
 
