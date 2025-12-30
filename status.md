@@ -16,6 +16,7 @@ icon: location-check
 
 ## Changelog
 
+<!-- CHANGELOG:START -->
 {% hint style="info" %}
 This section is auto-generated from a GitHub action. It displays the last 10 commits of both repositories.
 {% endhint %}
@@ -45,3 +46,4 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 * \[Dec 29, 2025] tidy: 🧹 remove docs, as GitHub pages are deactivated
 * \[Dec 29, 2025] chore(ci): fix release.yml: use boolean
 * \[Dec 24, 2025] chore: 🏷️ release 1.1.0 \[skip ci]
+<!-- CHANGELOG:END -->
