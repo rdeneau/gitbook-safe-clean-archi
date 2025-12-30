@@ -18,6 +18,7 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 
 ### 📖 GitBook
 
+* \[Dec 30, 2025] feat: 🔄️ [GITBOOK-8] add plan for domain workflows
 * \[Dec 24, 2025] feat: 🔄️ [GITBOOK-7] add "Elmish > Data flow" (draft)
 * \[Dec 23, 2025] refactor(ChangelogGen): ♻️ include hint, increase limit (5->10)
 * \[Dec 23, 2025] refactor: ♻️ migrate to ChangelogGenerator.fsproj
@@ -27,18 +28,17 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 * \[Dec 22, 2025] feat: ✨ include changelog.md in the TOC
 * \[Dec 22, 2025] feat: ✨ link from status to changelog
 * \[Dec 22, 2025] refactor: ♻️ switch a single independent page "changelog.md" (as include is not available for my free plan)
-* \[Dec 22, 2025] docs: 📝 update last-commits-xxx.md [skip ci]
 
 ### 👉 Shopfoo
 
+* \[Dec 29, 2025] tidy: 📐 adjust fantomas settings
+* \[Dec 29, 2025] feat: ✨ adjust stock after inventory
+* \[Dec 29, 2025] feat: ✨ fetch stock ; verifyZeroStock in MarkAsSoldOut workflow
+* \[Dec 29, 2025] refactor: ♻️ make workflows singleton with Instance static value
+* \[Dec 29, 2025] refactor: ♻️ simplify Instructions with Program.effect helper
+* \[Dec 29, 2025] refactor: ♻️ expose Client.repository in both Sales and Warehouse Data sources
+* \[Dec 29, 2025] tidy: 📐 fantomas
+* \[Dec 29, 2025] tidy: 🧹 remove docs, as GitHub pages are deactivated
+* \[Dec 29, 2025] chore(ci): fix release.yml: use boolean
 * \[Dec 24, 2025] chore: 🏷️ release 1.1.0 [skip ci]
-* \[Dec 24, 2025] docs: 🖼️ add version badge in the README.md
-* \[Dec 24, 2025] feat: 🖼️ improve product image rendering when broken or sold-out
-* \[Dec 24, 2025] feat: 🖼️ display a "sold-out" ribbon on the product image
-* \[Dec 24, 2025] feat: 🖼️ handle broken image url (at the UI level only)
-* \[Dec 24, 2025] feat: ✨ implement "define list/retail price" using ManagePriceFrom (previously ModifyPrice)
-* \[Dec 24, 2025] feat: ✨ implement "mark as sold-out" (missing checking stock = 0)
-* \[Dec 23, 2025] docs: 📝 update README.md / features: done, new
-* \[Dec 24, 2025] todo(ModifyPrice): 🚧 save button, use icon
-* \[Dec 24, 2025] feat: ✨ implement "remove list price"
 <!-- CHANGELOG:END -->

@@ -10,11 +10,18 @@
 
 ## Domain workflows
 
-* [TODO 🚧](domain-workflows/todo.md)
+* [Introduction 🚧](domain-workflows/todo/README.md)
+  * [Dependency Injection 🚧](domain-workflows/todo/dependency-injection.md)
+  * [Dependency Interpretation 🚧](domain-workflows/todo/dependency-interpretation.md)
+  * [Free Monad 🚧](domain-workflows/todo/free-monad.md)
+  * [Algebraic Effects 🚧](domain-workflows/todo/algebraic-effects.md)
+* [Effectful Program 🚧](domain-workflows/effectful-program.md)
+* [Domain Workflow 🚧](domain-workflows/domain-workflow.md)
 
 ## Front-end
 
 * [Elmish🚧](front-end/elmish/README.md)
+  * [Introduction 🚧](front-end/elmish/introduction.md)
   * [Data flow 🚧](front-end/elmish/data-flow.md)
 * [Navigation 🚧](front-end/navigation.md)
 * [Remoting 🚧](front-end/remoting.md)
