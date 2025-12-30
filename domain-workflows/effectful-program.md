@@ -4,11 +4,11 @@ icon: brackets-curly
 
 # Effectful Program
 
-This page describes the `Program` V3 implementation inspired by algebraic effects, providing a flexible and type-safe way to handle effectful computations in F#.
+This page describes the `Program` V3 implementation, inspired by algebraic effects, which provides a flexible and type-safe approach to handling effectful computations in F#.
 
 ## Implementation Context
 
-This version of the `Program` is inspired by algebraic effects implementations in F#. While F# doesn't have native algebraic effects support, we can leverage **generics** and **object-oriented** capabilities to achieve similar benefits.
+This version of `Program` draws inspiration from algebraic effects implementations in F#. While F# lacks native algebraic effects support, we leverage **generics** and **object-oriented** capabilities to achieve similar benefits.
 
 ### F# Algebraic Effects Libraries
 
@@ -16,54 +16,54 @@ Two notable libraries explore algebraic effects, using **generics** and **object
 
 #### Nick Palladinos' [Eff](https://github.com/palladin/Eff) (2017)
 
-- Hard to use, due to the lack of documentation
-- Even harder to understand the implementation
-- Pioneering work but not practical for production
+- Difficult to use due to lack of documentation
+- Implementation is challenging to understand
+- Pioneering work, but not practical for production use
 
 #### Brian Berns' [AlgEff](https://github.com/brianberns/AlgEff) (2020)
 
 - 👍 Benefits
-  - Less hard to understand and use than the *Eff* repository
-  - Based on the free monad, like our `program` V2
-  - Very comprehensive, with lots of programming tips
-- 🛑 Limits
-  - Overkill and too complex for our needs: not a full algebraic effects library, but just an improved `program`
-  - Based on class inheritance, programming element to avoid
-  - Types defined with `and`, breaking the top-down regular order in F#
+  - Easier to understand and use than the *Eff* library
+  - Based on the free monad, similarly to our `program` V2
+  - Comprehensive with numerous programming tips
+- 🛑 Limitations
+  - Overly complex for our needs: not a full algebraic effects library, but an improved `program` implementation
+  - Relies on class inheritance, which we prefer to avoid
+  - Uses `and` for type definitions, breaking F#'s conventional top-down declaration order
 
-👉 This will be the main source.
+👉 This serves as our primary reference.
 
 ## Program V3 Design Guidelines
 
-Algebraic effects can be implemented in F# only with generics and object-oriented features, but the implementation should strive to **combine simplicity and type safety**.
+Algebraic effects in F# can only be implemented using generics and object-oriented features, but the implementation should **balance simplicity with type safety**.
 
 ### Generics Philosophy
 
-**Generics** can be tricky, especially with constraints and many type parameters.
+**Generics** can become complex, especially when dealing with constraints and multiple type parameters.
 
 {% hint style="info" %}
-Here, **simplicity trumps type safety**. We prefer clearer code over overly complex generic constraints.
+In this implementation, **simplicity takes precedence over type safety**. We favor clearer, more maintainable code over more complex generic constraints.
 {% endhint %}
 
 ### Design Principles
 
-**Interfaces** are the key to abstracting instructions and achieving a truly generic program. We can still recover exhaustiveness checking for supported instructions by downcasting from the generic interface to the union type implementing it. This is a technique found in the *AlgEff* library.
+**Interfaces** are essential for abstracting instructions and achieving a truly generic program. We can maintain exhaustiveness checking for supported instructions by downcasting from the generic interface to the implementing union type—a technique borrowed from the *AlgEff* library.
 
-**Interfaces** are the cornerstone of robust object-oriented design. First, interface inheritance is safe, unlike class hierarchies. Second, we can apply the **Interface Segregation Principle** (ISP): prefer short, highly cohesive interfaces, focused on calling code needs, over larger and less focused ones. This is the OO design closest to FP design, as an interface with a single method is essentially a named type wrapping a function. For generics, ISP can be applied to favor decomposing `I<T, U>` into `I1<T>` and `I2<U>` when it makes sense.
+**Interfaces** form the cornerstone of robust object-oriented design. First, interface inheritance is safer than class hierarchies. Second, we apply the **Interface Segregation Principle** (ISP): favor short, highly cohesive interfaces focused on caller needs over larger, less focused ones. This OO approach closely resembles FP design, since a single-method interface is essentially a named type wrapping a function. For generics, ISP encourages decomposing `I<T, U>` into `I1<T>` and `I2<U>` when appropriate.
 
-**Type aliases** are the second key building block, used to simplify how you define instructions with respect to generic type parameters, without resorting to class inheritance.
+**Type aliases** serve as the second key building block, simplifying instruction definitions with respect to generic type parameters without relying on class inheritance.
 
 ## Core Components
 
-This version is composed of more components than previous versions. Each component is the **simplest possible**, designed to do one thing only, making it easier to understand. The difficulty is getting the full picture of how it all works together.
+This version comprises more components than previous versions. Each component is **as simple as possible**, designed with a single responsibility to enhance understanding. The challenge lies in grasping how all components work together.
 
-Whenever possible, related components are located near each other, declared top-down to follow the regular order in F#.
+Whenever possible, related components are co-located and declared top-down, following F#'s conventional order.
 
-### Shopfoo.Effects
+### Shopfoo code
 
-The "V3" `program` is located in the [`Shopfoo.Effects` project](https://github.com/rdeneau/shopfoo/tree/main/src/Shopfoo.Effects).
+The V3 `program` implementation resides in the [`Shopfoo.Effects` project](https://github.com/rdeneau/shopfoo/tree/main/src/Shopfoo.Effects).
 
-Here a simplified view at the solution level:
+Here's a simplified view of the solution structure:
 
 ```txt
 📂 src/
@@ -85,7 +85,7 @@ Here a simplified view at the solution level:
 
 ### Program Type: Open to Any Effect
 
-This version of the `Program` is a free monad variation handling any effect that is a functor by implementing the `IProgramEffect<'a>` generic interface:
+This version of `Program` is a free monad variant that handles any effect implementing the `IProgramEffect<'a>` generic interface as a functor:
 
 ```fsharp
 // Identify an effect that can be inserted in a program.
@@ -104,11 +104,11 @@ type Program<'ret> =
 
 **Key points:**
 
-- `IProgramEffect<'a>` is an interface that any effect must implement.
-- The `Map` method makes effects functorial – see [functor laws](https://dev.to/rdeneau/functional-patterns-for-f-computation-expressions-46c7#functor).
-- `Program<'ret>` has two cases:
-  - `Stop` for the terminal case with the returned value
-  - `Effect` for one step containing an effect
+- `IProgramEffect<'a>`: Interface that all effects must implement
+- `Map` method: Makes effects functorial (see [functor laws](https://dev.to/rdeneau/functional-patterns-for-f-computation-expressions-46c7#functor))
+- `Program<'ret>` cases:
+  - `Stop`: Terminal case containing the returned value
+  - `Effect`: Single program step containing an effect
 
 ### Program Computation Expression
 
@@ -130,6 +130,10 @@ module ProgramBuilder =
 
     let program = ProgramBuilder()
 ```
+
+{% hint style="info" %}
+The `Program.fs` file in the *Shopfoo* application ([source code](https://github.com/rdeneau/shopfoo/blob/96d8eb77072ec60ab2989fec96a2fa86b1867b34/src/Shopfoo.Effects/Program.fs)) contains additional elements to facilitate `program` composition. These will be explored when analyzing characteristic workflows.
+{% endhint %}
 
 ### Effect Holding Instructions
 
@@ -160,14 +164,18 @@ type Instruction<'arg, 'ret, 'a>(name: string, arg: 'arg, cont: 'ret -> 'a) =
 
 **Properties and methods:**
 
-- `Name`: Informative, usable for logging or debugging
+- `Name`: Descriptive label useful for logging and debugging
 - `arg`: Private argument(s) for this instruction
-- `cont`: Continuation function, passing the result to the next instruction
-- `Map`: Functor `map` operation—chains the continuation with the given function
-- `Run`: Calls the `runner: 'arg -> 'ret` to get the result (see the `ret` value) and continues with it
+- `cont`: Continuation function that passes results to the next instruction
+- `Map`: Functor `map` operation that chains the continuation with a given function
+- `Run`: Invokes `runner: 'arg -> 'ret` to obtain the result (`ret` value) and continues execution
 
 {% hint style="info" %}
-In the *Shopfoo* repository, the `Instruction` includes also a `RunAsync` method to support asynchronous scenarii – see [Prelude.fs#L84](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Effects/Prelude.fs#L84).
+The *Shopfoo* repository's `Instruction` also includes a `RunAsync` method for asynchronous scenarios—see [Prelude.fs#L84](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Effects/Prelude.fs#L84).
+{% endhint %}
+
+{% hint style="warning" %}
+The signature of `Map` is not strict: a true `map` must preserve the type of the functor; only the type parameter (corresponding to the content of the functor) is mapped. This constraint cannot be written in F#, whereas it is possible in C#, except that it would make the code much more cumbersome. We must therefore accept this and be careful when implementing the method in order to comply with the definition of the functor.
 {% endhint %}
 
 ### Commands and Queries
@@ -193,10 +201,10 @@ type QueryFailable<'arg, 'ret, 'a> = Instruction<'arg, Result<'ret, Error>, 'a>
 
 ### Workflows
 
-A domain workflow will be implemented as a class placed in its own file. This practice, which is common in C#, is not at all common in F#. Here, it offers the following benefits:
+Each domain workflow is implemented as a class in its own file. While uncommon in F#, this practice (standard in C#) provides the following benefits:
 
-- The file tree displays the list of workflows supported by the domain. This brings us closer to "Screaming Architecture."
-- The class implementing a workflow should implement a marker interface that identifies the domain. This way, the program interpreter—which we will discuss in more detail shortly—will be dedicated to that domain and will be able to deduce the list of supported instructions.
+- The file tree reveals the workflows supported by each domain, approaching "Screaming Architecture".
+- Each workflow class implements a marker interface identifying its domain, enabling the program interpreter (discussed below) to remain domain-specific and infer the list of supported instructions.
 
 Let's analyze the interfaces that support this principle:
 
@@ -214,26 +222,25 @@ type IProgramWorkflow<'arg, 'ret> =
     abstract member Run: 'arg -> Program<Result<'ret, Error>>
 ```
 
-The design is structured around three interfaces:
+The design relies on three interfaces:
 
-- `IDomain` is almost a marker interface, requiring to implement the domain `Name`, mainly for observability purposes. For each, we will create a dedicated type, typically a single-case union `type MyDomain = MyDomain`, implementing `IDomain`—more details to come.
-- The two other interfaces—`IDomainWorkflow<'dom>` and `IProgramWorkflow<'arg, 'ret>`—must be implemented by each domain workflow. They have been split in two to follow the *Interface Segregation Principles*, as explained in the design guidelines above.
-  - `IDomainWorkflow<'dom>` is also a kind of marker interface, indicating the underlying `Domain`.
-  - `IProgramWorkflow<'arg, 'ret>` introduces the `Run` method to implement by each workflow, using the `program` computation expression—hence the return type: `Program<Result<'ret, Error>>`.
+- `IDomain`: Nearly a marker interface, requiring implementation of the domain `Name` property primarily for observability. We create a dedicated type for each domain, typically a single-case union like `type MyDomain = MyDomain`, implementing `IDomain` (details follow).
+- `IDomainWorkflow<'dom>` and `IProgramWorkflow<'arg, 'ret>`: Both must be implemented by each domain workflow. They're separated to follow the *Interface Segregation Principle*, as described in the design guidelines.
+  - `IDomainWorkflow<'dom>`: Another marker interface indicating the underlying `Domain`
+  - `IProgramWorkflow<'arg, 'ret>`: Introduces the `Run` method that each workflow must implement using the `program` computation expression, resulting in the return type `Program<Result<'ret, Error>>`
 
 {% hint style="info" %}
 #### Note
 
-In this design, there is a single type—`Error`—for the entire solution. To get separated error types by domain, you can replace the `Result` type by following the [Fault Report pattern](https://paul.blasuc.ci/posts/fault-report.html), another nice F# design mixing FP and OOP described by Paul Blasucci.
-
+This design uses a single `Error` type across the entire solution. To achieve domain-specific error types, consider replacing `Result` with the [Fault Report pattern](https://paul.blasuc.ci/posts/fault-report.html), an elegant F# design combining FP and OOP principles, described by Paul Blasucci.
 {% endhint %}
 
 ### Interpreter
 
-The `Interpreter` is a sealed class, with a single instance per domain. Although using a regular F# module would have been possible, this class-based design offers the following advantages:
+The `Interpreter` is a sealed class with a single instance per domain. While an F# module could have been used, the class-based design provides these advantages:
 
-- A class fits nicely with the *Safe Clean Architecture* and its usage of *Dependency Injection*, especially when you need more dependencies like a logger.
-- This "closure" over a domain would not be possible with a design based on an F# module.
+- Better alignment with *Safe Clean Architecture* and *Dependency Injection*, particularly when additional dependencies (e.g., loggers) are required
+- Domain-specific "closure" behavior that wouldn't be achievable with an F# module
 
 Let's review the code:
 
@@ -280,30 +287,30 @@ type Interpreter<'dom when 'dom :> IDomain>(domain: 'dom) =
             }
 ```
 
-The `Interpreter` class provides two kind of methods, depending on what to interpret:
+The `Interpreter` class provides two categories of methods based on what's being interpreted:
 
-- The `Command`, `Query`, and `QueryFailable` methods are used to interpret a single instruction. Their main purpose is to allow to differentiate the type of instruction, their name reproducing the related type alias. Looking at the implementation, they are basically shortcuts to call the `RunAsync` of the given instruction.
-- The `Workflow` method interprets a whole workflow from the current domain. It is defined in two steps:
-  1. A recursive inner function that gives the workflow program return value, eventually looping through the program instruction by instruction, running the related asynchronous effect using the given `runEffect` parameter provided by the domain project.
-  2. A returned lambda that runs the given `workflow` to build the related `program` to interpret asynchronously using the `loop` inner function, catching an eventual exception and wrapping it in a `Result.Error` containing the `Bug` case of the `Error` union type – see [bug helper function](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Domain.Types/Errors.fs#L148).
+- **Single instruction methods** (`Command`, `Query`, `QueryFailable`): These interpret individual instructions. Their primary purpose is type differentiation, with names mirroring their corresponding type aliases. They're essentially convenient wrappers that invoke `RunAsync` on the given instruction.
+- **Workflow method**: Interprets an entire workflow from the current domain, implemented in two steps:
+  1. A recursive inner function returning the workflow program's result, iterating through instructions one by one and executing the associated asynchronous effect via the `runEffect` parameter provided by the domain project
+  2. A returned lambda that executes the given `workflow` to construct the `program`, which is then interpreted asynchronously using the `loop` inner function. Any exceptions are caught and wrapped in a `Result.Error` containing the `Bug` case of the `Error` union type (see [bug helper function](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Domain.Types/Errors.fs#L148))
 
 {% hint style="info" %}
-In the *Shopfoo* repository, the actual `Interpreter` includes other elements related to observability, not indicated here for brevity sakes – see [Interpreter.fs#L23](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Effects/Interpreter.fs#L23).
+The *Shopfoo* repository's `Interpreter` includes additional observability features omitted here for brevity—see [Interpreter.fs#L23](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Effects/Interpreter.fs#L23).
 {% endhint %}
 
 ## Conclusion
 
-The V3 `program` brings the following benefits, compared to the V2:
+The V3 `program` provides significant improvements over V2:
 
 - **Type Safety**
-  - Effects are strongly typed through interfaces
+  - Effects are strongly typed via interfaces
   - Commands and queries are distinguished at the type level
 - **Flexibility**
-  - Open to any effect implementing `IProgramEffect<'a>`
-  - Domain-specific effects can be created in isolation, without modifying core code
+  - Supports any effect implementing `IProgramEffect<'a>`
+  - Domain-specific effects can be developed in isolation without modifying core code
 - **Simplicity**
-  - Each component has a single responsibility
-  - Type aliases reduce boilerplate
-  - Regular top-down declaration order
+  - Single-responsibility components
+  - Type aliases minimize boilerplate
+  - Conventional top-down declaration order
 
-It's time to put this mini-library into practice by implementing domain workflows. If parts of the V3 `program` still seem confusing, this should help clarify things.
+Applying this framework to domain workflow implementation will further clarify any remaining aspects of the V3 `program`.

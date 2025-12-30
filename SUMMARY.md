@@ -16,8 +16,8 @@
   * [Dependency Interpretation](domain-workflows/intro/2-dependency-interpretation.md)
   * [Free Monad](domain-workflows/intro/3-free-monad.md)
   * [Algebraic Effects](domain-workflows/intro/4-algebraic-effects.md)
-* [Effectful Program 🚧](domain-workflows/effectful-program.md)
-* [Domain Workflow 🚧](domain-workflows/domain-workflow.md)
+* [Effectful Program](domain-workflows/effectful-program.md)
+* [Domain Workflow](domain-workflows/domain-workflow.md)
 
 ## Front-end
 

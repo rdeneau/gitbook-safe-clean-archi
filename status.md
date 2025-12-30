@@ -23,6 +23,7 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 
 ### 📖 GitBook
 
+* \[Dec 30, 2025] feat: ✨ complete "Domain Workflows"
 * \[Dec 30, 2025] feat: 🔄️ [GITBOOK-10] add the audience page
 * \[Dec 30, 2025] feat: ✨ write effectful-program
 * \[Dec 30, 2025] fix(status): 🐛 restore changelog markers
@@ -32,11 +33,12 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 * \[Dec 30, 2025] feat(status): ✨ include Shopfoo version
 * \[Dec 30, 2025] feat: 🔄️ [GITBOOK-8] add plan for domain workflows
 * \[Dec 24, 2025] feat: 🔄️ [GITBOOK-7] add "Elmish > Data flow" (draft)
-* \[Dec 23, 2025] refactor(ChangelogGen): ♻️ include hint, increase limit (5->10)
 
 ### 👉 Shopfoo ![GitHub Release](https://img.shields.io/github/v/release/rdeneau/shopfoo?label=VERSION)
 
-* \[Dec 30, 2025] feat(Effects): 👔 improve Interprete
+* \[Dec 30, 2025] tidy: 📐 improve code for Product workflows
+* \[Dec 30, 2025] refactor: ♻️ remove AdjustStock workflow, as we can delegate directly to the Data layer
+* \[Dec 30, 2025] feat(Effects): 👔 improve Interpreter
 * \[Dec 30, 2025] chore: 🏷️ release 1.2.0 [skip ci]
 * \[Dec 29, 2025] tidy: 📐 adjust fantomas settings
 * \[Dec 29, 2025] feat: ✨ adjust stock after inventory
@@ -44,6 +46,4 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 * \[Dec 29, 2025] refactor: ♻️ make workflows singleton with Instance static value
 * \[Dec 29, 2025] refactor: ♻️ simplify Instructions with Program.effect helper
 * \[Dec 29, 2025] refactor: ♻️ expose Client.repository in both Sales and Warehouse Data sources
-* \[Dec 29, 2025] tidy: 📐 fantomas
-* \[Dec 29, 2025] tidy: 🧹 remove docs, as GitHub pages are deactivated
 <!-- CHANGELOG:END -->
