@@ -13,4 +13,3 @@ The only pieces missing to be production-ready are those that would prevent me f
 {% hint style="warning" %}
 Use the [status.md](status.md "mention") page to check the progress of the book and the companion app.
 {% endhint %}
-
