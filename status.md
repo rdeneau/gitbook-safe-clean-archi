@@ -23,19 +23,21 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 
 ### 📖 GitBook
 
+* \[Dec 30, 2025] feat: ✨ write effectful-program
+* \[Dec 30, 2025] fix(status): 🐛 restore changelog markers
+* \[Dec 30, 2025] feat: 🔄️ [GITBOOK-9] finalize domain workflows intro
 * \[Dec 30, 2025] feat: ✨ write domain workflows intro
 * \[Dec 30, 2025] refactor: ♻️ fix domain workflows intro folder
 * \[Dec 30, 2025] feat(status): ✨ include Shopfoo version
-* \[Dec 30, 2025] feat: 🔄️ \[GITBOOK-8] add plan for domain workflows
-* \[Dec 24, 2025] feat: 🔄️ \[GITBOOK-7] add "Elmish > Data flow" (draft)
+* \[Dec 30, 2025] feat: 🔄️ [GITBOOK-8] add plan for domain workflows
+* \[Dec 24, 2025] feat: 🔄️ [GITBOOK-7] add "Elmish > Data flow" (draft)
 * \[Dec 23, 2025] refactor(ChangelogGen): ♻️ include hint, increase limit (5->10)
 * \[Dec 23, 2025] refactor: ♻️ migrate to ChangelogGenerator.fsproj
-* \[Dec 23, 2025] feat: 🔄️ \[GITBOOK-6] ChangelogWip
-* \[Dec 22, 2025] fix: 🐛 update-changelog.yml
-* \[Dec 22, 2025] feat: 🔄️ \[GITBOOK-5] improve changelog
 
 ### 👉 Shopfoo ![GitHub Release](https://img.shields.io/github/v/release/rdeneau/shopfoo?label=VERSION)
 
+* \[Dec 30, 2025] feat(Effects): 👔 improve Interpreter to accept workflows only from the current domain
+* \[Dec 30, 2025] chore: 🏷️ release 1.2.0 [skip ci]
 * \[Dec 29, 2025] tidy: 📐 adjust fantomas settings
 * \[Dec 29, 2025] feat: ✨ adjust stock after inventory
 * \[Dec 29, 2025] feat: ✨ fetch stock ; verifyZeroStock in MarkAsSoldOut workflow
@@ -44,6 +46,4 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 * \[Dec 29, 2025] refactor: ♻️ expose Client.repository in both Sales and Warehouse Data sources
 * \[Dec 29, 2025] tidy: 📐 fantomas
 * \[Dec 29, 2025] tidy: 🧹 remove docs, as GitHub pages are deactivated
-* \[Dec 29, 2025] chore(ci): fix release.yml: use boolean
-* \[Dec 24, 2025] chore: 🏷️ release 1.1.0 \[skip ci]
 <!-- CHANGELOG:END -->
