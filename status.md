@@ -29,7 +29,7 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 * \[Dec 22, 2025] feat: ✨ link from status to changelog
 * \[Dec 22, 2025] refactor: ♻️ switch a single independent page "changelog.md" (as include is not available for my free plan)
 
-### 👉 Shopfoo
+### 👉 Shopfoo ![GitHub Release](https://img.shields.io/github/v/release/rdeneau/shopfoo?label=VERSION)
 
 * \[Dec 29, 2025] tidy: 📐 adjust fantomas settings
 * \[Dec 29, 2025] feat: ✨ adjust stock after inventory

@@ -8,15 +8,17 @@ type CommitAuthor = { date: DateTime; email: string; name: string }
 type Commit = { message: string; author: CommitAuthor }
 type CommitEnvelope = { commit: Commit }
 
+type Repository = { token: string; owner: string; name: string; limit: int }
+
 let [<Literal>] ChangelogStartMarker = "<!-- CHANGELOG:START -->"
 let [<Literal>] ChangelogEndMarker = "<!-- CHANGELOG:END -->"
 let [<Literal>] Limit = 10
 
-let fetchCommits ghToken owner repo limit =
+let fetchCommits (repo: Repository) =
     http {
-        GET $"https://api.github.com/repos/%s{owner}/%s{repo}/commits?per_page=%i{limit}"
-        Authorization $"token %s{ghToken}"
-        UserAgent $"%s{owner}-%s{repo}-ChangelogGenerator"
+        GET $"https://api.github.com/repos/%s{repo.owner}/%s{repo.name}/commits?per_page=%i{repo.limit}"
+        Authorization $"token %s{repo.token}"
+        UserAgent $"%s{repo.owner}-%s{repo.name}-ChangelogGenerator"
         Accept "application/vnd.github.v3+json"
     }
     |> Request.send
@@ -33,16 +35,16 @@ let formatCommit (commit: Commit) =
     if message |> isUpdateStatusMdCommitMessage then ""
     else $"* \\[{date}] {message}"
 
-let changelogSection ghToken title owner repo limit =
+let changelogSection repo title =
     let commits =
-        fetchCommits ghToken owner repo limit
+        fetchCommits repo
         |> Seq.map _.commit
         |> Seq.map formatCommit
         |> Seq.filter (fun s -> s <> "")
         |> Seq.truncate Limit
 
     [
-        $"### {title}"
+        $"### %s{title}"
         ""
         yield! commits
     ]
@@ -60,8 +62,16 @@ let updateChangelogFile ghToken =
     let statusFilePath = Path.Combine(__SOURCE_DIRECTORY__, "..", "..", "status.md")
     let statusContent = File.ReadAllText(statusFilePath)
 
-    let gitbookChangelog = changelogSection ghToken "📖 GitBook" "rdeneau" "gitbook-safe-clean-archi" (2 * Limit)
-    let shopfooChangelog = changelogSection ghToken "👉 Shopfoo" "rdeneau" "shopfoo" Limit
+    let repo name limit =
+        { token = ghToken; owner = "rdeneau"; name = name; limit = limit }
+
+    let gitbookChangelog =
+        "📖 GitBook"
+        |> changelogSection (repo "gitbook-safe-clean-archi" (2 * Limit))
+
+    let shopfooChangelog =
+        "👉 Shopfoo ![GitHub Release](https://img.shields.io/github/v/release/rdeneau/shopfoo?label=VERSION)"
+        |> changelogSection (repo "shopfoo" Limit)
 
     let newChangelog =
         [
