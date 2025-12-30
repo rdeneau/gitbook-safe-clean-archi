@@ -14,21 +14,21 @@ In object-oriented programming, the building blocks are objects and classes. Whe
 
 This introduction presents four progressive solutions to the dependency problem:
 
-| Approach                                                        | Key Concept                                        | Main Benefit                                | Main Limitation                             |
-| --------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------- | ------------------------------------------- |
-| **[Dependency Injection](1-dependency-injection.md)**           | Pass dependencies as inputs                        | Widely adopted, simple                      | Async leak, runtime configuration           |
-| **[Dependency Interpretation](2-dependency-interpretation.md)** | Abstract dependencies as data (`Program` CE V1)    | Testability, separation of what/how         | Monolithic instruction type                 |
-| **[Free Monad](3-free-monad.md)**                               | Separate instructions by domain (`Program` CE V2)  | Better organization, domain isolation       | All domains still coupled in `Program` type |
-| **[Algebraic Effects](4-algebraic-effects.md)**                 | Effect handlers with type safety (`Program` CE V3) | Complete domain isolation, vertical slicing | More components, higher complexity          |
+| Approach                                                        | Version      | Key Concept                       | Main Benefit                                | Main Limitation                             |
+| --------------------------------------------------------------- | ------------ | --------------------------------- | ------------------------------------------- | ------------------------------------------- |
+| [**Dependency Injection**](1-dependency-injection.md)           | –            | Pass dependencies as inputs       | Widely adopted, simple                      | Async leak, runtime configuration           |
+| [**Dependency Interpretation**](2-dependency-interpretation.md) | `program` V1 | Abstract dependencies as data     | Testability, separation of what/how         | Monolithic instruction type                 |
+| [**Free Monad**](3-free-monad.md)                               | `program` V2 | Separate instructions by domain   | Better organization, domain isolation       | All domains still coupled in `Program` type |
+| [**Algebraic Effects**](4-algebraic-effects.md)                 | `program` V3 | Effect handlers with type safety  | Complete domain isolation, vertical slicing | More components, higher complexity          |
 
 ## Prerequisites
 
 To get the most out of this introduction, you should be familiar with F# basics:
 
-- Functional programming concepts: pure functions, side effects
-- Types: discriminated unions, records
-- Pattern matching
-- Computation expressions—at least `async`
+* Functional programming concepts: pure functions, side effects
+* Types: discriminated unions, records
+* Pattern matching
+* Computation expressions—at least `async`
 
 If not, you can consult my free e-book [F# Training](https://rdeneau.gitbook.io/fsharp-training/).
 
