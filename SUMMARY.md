@@ -10,11 +10,11 @@
 
 ## Domain workflows
 
-* [Introduction 🚧](domain-workflows/todo/README.md)
-  * [Dependency Injection 🚧](domain-workflows/todo/dependency-injection.md)
-  * [Dependency Interpretation 🚧](domain-workflows/todo/dependency-interpretation.md)
-  * [Free Monad 🚧](domain-workflows/todo/free-monad.md)
-  * [Algebraic Effects 🚧](domain-workflows/todo/algebraic-effects.md)
+* [Introduction 🚧](domain-workflows/intro/README.md)
+  * [Dependency Injection 🚧](domain-workflows/intro/1-dependency-injection.md)
+  * [Dependency Interpretation 🚧](domain-workflows/intro/2-dependency-interpretation.md)
+  * [Free Monad 🚧](domain-workflows/intro/3-free-monad.md)
+  * [Algebraic Effects 🚧](domain-workflows/intro/4-algebraic-effects.md)
 * [Effectful Program 🚧](domain-workflows/effectful-program.md)
 * [Domain Workflow 🚧](domain-workflows/domain-workflow.md)
 
