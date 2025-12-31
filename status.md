@@ -1,13 +1,14 @@
 ---
+description: Indicates the progress status of the book and its companion app, Shopfoo.
 icon: location-check
 ---
 
 # Status
 
-## 2025-12-30
+## 2025-12-31
 
-* Domain workflows: [intro](domain-workflows/intro/ "mention")
-* Shopfoo [version 1.2](https://github.com/rdeneau/shopfoo/releases/tag/v1.2.0)
+* Write [Broken link](/broken/pages/z3HBNOBV1sf5vt0bl6gy "mention")
+* Publish _Shopfoo_ [version 1.2](https://github.com/rdeneau/shopfoo/releases/tag/v1.2.0): complete any feature "under construction" (displayed with the 🚧 emoji). There are still some features to implement - see [README.md#features](https://github.com/rdeneau/shopfoo/tree/main#features)
 
 ## 2025-12-20
 
@@ -16,13 +17,15 @@ icon: location-check
 
 ## Changelog
 
-<!-- CHANGELOG:START -->
 {% hint style="info" %}
-This section is auto-generated from a GitHub action. It displays the last 10 commits of both repositories.
+This section is auto-generated. It displays the last 10 commits of both repositories.
 {% endhint %}
 
-### 📖 GitBook
+<details>
 
+<summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
+
+* \[Dec 31, 2025] feat: 🔄️ [GITBOOK-11] revamp Status Changelog: use Expandable  sections, more resilient to changes in GitBook
 * \[Dec 30, 2025] feat: ✨ complete "Domain Workflows"
 * \[Dec 30, 2025] feat: 🔄️ [GITBOOK-10] add the audience page
 * \[Dec 30, 2025] feat: ✨ write effectful-program
@@ -32,9 +35,12 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 * \[Dec 30, 2025] refactor: ♻️ fix domain workflows intro folder
 * \[Dec 30, 2025] feat(status): ✨ include Shopfoo version
 * \[Dec 30, 2025] feat: 🔄️ [GITBOOK-8] add plan for domain workflows
-* \[Dec 24, 2025] feat: 🔄️ [GITBOOK-7] add "Elmish > Data flow" (draft)
 
-### 👉 Shopfoo ![GitHub Release](https://img.shields.io/github/v/release/rdeneau/shopfoo?label=VERSION)
+</details>
+
+<details>
+
+<summary><i class="fa-tablet-screen">:tablet-screen:</i>  Shopfoo</summary>
 
 * \[Dec 30, 2025] tidy: 📐 improve code for Product workflows
 * \[Dec 30, 2025] refactor: ♻️ remove AdjustStock workflow, as we can delegate directly to the Data layer
@@ -46,4 +52,5 @@ This section is auto-generated from a GitHub action. It displays the last 10 com
 * \[Dec 29, 2025] refactor: ♻️ make workflows singleton with Instance static value
 * \[Dec 29, 2025] refactor: ♻️ simplify Instructions with Program.effect helper
 * \[Dec 29, 2025] refactor: ♻️ expose Client.repository in both Sales and Warehouse Data sources
-<!-- CHANGELOG:END -->
+
+</details>

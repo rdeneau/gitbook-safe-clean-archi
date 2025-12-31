@@ -10,8 +10,6 @@ type CommitEnvelope = { commit: Commit }
 
 type Repository = { token: string; owner: string; name: string; limit: int }
 
-let [<Literal>] ChangelogStartMarker = "<!-- CHANGELOG:START -->"
-let [<Literal>] ChangelogEndMarker = "<!-- CHANGELOG:END -->"
 let [<Literal>] Limit = 10
 
 let fetchCommits (repo: Repository) =
@@ -35,28 +33,44 @@ let formatCommit (commit: Commit) =
     if message |> isUpdateStatusMdCommitMessage then ""
     else $"* \\[{date}] {message}"
 
-let changelogSection repo title =
-    let commits =
-        fetchCommits repo
-        |> Seq.map _.commit
-        |> Seq.map formatCommit
-        |> Seq.filter (fun s -> s <> "")
-        |> Seq.truncate Limit
+let changelogLines (repo: Repository) =
+    fetchCommits repo
+    |> Seq.map _.commit
+    |> Seq.map formatCommit
+    |> Seq.filter (fun s -> s <> "")
+    |> Seq.truncate Limit
+    |> Seq.toList
 
-    [
-        $"### %s{title}"
-        ""
-        yield! commits
-    ]
-    |> String.concat "\n"
+let replaceExpandableSectionContent (sectionName: string) (newLines: string list) (statusContent: string) =
+    let tryFindIndexOf (substring: string) (startIndex: int) =
+        let index = statusContent.IndexOf(substring, startIndex, StringComparison.Ordinal)
+        if index < startIndex then None else Some index
 
-let hintInfo =
-    [
-        """{% hint style="info" %}"""
-        $"This section is auto-generated from a GitHub action. It displays the last %i{Limit} commits of both repositories."
-        "{% endhint %}"
-    ]
-    |> String.concat "\n"
+    let orFailWith errorMessage num =
+        match num with
+        | Some n -> n
+        | None -> failwith errorMessage
+
+    let sectionTitleEnd = $"%s{sectionName}</summary>"
+
+    let sectionTitleEndIndex =
+        tryFindIndexOf sectionTitleEnd 0
+        |> orFailWith $"Could not find section '%s{sectionName}' in status.md"
+
+    let contentStartIndex =
+        sectionTitleEndIndex + sectionTitleEnd.Length
+
+    let detailsEndIndex =
+        tryFindIndexOf "</details>" contentStartIndex
+        |> orFailWith $"Could not find </details> closing tag for section '%s{sectionName}'"
+
+    let replacementContent =
+        let content = newLines |> String.concat "\n"
+        if String.IsNullOrWhiteSpace(content) then "\n\n" else $"\n\n{content}\n\n"
+
+    let before = statusContent.Substring(0, contentStartIndex)
+    let after = statusContent.Substring(detailsEndIndex)
+    $"{before}{replacementContent}{after}"
 
 let updateChangelogFile ghToken =
     let statusFilePath = Path.Combine(__SOURCE_DIRECTORY__, "..", "..", "status.md")
@@ -65,31 +79,13 @@ let updateChangelogFile ghToken =
     let repo name limit =
         { token = ghToken; owner = "rdeneau"; name = name; limit = limit }
 
-    let gitbookChangelog =
-        "📖 GitBook"
-        |> changelogSection (repo "gitbook-safe-clean-archi" (2 * Limit))
-
-    let shopfooChangelog =
-        "👉 Shopfoo ![GitHub Release](https://img.shields.io/github/v/release/rdeneau/shopfoo?label=VERSION)"
-        |> changelogSection (repo "shopfoo" Limit)
-
-    let newChangelog =
-        [
-            hintInfo
-            ""
-            gitbookChangelog
-            ""
-            shopfooChangelog
-        ]
-        |> String.concat "\n"
-
-    let startIndex = statusContent.IndexOf(ChangelogStartMarker) + ChangelogStartMarker.Length
-    let endIndex = statusContent.IndexOf(ChangelogEndMarker)
+    let gitbookLines = changelogLines (repo "gitbook-safe-clean-archi" (2 * Limit)) // Fetch twice more commits for GitBook to compensate for filtered ones.
+    let shopfooLines = changelogLines (repo "shopfoo" Limit)
 
     let newStatusContent =
-        let before = statusContent.Substring(0, startIndex)
-        let after = statusContent.Substring(endIndex)
-        $"{before}\n{newChangelog}\n{after}"
+        statusContent
+        |> replaceExpandableSectionContent "GitBook" gitbookLines
+        |> replaceExpandableSectionContent "Shopfoo" shopfooLines
 
     File.WriteAllText(statusFilePath, newStatusContent)
 

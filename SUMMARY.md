@@ -2,8 +2,8 @@
 
 * [Welcome](README.md)
 * [Motivations](motivations.md)
-* [Status](status.md)
 * [Audience](audience.md)
+* [Status](status.md)
 
 ## Architecture
 
