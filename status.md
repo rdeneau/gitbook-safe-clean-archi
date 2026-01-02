@@ -25,6 +25,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Jan 02, 2026] feat: 🔄️ [GITBOOK-12] add "Domain Project" series
 * \[Dec 31, 2025] feat: 🔄️ [GITBOOK-11] revamp Status Changelog: use Expandable  sections, more resilient to changes in GitBook
 * \[Dec 30, 2025] feat: ✨ complete "Domain Workflows"
 * \[Dec 30, 2025] feat: 🔄️ [GITBOOK-10] add the audience page
@@ -34,7 +35,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Dec 30, 2025] feat: ✨ write domain workflows intro
 * \[Dec 30, 2025] refactor: ♻️ fix domain workflows intro folder
 * \[Dec 30, 2025] feat(status): ✨ include Shopfoo version
-* \[Dec 30, 2025] feat: 🔄️ [GITBOOK-8] add plan for domain workflows
 
 </details>
 
