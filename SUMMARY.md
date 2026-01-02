@@ -17,7 +17,13 @@
   * [Free Monad](domain-workflows/intro/3-free-monad.md)
   * [Algebraic Effects](domain-workflows/intro/4-algebraic-effects.md)
 * [Effectful Program](domain-workflows/effectful-program.md)
-* [Domain Workflow](domain-workflows/domain-workflow.md)
+* [Domain Project](domain-workflows/domain-workflow/README.md)
+  * [Instructions](domain-workflows/domain-workflow/instructions.md)
+  * [Workflows](domain-workflows/domain-workflow/workflows.md)
+  * [Data 🚧](domain-workflows/domain-workflow/data.md)
+  * [Api](domain-workflows/domain-workflow/api.md)
+  * [Conclusion](domain-workflows/domain-workflow/conclusion.md)
+* [Tests 🚧](domain-workflows/tests.md)
 
 ## Front-end
 
