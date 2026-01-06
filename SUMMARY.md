@@ -11,19 +11,19 @@
 
 ## Domain workflows
 
-* [Introduction](domain-workflows/intro/README.md)
-  * [Dependency Injection](domain-workflows/intro/1-dependency-injection.md)
-  * [Dependency Interpretation](domain-workflows/intro/2-dependency-interpretation.md)
-  * [Free Monad](domain-workflows/intro/3-free-monad.md)
-  * [Algebraic Effects](domain-workflows/intro/4-algebraic-effects.md)
-* [Effectful Program](domain-workflows/effectful-program.md)
-* [Domain Project](domain-workflows/domain-workflow/README.md)
-  * [Instructions](domain-workflows/domain-workflow/instructions.md)
-  * [Workflows](domain-workflows/domain-workflow/workflows.md)
-  * [Data 🚧](domain-workflows/domain-workflow/data.md)
-  * [Api](domain-workflows/domain-workflow/api.md)
-  * [Conclusion](domain-workflows/domain-workflow/conclusion.md)
-* [Tests 🚧](domain-workflows/tests.md)
+* [Introduction](domain-workflows/1-introduction/README.md)
+  * [Dependency Injection](domain-workflows/1-introduction/1-dependency-injection.md)
+  * [Dependency Interpretation](domain-workflows/1-introduction/2-dependency-interpretation.md)
+  * [Free Monad](domain-workflows/1-introduction/3-free-monad.md)
+  * [Algebraic Effects](domain-workflows/1-introduction/4-algebraic-effects.md)
+* [Effectful Program](domain-workflows/2-effectful-program/README.md)
+* [Domain Project](domain-workflows/3-domain-workflow/README.md)
+  * [Instructions](domain-workflows/3-domain-workflow/1-instructions.md)
+  * [Workflows](domain-workflows/3-domain-workflow/2-workflows.md)
+  * [Data 🚧](domain-workflows/3-domain-workflow/3-data.md)
+  * [Api](domain-workflows/3-domain-workflow/4-api.md)
+  * [Conclusion](domain-workflows/3-domain-workflow/5-conclusion.md)
+* [Tests 🚧](domain-workflows/4-tests/README.md)
 
 ## Front-end
 
