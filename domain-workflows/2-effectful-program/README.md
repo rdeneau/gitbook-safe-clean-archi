@@ -199,6 +199,10 @@ type QueryFailable<'arg, 'ret, 'a> = Instruction<'arg, Result<'ret, Error>, 'a>
 - **Queries:** Return `'ret option` (where `None` means not found)
 - **QueryFailable:** Return `Result<'ret, Error>` (for queries that can fail with errors)
 
+{% hint style="info" %}
+These aliases are simpler than the Free Monad V2 union case format `Instruction of Args * (Ret -> 'a)`. In V2, every instruction case must inline both its argument tuple and its continuation, repeating the `(Ret -> 'a)` pattern each time. Here, the continuation is encapsulated once inside `Instruction<'arg, 'ret, 'a>`, and the expected return type is encoded in the alias name itself. Adding a new instruction therefore reduces to choosing the right alias and supplying the two concrete types `'arg` and `'ret`, with the semantic intent (`Command`, `Query`, or `QueryFailable`) immediately visible at the call site.
+{% endhint %}
+
 ### Workflows
 
 Each domain workflow is implemented as a class in its own file. While uncommon in F#, this practice (standard in C#) provides the following benefits:
