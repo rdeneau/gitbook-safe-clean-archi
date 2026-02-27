@@ -25,6 +25,8 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Feb 27, 2026] feat: 👔 write domain-workflows/4-tests page
+* \[Feb 27, 2026] feat: 👔 complete "Domain Workflows" chapter, updated to describe the V4 program
 * \[Feb 27, 2026] feat: 👔 complete "Domain Workflows" chapter, updated to describe the V4 program
 * \[Feb 25, 2026] feat: 👔 indicate the pros of the instruction aliases in program V4
 * \[Jan 06, 2026] feat: 🖼️ show instructions diagram as SVG + mermaid code link
@@ -33,8 +35,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Dec 31, 2025] feat: 🔄️ [GITBOOK-11] revamp Status Changelog: use Expandable  sections, more resilient to changes in GitBook
 * \[Dec 30, 2025] feat: ✨ complete "Domain Workflows"
 * \[Dec 30, 2025] feat: 🔄️ [GITBOOK-10] add the audience page
-* \[Dec 30, 2025] feat: ✨ write effectful-program
-* \[Dec 30, 2025] fix(status): 🐛 restore changelog markers
 
 </details>
 
