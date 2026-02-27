@@ -126,21 +126,66 @@ let myWorkflow () : Effect<Reader Config, State AppState, Error> =
 | **Performance**         | Interpretation overhead | Native optimization possible |
 | **Extensibility**       | n² problem              | Open set of effects          |
 
+## V3 Implementation in F# (Historical)
+
+Since F# lacks native algebraic effects, the V3 `program` was an attempt to emulate them using generics and object-oriented features. This section is kept for historical reference, as V4 replaced this approach with the simpler **Tagless Final** pattern.
+
+### F# Algebraic Effects Libraries
+
+Two notable libraries explored algebraic effects using **generics** and **object-oriented** capabilities of F#:
+
+#### Nick Palladinos' [Eff](https://github.com/palladin/Eff) (2017)
+
+- Difficult to use due to lack of documentation
+- Implementation is challenging to understand
+- Pioneering work, but not practical for production use
+
+#### Brian Berns' [AlgEff](https://github.com/brianberns/AlgEff) (2020)
+
+- 👍 Benefits
+  - Easier to understand and use than the *Eff* library
+  - Based on the free monad, similarly to our `program` V2
+  - Comprehensive with numerous programming tips
+- 🛑 Limitations
+  - Overly complex for our needs: not a full algebraic effects library, but an improved `program` implementation
+  - Relies on class inheritance, which we prefer to avoid
+  - Uses `and` for type definitions, breaking F#'s conventional top-down declaration order
+
+### V3 Design
+
+The V3 `Program` was a free monad variant where effects implemented a functor interface:
+
+```fsharp
+[<Interface>]
+type IProgramEffect<'a> =
+    abstract member Map: f: ('a -> 'b) -> IProgramEffect<'b>
+
+type Program<'ret> =
+    | Stop of 'ret
+    | Effect of IProgramEffect<Program<'ret>>
+```
+
+Each domain defined:
+
+1. **Type aliases** for query/command instructions (e.g., `type GetPricesQuery<'a> = Query<SKU, Prices, 'a>`)
+2. A **discriminated union** enumerating all instructions (`ProductInstruction<'a>`)
+3. An **effect interface** combining `IProgramEffect<'a>` with `IInterpretableEffect<ProductInstruction<'a>>`
+4. An **effect class per instruction** implementing the effect interface
+5. **Helper functions** using `Program.effect` to create programs from instructions
+
+An `Interpreter` class then recursively walked the `Program` tree, pattern matching on effects and dispatching to the data layer.
+
+### V3 Limitations
+
+While V3 achieved domain isolation and type safety, it had significant drawbacks:
+
+- **Boilerplate:** Each instruction required a type alias, a union case, an effect class (4 lines), and a helper function—a 5-step recipe.
+- **No parallel execution:** The `IProgramEffect<'a>` interface's `Map` method makes the type essentially a functor, but implementing `map2` (needed for `let! ... and! ...` applicative syntax) proved impossible due to F#'s strict variance checking on generics. Parallel execution of independent instructions was not achievable.
+- **Complex interpreter:** The recursive `loop` function with downcasting (`match eff with | :? 'effect as effect ->`) was fragile and not extensible.
+- **Many moving parts:** Effects, instructions, interpreters, factories—understanding how all components worked together was the main challenge.
+
+These limitations motivated the move to V4, based on a radically simpler approach: the **Tagless Final** pattern.
+
 ## What's Next
 
-Since F# doesn't have native algebraic effect support, we'll need to implement the pattern ourselves using F#'s generics and object-oriented capabilities.
-
-In the following sections, we'll see how to:
-
-1. Design a `Program` type inspired by algebraic effects
-2. Create effect interfaces for type safety
-3. Implement domain-specific effect handlers
-4. Achieve complete domain isolation with separate projects
-5. Build interpreters that compose effect handlers
-
-The implementation will be more complex than Free monads, but it will provide:
-
-- Complete separation between domains
-- Type-safe effect composition
-- Screaming architecture / vertical slice architecture support
-- Clear distinction between commands and queries
+The next page introduces the [Tagless Final](5-tagless-final.md) pattern (V4), which replaced this entire machinery with a single function type and an instruction interface—dramatically reducing complexity while enabling parallel instruction execution.

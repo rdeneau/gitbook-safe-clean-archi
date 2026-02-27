@@ -4,233 +4,334 @@ icon: arrow-progress
 
 # Workflows
 
-## Domain Types
+## Workflow Interface
 
-`Types.fs` defines two types:
-
-* `ProductDomain`: A single-case union implementing the `IDomain` interface. This marker type identifies the domain and distinguishes it from other domains in the solution.
-* `ProductWorkflow`: The base class for workflows in the _Product_ domain. This design choice prioritizes convenience of use. The code is straightforward enough to justify this exception to the inheritance avoidance rule.
+Each workflow implements `IProgramWorkflow<'ins, 'arg, 'ret>`, which defines a `Run` method producing a `Program`:
 
 ```fsharp
-namespace Shopfoo.Product.Workflows
-
-open Shopfoo.Domain.Types.Errors
-open Shopfoo.Effects
-
-type ProductDomain =
-    | ProductDomain
-
-    interface IDomain with
-        member _.Name = "Product"
-
-[<AbstractClass>]
-type ProductWorkflow<'arg, 'ret>() =
-    abstract member Run: 'arg -> Program<Result<'ret, Error>>
-
-    interface IDomainWorkflow<ProductDomain> with
-        member val Domain = ProductDomain
-
-    interface IProgramWorkflow<'arg, 'ret> with
-        member this.Run arg = this.Run arg
+[<Interface>]
+type IProgramWorkflow<'ins, 'arg, 'ret when 'ins :> IProgramInstructions> =
+    abstract member Run: 'arg -> Program<'ins, Res<'ret>>
 ```
 
-## Domain Workflow Design Choice
+In the Product domain, a convenience alias fixes the instruction set:
 
-Which features warrant a workflow implementation? Two approaches lead to different designs.
+```fsharp
+[<Interface>]
+type IProductWorkflow<'arg, 'ret> =
+    inherit IProgramWorkflow<IProductInstructions, 'arg, 'ret>
+```
 
-### Favor Simplicity
+## Design Choice: Which Features Get Workflows?
 
-_This is the approach chosen in the Shopfoo solution._
+_This is the approach chosen in the Shopfoo solution:_ evaluate each feature to determine whether it benefits from a workflow implementation.
 
-Evaluate each feature to determine whether it would benefit from workflow implementation.
+Generally, **commands** are the best candidates — they typically contain business complexity and/or orchestrate multiple Data layer calls. **Queries** usually lack sufficient complexity and can be delegated directly to the Data layer.
 
-Generally, commands are most suitable candidates. They typically contain business complexity and/or orchestrate multiple Data layer calls. In contrast, queries usually lack sufficient complexity and can be delegated directly to the Data layer.
-
-However, exceptions exist, as seen in [Api.fs](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Api.fs#L43-L56):
+However, exceptions exist, as seen in [Api.fs](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Api.fs):
 
 * The `AdjustStock` command is delegated directly to the _Warehouse_ access client.
 * The `DetermineStock` query is implemented as a workflow.
 
-### Favor Domain Expressiveness in File Structure
-
-This design mandates that each feature has its own workflow, making them visible in the file tree within the `Workflows` folder. This results in numerous pass-through workflows that simply invoke a single instruction—typically used only once (not shared across workflows)—which connects to the Data layer during program interpretation.
-
-In my opinion, this violates the [KISS principle](https://en.wikipedia.org/wiki/KISS_principle) and leads to over-engineering. Features remain easily accessible through the [API contract](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Api.fs#L14-L28):
-
-```fsharp
-[<Interface>]
-type IProductApi =
-    abstract member GetProducts: (unit -> Async<Product list>)
-    abstract member GetProduct: (SKU -> Async<Product option>)
-    abstract member SaveProduct: (Product -> Async<Result<unit, Error>>)
-    // ...
-```
-
-## Domain Workflow Examples
+## Product Domain Workflow Examples
 
 Let's examine characteristic workflows in order of increasing complexity.
 
-### RemoveListPrice
+### RemoveListPrice — Basic orchestration
 
-This feature requires a workflow to orchestrate multiple instructions: `getPrices` and `savePrices`. It's one of the simplest workflows.
+This simple workflow orchestrates two instructions: `getPrices` then `savePrices`.
 
-🔗 [Code source](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Workflows/RemoveListPrice.fs)
+🔗 [Source code](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Workflows/RemoveListPrice.fs)
 
 ```fsharp
 [<Sealed>]
 type internal RemoveListPriceWorkflow private () =
-    inherit ProductWorkflow<SKU, unit>()
-
-    override _.Run sku =
-        program {
-            let! prices = Program.getPrices sku |> Program.requireSome $"SKU #%s{sku.Value}" |> Program.mapDataRelatedError
-            do! Program.savePrices { prices with ListPrice = None }
-            return Ok()
-        }
-
     static member val Instance = RemoveListPriceWorkflow()
+
+    interface IProductWorkflow<SKU, unit> with
+        override _.Run sku =
+            program {
+                let! prices =
+                    Program.getPrices sku
+                    |> Program.requireSomeData ($"SKU #%s{sku.Value}", TypeName.Custom "Prices")
+
+                let! (PreviousValue _) = Program.savePrices { prices with ListPrice = None }
+                return Ok()
+            }
 ```
 
-The `RemoveListPriceWorkflow` class, like all workflow classes, explicitly implements the _Singleton_ pattern without relying on the IoC container. Indeed, the `Api` class that we'll see later is the only place in production code where workflow instances are used.
+**Key points:**
 
-As a reminder, the `Run` method has the signature `'arg -> Program<Result<'ret, Error>>`, coming from the `IProgramWorkflow<'arg, 'ret>` interface. However, the `getPrices` instruction returns a `Program<Prices option>`. Therefore, it must be adapted to the type expected as the return of `Run`. For this, we successively use two helpers from the `Program` module:
+* The workflow class implements the **Singleton** pattern without relying on the IoC container.
+* `Program.getPrices` returns `Program<_, Prices option>`. The `Program.requireSomeData` helper converts the inner `None` to a `DataRelatedError`, and the `program` CE's `Bind` overload automatically lifts it to `Error`.
+* `savePrices` returns `Program<_, Res<PreviousValue<Prices>>>`. Writing `let! (PreviousValue _) = ...` rather than `let! _ = ...` is required: without the destructuring pattern the compiler cannot determine which `Bind` overload to use — the plain `Program` bind (which would hand `Res<PreviousValue<Prices>>` to the continuation) or the result-unwrapping bind (which extracts `PreviousValue<Prices>`). The pattern pins the expected type to `PreviousValue<Prices>`, resolving the ambiguity and selecting the unwrapping overload. The value itself is then discarded; the saga runner is the one that uses it for undo.
 
-* First `requireSome` ([source code](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Effects/Program.fs#L113-L114)) which converts an `Option<'a>` to a `Result<'a, DataRelatedError>`
-* Then `mapDataRelatedError` ([source code](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Effects/Program.fs#L107-L107)) which transforms a `Result<'a, DataRelatedError>` into the expected `Result<'a, Error>`
+### SavePrices — Validation
 
-The `savePrices` instruction already has the correct return type, so no adaptation is needed.
+This workflow demonstrates validation using guard clauses and the `validation` applicative CE:
 
-{% hint style="warning" %}
-These adaptations are among the most delicate aspects when writing a `program`. When forgotten, the compilation error appears after the "faulty" line and indicates that no overload can be found for the `Bind` method. This cryptic error message, located in the wrong place, doesn't help understand how to fix the problem. If you don't remember the need to adapt the return type, you can always annotate the values with the expected types. The error is then located in the right place and its message is more precise, which helps somewhat, though it still requires careful analysis to properly understand and resolve the issue.
-{% endhint %}
-
-### SavePrices
-
-This feature requires a workflow to handle validation:
-
-* If `ListPrice` is defined, it must be positive.
-* If `RetailPrice` is of type `Regular` (not `SoldOut`), it must be positive as well.
-
-🔗 [Source code](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Workflows/SavePrices.fs):
+🔗 [Source code](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Workflows/SavePrices.fs)
 
 ```fsharp
 [<Sealed>]
 type internal SavePricesWorkflow private () =
-    inherit ProductWorkflow<Prices, unit>()
-
-    let guardListPrice (prices: Prices) =
-        match prices.ListPrice with
-        | Some price -> Guard(nameof prices.ListPrice).IsPositive(price.Value)
-        | None -> Ok 0m
-
-    let guardRetailPrice (prices: Prices) =
-        match prices.RetailPrice with
-        | RetailPrice.Regular price -> Guard(nameof prices.RetailPrice).IsPositive(price.Value)
-        | RetailPrice.SoldOut -> Ok 0m
-
-    let validate (prices: Prices) =
-        validation {
-            let! _ = guardListPrice(prices).ToValidation()
-            and! _ = guardRetailPrice(prices).ToValidation()
-            return ()
-        }
-
-    override _.Run prices =
-        program {
-            do! validate prices |> liftGuardClauses
-            do! Program.savePrices prices
-            return Ok()
-        }
-
     static member val Instance = SavePricesWorkflow()
+
+    interface IProductWorkflow<Prices, unit> with
+        override _.Run prices =
+            program {
+                do! Prices.validate prices
+                let! (PreviousValue _) = Program.savePrices prices
+                return Ok()
+            }
 ```
 
-In the Shopfoo codebase, validation occurs in two stages: guard clauses returning `Result<'a, GuardClauseError>` are transformed into `Validation<'a, GuardClauseError>` (an alias for `Result<'a, GuardClauseError list>`). These guard clauses are then aggregated using the `validation` computation expression with the `let! ... and! ...` syntax, revealing applicative behavior.
-
-The result of `validate prices` needs to be adapted regarding the error track. We use the `liftGuardClauses` ([source code](https://github.com/rdeneau/shopfoo/blob/96d8eb77072ec60ab2989fec96a2fa86b1867b34/src/Shopfoo.Domain.Types/Errors.fs#L158-L159)) to obtain the required `Result<unit, Error>` type.
-
-Then, the workflow uses the fact that the `program` CE provides two overloads for the `Bind` method to handle the `Result` type ([source code](https://github.com/rdeneau/shopfoo/blob/96d8eb77072ec60ab2989fec96a2fa86b1867b34/src/Shopfoo.Effects/Program.fs#L78-L80)):
+The `Prices.validate` function returns a `Validation<unit, GuardClauseError>` (an alias for `Result<unit, GuardClauseError list>`). It is built with the `validation` applicative CE, which collects all errors rather than stopping at the first one:
 
 ```fsharp
-[<AutoOpen>]
-module ProgramBuilder =
-    // [...]
-    /// Bind operator
-    let private (>>=) program f = bind f program
-
-    let private bindResult (f: 'v -> Program<_>) (result: Result<'v, _>) =
-        match result with
-        | Ok v -> f v
-        | Error e -> Stop(Error e)
-
-    type ProgramBuilder() =
-        // [...]
-        member _.Bind(program: Program<_>, f) = program >>= f
-        member _.Bind(program: Program<Result<_, _>>, f) = program >>= (bindResult f)
-        member _.Bind(result: Result<_, _>, f) = result |> bindResult f
+let validate (prices: Prices) =
+    validation {
+        let! _ = guardListPrice(prices).ToValidation()
+        and! _ = guardRetailPrice(prices).ToValidation()
+        return ()
+    }
 ```
 
-* The regular `Bind` uses the `>>=` bind operator directly.
-* The two other overloads rely on the `bindResult` function that operates on a `Result` but returns it wrapped in a `Program`.
-* The first one `Bind(result: Result<_, _>, f)` supports binding a `Result` directly and elevating it to a `Program`. This is the one used in this workflow to bind `validate prices |> liftGuardClauses`.
-* The second one `Bind(program: Program<Result<_, _>>, f)` supports binding a `Program` containing a `Result`. In practice, it is this `Bind` that is most commonly used in workflows.
+The `let! ... and! ...` applicative syntax inside `validation { }` runs both guards independently and merges any errors into a list. The `program` CE then provides a `Bind` overload that lifts `Validation<_, GuardClauseError>` directly to the common `Error` type.
 
-This design simplifies `program` composition, as error track management is already sufficiently delicate on its own.
+### AddProduct — Parallel execution
 
-### DetermineStock
+This is the most interesting Product workflow — it demonstrates the `let! ... and! ...` applicative syntax for parallel execution:
 
-This query feature benefits from workflow implementation. It handles both orchestration of multiple instructions—`getSales` and `getStockEvents`—and a business rule to determine current stock based on stock events and sales, similar to event sourcing.
+🔗 [Source code](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Workflows/AddProduct.fs)
+
+```fsharp
+[<Sealed>]
+type internal AddProductWorkflow private () =
+    static member val Instance = AddProductWorkflow()
+
+    interface IProductWorkflow<Product * Currency, unit> with
+        override _.Run((product, currency)) =
+            program {
+                let sku =
+                    match product.SKU.Type, product.Category with
+                    | SKUType.OLID _, Category.Books book -> book.ISBN.AsSKU
+                    | _ -> product.SKU
+
+                let product = { product with SKU = sku }
+
+                do! Product.validate product |> liftValidation
+
+                // addProduct and addPrices run in PARALLEL
+                let! resA = Program.addProduct product
+                and! resB = Program.addPrices (Prices.Initial(sku, currency))
+
+                return Result.zip resA resB |> Result.ignore
+            }
+```
+
+The `let! ... and! ...` syntax compiles into a call to `MergeSources`, which uses `Program.map2` to start both instructions concurrently via `Async.StartChild`. This pattern is **impossible** with V3's free monad approach due to F#'s strict variance checking on generics.
+
+`Result.zip` combines two `Result` values — if both succeed, it combines them; if either fails, it returns the error(s). `Result.ignore` discards the success value — a useless pair of unit values.
+
+### DetermineStock — Query workflow
+
+This query workflow orchestrates multiple instructions and applies a domain rule inspired by the **Decider** pattern (*):
 
 🔗 [Source code](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Workflows/DetermineStock.fs)
 
 ```fsharp
 [<Sealed>]
 type internal DetermineStockWorkflow private () =
-    inherit ProductWorkflow<SKU, Stock>()
-
-    override _.Run sku =
-        program {
-            let! (sales: Sale list) =
-                Program.getSales sku // ↩
-                |> Program.requireSome $"SKU #%s{sku.Value}"
-                |> Program.mapDataRelatedError
-
-            let! stockEvents =
-                Program.getStockEvents sku
-                |> Program.requireSome $"SKU #%s{sku.Value}"
-                |> Program.mapDataRelatedError
-
-            let allEvents =
-                [
-                    for sale in sales do
-                        StockEventType.Shipped, sale.Date, sale.Quantity
-
-                    for stockEvent in stockEvents do
-                        match stockEvent.Type with
-                        | ProductSupplyReceived _ -> StockEventType.SupplyReceived, stockEvent.Date, stockEvent.Quantity
-                        | StockAdjusted -> StockEventType.StockAdjusted, stockEvent.Date, stockEvent.Quantity
-                ]
-                |> List.sortBy (fun (_, date, _) -> date)
-
-            let quantity =
-                (0, allEvents)
-                ||> Seq.fold (fun acc (eventType, _, quantity) ->
-                    match eventType with
-                    | StockEventType.Shipped -> acc - quantity
-                    | StockEventType.SupplyReceived -> acc + quantity
-                    | StockEventType.StockAdjusted -> quantity
-                )
-
-            return Ok { SKU = sku; Quantity = quantity }
-        }
-
     static member val Instance = DetermineStockWorkflow()
+
+    interface IProductWorkflow<SKU, Stock> with
+        override _.Run sku =
+            program {
+                let! (sales: Sale list) = Program.getSales sku |> Program.defaultValue []
+                let! (stockEvents: StockEvent list) = Program.getStockEvents sku |> Program.defaultValue []
+
+                let allEvents = [...]  // merge and sort events
+                let quantity = (0, allEvents) ||> Seq.fold (fun acc ... -> ...)
+
+                return Ok { SKU = sku; Quantity = quantity }
+            }
 ```
 
+Notice that `getSales` and `getStockEvents` use `Program.defaultValue []` instead of `requireSome` — returning an empty list when data is missing rather than failing. This is a design choice per workflow.
+
 {% hint style="info" %}
-**💡 Formatting Tip**
+## (*) Decider pattern
 
-Throughout the codebase, you'll occasionally find `// ↩` comments, like the one after `Program.getSales sku` here. These ensure consistent automatic formatting by Fantomas. Without it, the expression `let! (sales: Sale list) = ...` would be formatted on a single line (like with `let! prices` in `RemoveListPriceWorkflow`), while `let! stockEvents = ...` spans 4 lines, creating asymmetry that hinders code readability.
+The `Seq.fold` accumulating stock quantity over the sorted event list is the `evolve` function from the Decider pattern: given a current state and an event, produce the next state. Applying it over the full event sequence reconstructs the current state from scratch — the same principle as Event Sourcing, but without a persistent event store.
 
-This represents a compromise allowing reasonably long lines (up to 150 characters, see [.editorconfig](https://github.com/rdeneau/shopfoo/blob/main/.editorconfig#L14-L19)) while locally overriding formatting rules via these `// ↩` comments.
+Complementary resources:
+
+* [Functional Event Sourcing Decider](https://thinkbeforecoding.com/post/2021/12/17/functional-event-sourcing-decider) — Jérémie Chassaing
+* [The Equinox Programming Model](https://nordfjord.io/equinox/) — Einar Norðfjörð
+{% endhint %}
+
+## Order Domain — Saga and Cancellation
+
+The `Shopfoo.Program.Tests` project contains an **Order domain** that showcases the saga pattern (undo on failure) and workflow cancellation. This is a better illustration of these features than the Product domain.
+
+🔗 [Source code: OrderContext/](https://github.com/rdeneau/shopfoo/tree/main/tests/Shopfoo.Program.Tests/OrderContext)
+
+### Order Instructions
+
+```fsharp
+[<Interface>]
+type IOrderInstructions =
+    inherit IProgramInstructions
+    abstract member CreateOrder: (Cmd.CreateOrder -> Async<Result<unit, Error>>)
+    abstract member ProcessPayment: (Cmd.ProcessPayment -> Async<Result<PaymentId, Error>>)
+    abstract member IssueInvoice: (Cmd.IssueInvoice -> Async<Result<InvoiceId, Error>>)
+    abstract member SendNotification: (Cmd.NotifyOrderChanged -> Async<Result<unit, Error>>)
+    abstract member ShipOrder: (Cmd.ShipOrder -> Async<Result<ParcelId, Error>>)
+    abstract member TransitionOrder: (Cmd.TransitionOrder -> Async<Result<unit, Error>>)
+```
+
+All instructions are commands (no queries), each returning a `Result`. Commands that produce an ID (`PaymentId`, `InvoiceId`, `ParcelId`) (*) return it in the `Ok` track — enabling the saga to pass these IDs to subsequent undo functions.
+
+{% hint style="info" %}
+(*) In production designs, it is generally preferable for the client to generate IDs before sending a command. Client-generated IDs make idempotency straightforward: retrying the same command with the same ID is safe because the server can detect and ignore duplicates. Here, the IDs are generated server-side by the instructions specifically to illustrate two things: how a command's return value flows into the next step of the workflow, and how that same return value is captured by the saga runner and passed to the undo function.
+{% endhint %}
+
+### Order Workflow with Cancellation Support
+
+The `OrderWorkflow` accepts an optional `cancelAfterStep` parameter that simulates a **client cancellation** — an event that can occur at any point in real life. A dedicated unit test covers each step at which cancellation may happen, verifying that the workflow behaves as expected in every scenario:
+
+```fsharp
+type OrderWorkflow(?cancelAfterStep: OrderStep) =
+    interface IProgramWorkflow<IOrderInstructions, Cmd.CreateOrder, unit> with
+        override _.Run({ OrderId = orderId; Price = orderPrice } as cmd) =
+            let cmder = Cmder orderId
+
+            let cancelAfter step actualStatus =
+                program {
+                    if cancelAfterStep <> Some step then
+                        return Ok()
+                    elif step = OrderStep.ShipOrder then
+                        return Error(BusinessError OrderCannotBeCancelledAfterShipping)
+                    else
+                        do! Program.transitionOrder (cmder.TransitionOrder { From = actualStatus; To = OrderCancelled actualStatus })
+                        return Error(WorkflowError(WorkflowCancelled(step = $"%A{step}")))
+                }
+
+            program {
+                // CreateOrder
+                do! Program.createOrder cmd
+                let currentStatus = OrderCreated
+                do! cancelAfter OrderStep.CreateOrder currentStatus
+
+                // ProcessPayment
+                let! (paymentId: PaymentId) = Program.processPayment { OrderId = orderId; Amount = orderPrice }
+                let currentStatus, previousStatus = OrderPaid paymentId, currentStatus
+                do! Program.transitionOrder (cmder.TransitionOrder { From = previousStatus; To = currentStatus })
+                do! Program.sendNotification (cmder.NotifyOrderChanged currentStatus)
+                do! cancelAfter OrderStep.ProcessPayment currentStatus
+
+                // IssueInvoice
+                let! (invoiceId: InvoiceId) = Program.issueInvoice { OrderId = orderId; Amount = orderPrice }
+                let currentStatus, previousStatus = OrderInvoiced invoiceId, currentStatus
+                do! Program.transitionOrder (cmder.TransitionOrder { From = previousStatus; To = currentStatus })
+                do! Program.sendNotification (cmder.NotifyOrderChanged currentStatus)
+                do! cancelAfter OrderStep.IssueInvoice currentStatus
+
+                // ShipOrder
+                let! (parcelId: ParcelId) = Program.shipOrder { Cmd.ShipOrder.OrderId = orderId }
+                let currentStatus, previousStatus = OrderShipped parcelId, currentStatus
+                do! Program.transitionOrder (cmder.TransitionOrder { From = previousStatus; To = currentStatus })
+                do! Program.sendNotification (cmder.NotifyOrderChanged currentStatus)
+                do! cancelAfter OrderStep.ShipOrder currentStatus
+
+                return Ok()
+            }
+```
+
+**Cancellation mechanism:**
+
+* The `cancelAfter` helper checks if the current step matches the cancellation target.
+* If so, it transitions the order to `OrderCancelled` (recording the previous status) and returns a `WorkflowCancelled` error — which the saga recognizes as intentional and does **not** undo.
+* After shipping, cancellation returns a `BusinessError` instead — the saga can be configured to not undo in this case either.
+
+### Undo Strategies in the Wiring
+
+Each instruction's undo strategy is defined when wiring instructions in the test setup:
+
+```fsharp
+member private _.PrepareInstructions() =
+    fun (preparer: IInstructionPreparer<'ins>) ->
+        { new IOrderInstructions with
+            member _.CreateOrder =
+                preparer
+                    .Command(orderRepository.CreateOrder, "CreateOrder")
+                    .Reversible(fun cmd _ -> orderRepository.DeleteOrder cmd.OrderId)
+
+            member _.ProcessPayment =
+                preparer
+                    .Command(paymentRepository.ProcessPayment, "ProcessPayment")
+                    .Compensatable(fun _ paymentId -> paymentRepository.RefundPayment { PaymentId = paymentId })
+
+            member _.IssueInvoice =
+                preparer
+                    .Command(invoiceRepository.IssueInvoice, "IssueInvoice")
+                    .Compensatable(fun _ invoiceId -> invoiceRepository.CompensateInvoice { InvoiceId = invoiceId })
+
+            member _.SendNotification =
+                preparer
+                    .Command(notificationClient.SendNotification, ...)
+                    .NotUndoable()
+
+            member _.ShipOrder =
+                preparer
+                    .Command(warehouseClient.ShipOrder, "ShipOrder")
+                    .NotUndoable()
+
+            member _.TransitionOrder =
+                preparer
+                    .Command(orderRepository.TransitionOrder, ...)
+                    .Reversible(fun cmd _ -> orderRepository.TransitionOrder(cmd.Revert()))
+        }
+```
+
+Three undo strategies are demonstrated:
+
+| Strategy        | Example                            | Behavior                                           |
+| --------------- | ---------------------------------- | -------------------------------------------------- |
+| `Reversible`    | `CreateOrder` → `DeleteOrder`      | Strict undo: restores exact initial state          |
+| `Compensatable` | `ProcessPayment` → `RefundPayment` | Logical offset: creates a compensating operation   |
+| `NotUndoable`   | `SendNotification`                 | No undo possible: notifications cannot be recalled |
+
+### Test Cases
+
+The tests verify both **undo on failure** and **cancellation without undo**. For cancellation, a dedicated test covers each step where a client cancellation can occur, ensuring the workflow responds correctly in each case:
+
+```fsharp
+// Undo: processPayment failed → only createOrder is undone
+this.VerifyUndo(
+    simulate = { Error = ...; Step = OrderStep.ProcessPayment },
+    expectedHistory = [ "CreateOrder", UndoDone ]
+)
+
+// Cancel: cancel after ProcessPayment → no undo, order stays in Cancelled state
+this.VerifyCancel(
+    cancelAfterStep = OrderStep.ProcessPayment,
+    expectedStatus = LightOrderCancelled LightOrderPaid,
+    expectedHistory = [
+        "TransitionOrderFromPaidToCancelled", RunDone
+        "SendNotificationOrderPaid", RunDone
+        "TransitionOrderFromCreatedToPaid", RunDone
+        "ProcessPayment", RunDone
+        "CreateOrder", RunDone
+    ]
+)
+```
+
+The saga state preserves the **complete step history in LIFO order**, including each step's status (`RunDone`, `UndoDone`, `RunFailed`, `UndoFailed`). This provides full observability into what happened during the workflow execution.
+
+{% hint style="info" %}
+## Saga without messages
+
+This saga pattern operates entirely in-process, synchronously (within a single `Async` computation). There is no message bus, no distributed transaction coordinator. The "undo" functions are plain async functions called in reverse LIFO order. This makes the pattern suitable for orchestrating multiple data-layer calls within a single request, while keeping the workflow logic pure and testable.
 {% endhint %}

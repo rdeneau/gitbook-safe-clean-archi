@@ -4,21 +4,21 @@ icon: webhook
 
 # Api
 
-The `Api.fs` file defines the domain project entry point and corresponds to the _Application_ layer in _Clean Architecture_ terminology. It contains three elements:
+The `Api.fs` file defines the domain project entry point and corresponds to the _Application_ layer in _Clean Architecture_ terminology. It contains two main elements:
 
-* The public interface `IProductApi`&#x20;
+* The public interface `IProductApi`
 * The internal class `Api`
-* The module `DependencyInjection`
 
-## IProductApi contract
+## IProductApi Contract
 
-`IProductApi`  is a public interface defining the API contract of the domain project.
+`IProductApi` is a public interface defining the API contract of the domain project:
 
 ```fsharp
 [<Interface>]
 type IProductApi =
-    abstract member GetProducts: (unit -> Async<Product list>)
+    abstract member GetProducts: (Provider -> Async<Product list>)
     abstract member GetProduct: (SKU -> Async<Product option>)
+    abstract member AddProduct: (Product * Currency -> Async<Result<unit, Error>>)
     abstract member SaveProduct: (Product -> Async<Result<unit, Error>>)
 
     abstract member GetPrices: (SKU -> Async<Prices option>)
@@ -28,89 +28,321 @@ type IProductApi =
 
     abstract member AdjustStock: (Stock -> Async<Result<unit, Error>>)
     abstract member DetermineStock: (SKU -> Async<Result<Stock, Error>>)
+    abstract member GetPurchasePrices: (SKU -> Async<PurchasePrices>)
     abstract member GetSales: (SKU -> Async<Sale list option>)
 ```
 
 {% hint style="info" %}
-## Note
-
-The most attentive readers will have noticed that  members are defined using parentheses, which makes them properties that return a function rather than methods.
-
-This reveals an implementation detail: we will define these members by partial application of functions. This remains a minor leak, acceptable in our case where we don't need to name the parameters and insofar as we use this interface from F# code—it would be more troublesome with C#.
+Members are defined using parentheses, making them properties that return a function rather than methods. This reveals an implementation detail: we define these members by partial application of functions. This remains a minor leak, acceptable where we use this interface from F# code.
 {% endhint %}
 
-## Api implementation
+## Api Implementation
 
-The `Api` class serves as the concrete domain project entry point, residing in&#x20;
-
-```fsharp
-type internal Api(interpreterFactory: IInterpreterFactory) =
-    let interpret = interpreterFactory.Create(ProductDomain)
-    // ...
-```
-
-This internal class is accessible to the `Shopfoo.Server` project via dependency injection in conjunction with the `IProductApi` interface, which defines the API contract.
-
-The class depends on `IInterpreterFactory`, which creates the interpreter for the current domain: `ProductDomain`. The interpreter is named `interpret` so method calls read like English: `interpret.Command`, `interpret.Workflow`.
+The `Api` class serves as the concrete domain project entry point:
 
 ```fsharp
-    // ...
-    let runEffect (productEffect: IProductEffect<_>) =
-        match productEffect.Instruction with
-        | GetPrices query -> interpret.Query(query, Prices.Client.getPrices)
-        | GetSales query -> interpret.Query(query, Sales.Client.getSales)
-        | GetStockEvents query -> interpret.Query(query, Warehouse.Client.getStockEvents)
-        | SavePrices command -> interpret.Command(command, Prices.Client.savePrices)
-        | SaveProduct command -> interpret.Command(command, Catalog.Client.saveProduct)
-
-    let interpretWorkflow (workflow: ProductWorkflow<'arg, 'ret>) args =
-        interpret.Workflow runEffect workflow args
-    // ...
+[<Sealed>]
+type internal Api(
+    workflowRunnerFactory: IWorkflowRunnerFactory,
+    catalogPipeline: CatalogPipeline,
+    pricesPipeline: PricesPipeline,
+    salesPipeline: SalesPipeline,
+    warehousePipeline: WarehousePipeline,
+    openLibraryPipeline: OpenLibraryPipeline
+) = // ...
 ```
 
-The interpreter enables definition of two key functions:
+This internal class depends on `IWorkflowRunnerFactory` (from `Shopfoo.Program`), which creates a workflow runner for the current domain.
 
-* `runEffect`:
-  * Pattern matches on the union type defining domain instructions
-  * Interpreting each instruction involves calling the method corresponding to the instruction type and passing the underlying Data layer function
-* `interpretWorkflow`: Though it appears to be a simple pass-through, it subtly serves to:
-  * Enforce accepted workflow types: only those from the current _Product_ domain via the `ProductWorkflow` type
-  * Name generic type parameters for convenience: `ProductWorkflow<'arg, 'ret>`
-  * Apply the `runEffect` parameter to the `interpret.Workflow` method
+### Instruction Wiring with Undo Support
+
+The most important part is the `prepareInstructions` function, which wires each instruction to its data-layer implementation and undo strategy.
+
+**Product domain example** (from [`Shopfoo.Product`](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Api.fs)) — only uses queries and reversible commands:
 
 ```fsharp
-    // ...
-    interface IProductApi with
-        member val GetProducts = Catalog.Client.getProducts // (1)
-        member val GetProduct = Catalog.Client.getProduct // (1)
-        member val SaveProduct = interpretWorkflow SaveProductWorkflow.Instance // (2)
+let prepareInstructions (preparer: IInstructionPreparer<'ins>) =
+    { new IProductInstructions with
+        member _.GetPrices = preparer.Query(pricesPipeline.GetPrices, "GetPrices")
+        member _.GetSales = preparer.Query(salesPipeline.GetSales, "GetSales")
+        member _.GetStockEvents = preparer.Query(warehousePipeline.GetStockEvents, "GetStockEvents")
 
-        member val GetPrices = Prices.Client.getPrices // (1)
-        member val SavePrices = interpretWorkflow SavePricesWorkflow.Instance // (2)
-        member val MarkAsSoldOut = interpretWorkflow MarkAsSoldOutWorkflow.Instance // (2)
-        member val RemoveListPrice = interpretWorkflow RemoveListPriceWorkflow.Instance // (2)
+        member _.SavePrices =
+            preparer
+                .Command(pricesPipeline.SavePrices, "SavePrices")
+                .Reversible(fun _ (PreviousValue initialPrices) ->
+                    async {
+                        let! res = pricesPipeline.SavePrices initialPrices
+                        return res |> Result.ignore
+                    })
 
-        member val AdjustStock = Warehouse.Client.adjustStock // (1)
-        member val DetermineStock = interpretWorkflow DetermineStockWorkflow.Instance // (2)
-        member val GetSales = Sales.Client.getSales // (1)
+        member _.SaveProduct =
+            preparer
+                .Command(catalogPipeline.SaveProduct, "SaveProduct")
+                .Reversible(fun _ (PreviousValue initialProduct) ->
+                    async {
+                        let! res = catalogPipeline.SaveProduct initialProduct
+                        return res |> Result.ignore
+                    })
+
+        member _.AddPrices =
+            preparer
+                .Command(pricesPipeline.AddPrices, "AddPrices")
+                .Reversible(fun prices _ -> pricesPipeline.DeletePrices prices.SKU)
+
+        member _.AddProduct =
+            preparer
+                .Command(catalogPipeline.AddProduct, "AddProduct")
+                .Reversible(fun product _ -> catalogPipeline.DeleteProduct product.SKU)
+    }
 ```
 
-Finally, the class implements the API contract. Each endpoint is defined based on the underlying feature type:
+**Order domain example** (from [`Shopfoo.Program.Tests`](https://github.com/rdeneau/shopfoo/blob/main/tests/Shopfoo.Program.Tests/OrderContext/)) — showcases all three undo strategies (Reversible, Compensatable, NotUndoable):
 
-1. Direct Data layer call
-2. Workflow interpretation
+```fsharp
+let prepareInstructions (preparer: IInstructionPreparer<'ins>) =
+    { new IOrderInstructions with
+        member _.CreateOrder =
+            preparer
+                .Command(orderRepository.CreateOrder, "CreateOrder")
+                .Reversible(fun cmd _ -> orderRepository.DeleteOrder cmd.OrderId)
+
+        member _.IssueInvoice =
+            preparer
+                .Command(invoiceRepository.IssueInvoice, "IssueInvoice")
+                .Compensatable(fun _ invoiceId ->
+                    invoiceRepository.CompensateInvoice { InvoiceId = invoiceId })
+
+        member _.ProcessPayment =
+            preparer
+                .Command(paymentRepository.ProcessPayment, "ProcessPayment")
+                .Compensatable(fun _ paymentId ->
+                    paymentRepository.RefundPayment { PaymentId = paymentId })
+
+        member _.SendNotification =
+            preparer
+                .Command(notificationClient.SendNotification,
+                    getName = (fun cmd -> $"SendNotificationOrder%s{cmd.NewStatus.Name}"))
+                .NotUndoable()
+
+        member _.ShipOrder =
+            preparer
+                .Command(warehouseClient.ShipOrder, "ShipOrder")
+                .NotUndoable()
+
+        member _.TransitionOrder =
+            preparer
+                .Command(orderRepository.TransitionOrder,
+                    fun (FromTo(from, to')) -> $"TransitionOrderFrom%s{from}To%s{to'}")
+                .Reversible(fun cmd _ -> orderRepository.TransitionOrder(cmd.Revert()))
+    }
+```
+
+**Key patterns:**
+
+* **Queries** are wrapped with `preparer.Query(work, name)` — this adds logging, timing, and step tracking.
+* **Commands** are wrapped with `preparer.Command(work, name)` followed by the undo strategy:
+  * `.Reversible(undoFun)` — the command can be exactly reversed, restoring the previous state. Two flavours are shown: using the `PreviousValue` returned by the command (e.g. `SavePrices` restores the initial prices) or using the original arguments (e.g. `CreateOrder` deletes by `OrderId`, `TransitionOrder` calls `cmd.Revert()`).
+  * `.Compensatable(undoFun)` — the command cannot be literally reversed but can be logically compensated. For example, `IssueInvoice` is compensated (not deleted) and `ProcessPayment` is refunded (not reversed). The undo function uses the **return value** (e.g. the `invoiceId` or `paymentId`) to identify what to compensate.
+  * `.NotUndoable()` — the command is fire-and-forget; no undo is attempted. Suitable for side effects that cannot be taken back, such as sending a notification or shipping an order.
+* The undo function receives the **original arguments** and the **return value** — enabling it to use the `PreviousValue` to restore the prior state or the returned ID to identify what to undo.
+* The `name` parameter can be a static string or a **dynamic function** (e.g. `TransitionOrder` uses `fun (FromTo(from, to')) -> ...` and `SendNotification` uses `getName = (fun cmd -> ...)`) to produce descriptive step names in the saga history.
+
+### Running Workflows
+
+The `IWorkflowRunner` interface offers two methods:
+
+```fsharp
+[<Interface>]
+type IWorkflowRunner<'ins when Instructions<'ins>> =
+    abstract member Run:
+        workflow: #IProgramWorkflow<'ins, 'arg, 'ret> ->
+        arg: 'arg ->
+        prepareInstructions: (IInstructionPreparer<'ins> -> 'ins) ->
+            Async<Result<'ret, Error>>
+
+    abstract member RunInSaga:
+        workflow: #IProgramWorkflow<'ins, 'arg, 'ret> ->
+        arg: 'arg ->
+        prepareInstructions: (IInstructionPreparer<'ins> -> 'ins) ->
+        undoPredicate: CanUndo ->
+            Async<Result<'ret, Error> * SagaState>
+```
+
+* **`Run`** — executes the workflow without saga capability. Internally uses `CanUndo.never`, so no undo is ever attempted. Returns only the result.
+* **`RunInSaga`** — executes the workflow with saga support. Takes an `undoPredicate` of type `CanUndo` to control when undo is triggered. Returns both the result and the `SagaState` (useful for debugging or reporting).
+
+#### Undo strategy: `CanUndo` type
+
+The undo decision is controlled by `CanUndo`, a function type alias defined in `Shopfoo.Program`:
+
+```fsharp
+type UndoCriteria = { WorkflowError: Error; History: ProgramStep list }
+type CanUndo = UndoCriteria -> bool
+
+[<RequireQualifiedAccess>]
+module CanUndo =
+    let never: CanUndo = fun _ -> false
+    let always: CanUndo = fun _ -> true
+```
+
+When a workflow step fails, the saga evaluates the `CanUndo` predicate with the `UndoCriteria` (containing the error and the history of completed steps). If it returns `true`, all previously completed commands are undone; if `false`, the saga stops without undo.
+
+Two built-in helpers cover the most common cases:
+
+* `CanUndo.always` — any failure triggers a full undo.
+* `CanUndo.never` — no undo is ever attempted (used internally by `Run`).
+
+#### Product domain example (from `Shopfoo.Product`)
+
+```fsharp
+let runWorkflow (workflow: IProductWorkflow<'arg, 'ret>) (arg: 'arg) =
+    async {
+        let workflowRunner = workflowRunnerFactory.Create(Manifest.DomainName)
+        let! result, _state = workflowRunner.RunInSaga workflow arg prepareInstructions CanUndo.always
+        return result
+    }
+```
+
+Here every workflow uses `CanUndo.always`: any failure triggers undo of all previously completed commands.
+
+#### Order domain example with custom undo predicate (from `Shopfoo.Program.Tests`)
+
+A more sophisticated example from the test project shows a **custom `CanUndo` predicate** that conditionally prevents undo:
+
+```fsharp
+member private this.VerifyCancel(cancelAfterStep, expectedStatus, expectedHistory, ?expectedError) =
+    async {
+        let canUndoExceptAfterShipOrder undoCriteria =
+            match undoCriteria with
+            | { WorkflowError = BusinessError(As OrderCannotBeCancelledAfterShipping) } -> false
+            | _ -> true
+
+        let! result, sagaState =
+            workflowRunner.RunInSaga
+                (OrderWorkflow(cancelAfterStep))
+                cmdCreateOrder
+                (this.PrepareInstructions())
+                canUndoExceptAfterShipOrder
+        // ... verification logic
+    }
+```
+
+The `canUndoExceptAfterShipOrder` predicate pattern-matches on `UndoCriteria`: it returns `false` when the error is `OrderCannotBeCancelledAfterShipping` (meaning the order has already been shipped and cannot be reversed), and `true` for all other errors (allowing full undo). This demonstrates how to implement **domain-specific undo policies** by inspecting the workflow error.
+
+{% hint style="success" %}
+## About the `BusinessError(As OrderCannotBeCancelledAfterShipping)` pattern
+
+The `BusinessError` case of the `Error` union wraps an `IBusinessError` **interface**, not a concrete type. Each domain defines its own error type implementing this interface — here, `OrderError` is a discriminated union with cases like `OrderCannotBeCancelledAfterShipping`. Since `BusinessError` holds an `IBusinessError`, we cannot directly pattern-match on the concrete union case.
+
+This is where the `As` **active pattern** comes in:
+
+```fsharp
+let inline (|As|_|) (input: obj) : 't option =
+    match input with
+    | :? 't as value -> Some value
+    | _ -> None
+```
+
+`As` performs a type test and cast (inspired by C#'s `as` operator). It lets us combine a type check with nested pattern matching in a single expression: `BusinessError(As OrderCannotBeCancelledAfterShipping)` tests that the `IBusinessError` value is an `OrderError` _and_ specifically the `OrderCannotBeCancelledAfterShipping` case — all without intermediate `match` expressions or guard clauses.
+{% endhint %}
+
+### Interface Implementation
+
+```fsharp
+interface IProductApi with
+    member val GetProducts = catalogPipeline.GetProducts
+    member val GetProduct = catalogPipeline.GetProduct
+    member val SaveProduct = fun product -> runWorkflow SaveProductWorkflow.Instance product
+    member val AddProduct = fun (product, currency) -> runWorkflow AddProductWorkflow.Instance (product, currency)
+
+    member val GetPrices = pricesPipeline.GetPrices
+    member val SavePrices = fun prices -> runWorkflow SavePricesWorkflow.Instance prices
+    member val MarkAsSoldOut = fun sku -> runWorkflow MarkAsSoldOutWorkflow.Instance sku
+    member val RemoveListPrice = fun sku -> runWorkflow RemoveListPriceWorkflow.Instance sku
+
+    member val AdjustStock = warehousePipeline.AdjustStock
+    member val DetermineStock = fun sku -> runWorkflow DetermineStockWorkflow.Instance sku
+
+    member val GetSales = salesPipeline.GetSales
+```
+
+Each endpoint falls into one of two implementation styles:
+
+* **Direct** — delegates to a data-layer pipeline call, with no workflow orchestration.
+* **Workflow** — goes through `runWorkflow`, which handles business logic, validation, and multi-instruction orchestration with saga support.
+
+| Entity  | Feature           | Type    | Implementation |
+| ------- | ----------------- | ------- | -------------- |
+| Product | `GetProducts`     | Query   | Direct         |
+|         | `GetProduct`      | Query   | Direct         |
+|         | `SaveProduct`     | Command | Workflow       |
+|         | `AddProduct`      | Command | Workflow       |
+| Prices  | `GetPrices`       | Query   | Direct         |
+|         | `SavePrices`      | Command | Workflow       |
+|         | `MarkAsSoldOut`   | Command | Workflow       |
+|         | `RemoveListPrice` | Command | Workflow       |
+| Stock   | `AdjustStock`     | Command | Direct 👈      |
+|         | `DetermineStock`  | Query   | Workflow 👈    |
+| Sales   | `GetSales`        | Query   | Direct         |
+
+**Notes:**
+
+* As a rule of thumb, **queries** use Direct calls while **commands** go through a Workflow.
+* Two members — marked with 👈 — deviate from this default: `AdjustStock` and `DetermineStock`.
+* The system is flexible enough to allow either style for any member, based on the actual needs of each feature.
 
 ## Dependency Injection
 
-The last part of the file contains a module defining an extension method to configure dependency injection for these project:
+Registration happens at two levels.
+
+### Program level — `AddProgram()`
+
+The `Shopfoo.Program` project exposes a single extension method that registers the shared infrastructure:
 
 ```fsharp
-module DependencyInjection =
-    open Microsoft.Extensions.DependencyInjection
-
-    type IServiceCollection with
-        member services.AddProductApi() = // ↩
-            services.AddSingleton<IProductApi, Api>()
+// Shopfoo.Program / Dependencies.fs
+type IServiceCollection with
+    member services.AddProgram() =
+        services
+            .AddSingleton<IMetricsSender, MetricsLogger>()
+            .AddSingleton<IWorkMonitors, WorkMonitors>()
+            .AddSingleton<IWorkflowRunnerFactory, WorkflowRunnerFactory>()
 ```
 
-In the case of our demo application _Shopfoo_, the method only performs a single type registration. This is already useful for encapsulation because it allows the `Api` class to be made internal. In a larger project, with a _Data_ layer that itself requires dependency injection—typically elements from the configuration—we would have more types to configure in this method.
+This registers `IWorkflowRunnerFactory` — the factory injected into every domain `Api` class — along with the monitoring infrastructure (`IWorkMonitors`, `IMetricsSender`). The default `MetricsLogger` implementation simply logs metrics via `ILogger`; in a real-world application, it would be replaced by a concrete sender targeting an actual metrics backend.
+
+### Domain level — `Add{Domain}Api()`
+
+Each domain project encapsulates its own registrations:
+
+```fsharp
+// Shopfoo.Product / DependencyInjection.fs
+type IServiceCollection with
+    member services.AddProductApi() =
+        services
+            .AddSingleton<IProductApi, Api>()
+            // ... data layer registrations
+```
+
+This keeps the `Api` class internal while exposing only the `IProductApi` interface. All data-layer types (pipelines, repositories) are registered here as well, invisible to the rest of the application.
+
+### Composition root — `AddRemotingApi()`
+
+Both methods are called from the presentation layer (`Shopfoo.Server`), which acts as the composition root:
+
+```fsharp
+// Shopfoo.Server / DependencyInjection.fs
+type IServiceCollection with
+    member services.AddRemotingApi(configuration: IConfiguration) =
+        services.AddProgram() |> ignore
+
+        services
+            // ... configure settings
+            .AddHttp()
+            .AddProductApi()
+            .AddHomeApi()
+            // ... remoting API builders
+```
+
+`AddProgram()` is called once for the shared infrastructure, then each domain's `Add{Domain}Api()` method is called to wire up its own types. This layered approach keeps each project in control of its own registrations while the server project simply composes them together.

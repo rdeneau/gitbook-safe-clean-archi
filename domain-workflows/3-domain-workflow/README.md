@@ -4,7 +4,7 @@ icon: rectangle-history
 
 # Domain Project
 
-The [Shopfoo.Product](https://shopfoo.product) project implements domain workflows using the [Broken link](/broken/pages/N2UTkhfeV9wjnLvndr4D "mention").
+The [Shopfoo.Product](https://github.com/rdeneau/shopfoo/tree/main/src/Shopfoo.Product) project implements domain workflows using the V4 [Program](../2-program/).
 
 Here is a simplified view from the solution explorer:
 
@@ -13,18 +13,23 @@ Here is a simplified view from the solution explorer:
 ├──📂 Core/
 │  ├──🗃️ Shopfoo.Common
 │  ├──🗃️ Shopfoo.Domain.Types
-│  └──🗃️ Shopfoo.Effects
+│  └──🗃️ Shopfoo.Program
 ├──📂 Feat/
 │  ├──🗃️ Shopfoo.Home
 │  └──🗃️ Shopfoo.Product 👈👈
 │     ├──📂 Workflows/
-│     │  ├──📄 Types.fs
-│     │  ├──📄 Instructions.fs
-│     │  ├──📄 AdjustStock.fs
+│     │  ├──📄 Prelude.fs       👈 Instructions + helpers
+│     │  ├──📄 AddProduct.fs
+│     │  ├──📄 DetermineStock.fs
 │     │  ├──📄 MarkAsSoldOut.fs
+│     │  ├──📄 RemoveListPrice.fs
+│     │  ├──📄 SavePrices.fs
+│     │  ├──📄 SaveProduct.fs
 │     │  └──📄 ...
 │     ├──📂 Data/
-│     └──📄 Api.fs
+│     ├──📄 Api.fs
+│     ├──📄 DependencyInjection.fs
+│     └──📄 Manifest.fs
 └──📂 UI/
    ├──🗃️ Shopfoo.Client
    ├──🗃️ Shopfoo.Server
@@ -33,7 +38,7 @@ Here is a simplified view from the solution explorer:
 
 We will examine each part separately:
 
-* [Broken link](/broken/pages/RGcqz7wRZ7LGyjP7YBbx "mention") describes how we can define the instructions called by domain workflows.
-* [2-workflows.md](2-workflows.md "mention") presents how to write domain workflows by analyzing three typical use cases.
-* [3-data.md](3-data.md "mention") indicates a way to organize the data access layer, whether it is to access a database or call an external API.
-* [4-api.md](4-api.md "mention") describes how to define project entry points for higher layers, abstracting from lower layers—Workflows and Data.
+* [Instructions](1-instructions.md) describes how the instruction interface is defined, along with the ergonomic helpers for composing programs.
+* [Workflows](2-workflows.md) presents how to write domain workflows by analyzing typical use cases, including parallel execution and workflow cancellation with undo (saga pattern).
+* [Data 🚧](3-data.md) indicates a way to organize the data access layer, whether it is to access a database or call an external API.
+* [Api](4-api.md) describes how to define the project entry point, wire instructions to the data layer with undo strategies, and run workflows through the saga runner.
