@@ -24,7 +24,7 @@
   * [Data](domain-workflows/3-domain-workflow/3-data.md)
   * [Api](domain-workflows/3-domain-workflow/4-api.md)
   * [Conclusion](domain-workflows/3-domain-workflow/5-conclusion.md)
-* [Tests 🚧](domain-workflows/4-tests/README.md)
+* [Tests](domain-workflows/4-tests/README.md)
 
 ## Front-end
 
