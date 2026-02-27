@@ -25,6 +25,8 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Feb 27, 2026] feat: 👔 complete "Domain Workflows" chapter, updated to describe the V4 program
+* \[Feb 25, 2026] feat: 👔 indicate the pros of the instruction aliases in program V4
 * \[Jan 06, 2026] feat: 🖼️ show instructions diagram as SVG + mermaid code link
 * \[Jan 06, 2026] tidy: 📐 improve domain-workflows file tree naming
 * \[Jan 02, 2026] feat: 🔄️ [GITBOOK-12] add "Domain Project" series
@@ -33,8 +35,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Dec 30, 2025] feat: 🔄️ [GITBOOK-10] add the audience page
 * \[Dec 30, 2025] feat: ✨ write effectful-program
 * \[Dec 30, 2025] fix(status): 🐛 restore changelog markers
-* \[Dec 30, 2025] feat: 🔄️ [GITBOOK-9] finalize domain workflows intro
-* \[Dec 30, 2025] feat: ✨ write domain workflows intro
 
 </details>
 
@@ -42,15 +42,15 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-tablet-screen">:tablet-screen:</i>  Shopfoo</summary>
 
-* \[Dec 30, 2025] tidy: 📐 improve code for Product workflows
-* \[Dec 30, 2025] refactor: ♻️ remove AdjustStock workflow, as we can delegate directly to the Data layer
-* \[Dec 30, 2025] feat(Effects): 👔 improve Interpreter
-* \[Dec 30, 2025] chore: 🏷️ release 1.2.0 [skip ci]
-* \[Dec 29, 2025] tidy: 📐 adjust fantomas settings
-* \[Dec 29, 2025] feat: ✨ adjust stock after inventory
-* \[Dec 29, 2025] feat: ✨ fetch stock ; verifyZeroStock in MarkAsSoldOut workflow
-* \[Dec 29, 2025] refactor: ♻️ make workflows singleton with Instance static value
-* \[Dec 29, 2025] refactor: ♻️ simplify Instructions with Program.effect helper
-* \[Dec 29, 2025] refactor: ♻️ expose Client.repository in both Sales and Warehouse Data sources
+* \[Feb 26, 2026] feat: 👔 use retail price (if any) as the default prices for sales to input
+* \[Feb 26, 2026] feat: ✨ display sales stats; input sales
+* \[Feb 25, 2026] feat: 🚸 Add toast notification on receive supply save
+* \[Feb 25, 2026] feat: ✨ add Receive Purchased Products drawer
+* \[Feb 25, 2026] feat: 👔 wire ReceiveSupply server handler
+* \[Feb 25, 2026] feat: ✨ add ReceiveSupply workflow with validation
+* \[Feb 25, 2026] feat: ✨ Add ReceiveSupply types and API contract
+* \[Feb 25, 2026] feat: 🖼️ display last purchase price in an ActionsDropdown component
+* \[Feb 25, 2026] feat: ✨ display purchase prices with margin
+* \[Feb 25, 2026] refactor: ♻️ fix Shopfoo.Tests.Common namespace
 
 </details>
