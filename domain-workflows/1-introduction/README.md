@@ -14,13 +14,13 @@ In object-oriented programming, the building blocks are objects and classes. Whe
 
 This introduction presents five progressive solutions to the dependency problem:
 
-| Approach                                                        | Version      | Key Concept                       | Main Benefit                                | Main Limitation                             |
-| --------------------------------------------------------------- | ------------ | --------------------------------- | ------------------------------------------- | ------------------------------------------- |
-| [**Dependency Injection**](1-dependency-injection.md)           | –            | Pass dependencies as inputs       | Widely adopted, simple                      | Async leak, runtime configuration           |
-| [**Dependency Interpretation**](2-dependency-interpretation.md) | `program` V1 | Abstract dependencies as data     | Testability, separation of what/how         | Monolithic instruction type                 |
-| [**Free Monad**](3-free-monad.md)                               | `program` V2 | Separate instructions by domain   | Better organization, domain isolation       | All domains still coupled in `Program` type |
-| [**Algebraic Effects**](4-algebraic-effects.md)                 | `program` V3 | Effect handlers with type safety  | Complete domain isolation, vertical slicing | No parallel execution, high boilerplate     |
-| [**Tagless Final**](5-tagless-final.md)                         | `program` V4 | Async reader with instruction interface | Simplest, parallel execution, undo support | Requires discipline (no exhaustiveness) |
+| Approach                                                        | Version      | Key Concept                             | Main Benefit                                | Main Limitation                             |
+| --------------------------------------------------------------- | ------------ | --------------------------------------- | ------------------------------------------- | ------------------------------------------- |
+| [**Dependency Injection**](1-dependency-injection.md)           | –            | Pass dependencies as inputs             | Widely adopted, simple                      | Async leak, runtime configuration           |
+| [**Dependency Interpretation**](2-dependency-interpretation.md) | `program` V1 | Abstract dependencies as data           | Testability, separation of what/how         | Monolithic instruction type                 |
+| [**Free Monad**](3-free-monad.md)                               | `program` V2 | Separate instructions by domain         | Better organization, domain isolation       | All domains still coupled in `Program` type |
+| [**Algebraic Effects**](4-algebraic-effects.md)                 | `program` V3 | Effect handlers with type safety        | Complete domain isolation, vertical slicing | No parallel execution, high boilerplate     |
+| [**Tagless Final**](5-tagless-final.md)                         | `program` V4 | Async reader with instruction interface | Simplest, parallel execution, undo support  | –                                           |
 
 ## Prerequisites
 

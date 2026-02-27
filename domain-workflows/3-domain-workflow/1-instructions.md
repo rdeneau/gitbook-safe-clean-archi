@@ -82,13 +82,13 @@ This optional but convenient alias fixes the instruction set type parameter. Eac
 
 ## Comparison with V3
 
-| Aspect                       | V3 (5-step recipe)                                            | V4 (Tagless Final)            |
-| ---------------------------- | ------------------------------------------------------------- | ----------------------------- |
-| **Steps per instruction**    | 5 (alias, union case, effect interface, effect class, helper) | 2 (interface member + helper) |
-| **Lines per instruction**    | ~10                                                           | 2                             |
-| **Union type**               | Required for exhaustive matching                              | Not needed                    |
-| **Effect classes**           | One per instruction (4 lines each)                            | Not needed                    |
-| **Functor Map**              | Must be implemented per effect class                          | Not needed                    |
-| **Total for 7 instructions** | ~70 lines                                                     | ~15 lines                     |
+| Aspect                       | V3 (5-step recipe)                                            | V4 (Tagless Final)                                                |
+| ---------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Steps per instruction**    | 5 (alias, union case, effect interface, effect class, helper) | 2 (interface member + helper)                                     |
+| **Lines per instruction**    | ~10                                                           | 2                                                                 |
+| **Union type**               | Required for exhaustive pattern matching                      | Not needed — exhaustiveness is enforced by the interface contract |
+| **Effect classes**           | One per instruction (4 lines each)                            | Not needed                                                        |
+| **Functor Map**              | Must be implemented per effect class                          | Not needed                                                        |
+| **Total for 7 instructions** | ~70 lines                                                     | ~15 lines                                                         |
 
 The drastic reduction in boilerplate is the most visible benefit of V4. But the more important gain is **conceptual simplicity**: instructions are just interface methods, programs are just functions consuming those methods.

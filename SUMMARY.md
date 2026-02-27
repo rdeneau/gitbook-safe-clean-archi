@@ -21,7 +21,7 @@
 * [Domain Project](domain-workflows/3-domain-workflow/README.md)
   * [Instructions](domain-workflows/3-domain-workflow/1-instructions.md)
   * [Workflows](domain-workflows/3-domain-workflow/2-workflows.md)
-  * [Data 🚧](domain-workflows/3-domain-workflow/3-data.md)
+  * [Data](domain-workflows/3-domain-workflow/3-data.md)
   * [Api](domain-workflows/3-domain-workflow/4-api.md)
   * [Conclusion](domain-workflows/3-domain-workflow/5-conclusion.md)
 * [Tests 🚧](domain-workflows/4-tests/README.md)

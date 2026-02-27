@@ -151,10 +151,9 @@ The reader-based design naturally supports:
 - **Observability:** Logging, metrics, and timing are injected at the instruction preparation level.
 - **Testing:** Mock the instruction interface — no interpreter to stub.
 
-## Trade-offs
+## Complementary Resource
 
-- **No exhaustiveness checking:** In V3, the union type guaranteed exhaustive pattern matching over all instructions at the interpreter level. With tagless final, adding a new instruction to the interface is caught by the compiler (all implementations must be updated), but there's no single place where all instructions are matched together.
-- **Discipline required:** Since instructions are just interface methods, nothing prevents calling them outside of a program. Convention and code review enforce this boundary.
+- Series [Tagless Final in F#](https://johnazariah.github.io/2025/12/12/tagless-final-01-froggy-tree-house.html) by John Azariah 🐸
 
 ## What's Next
 
