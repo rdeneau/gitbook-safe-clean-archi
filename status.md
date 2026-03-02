@@ -25,16 +25,16 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 02, 2026] wip: 🚧 prepare font-end chapter
+* \[Mar 02, 2026] feat: ✨ architecture chapter
+* \[Mar 02, 2026] feat: ✨ architecture chapter
+* \[Mar 02, 2026] feat: ✨ domain model
+* \[Mar 02, 2026] feat: ✨ tips & tricks chapter
 * \[Feb 27, 2026] feat: 👔 write domain-workflows/4-tests page
 * \[Feb 27, 2026] feat: 👔 complete "Domain Workflows" chapter, updated to describe the V4 program
 * \[Feb 27, 2026] feat: 👔 complete "Domain Workflows" chapter, updated to describe the V4 program
 * \[Feb 25, 2026] feat: 👔 indicate the pros of the instruction aliases in program V4
 * \[Jan 06, 2026] feat: 🖼️ show instructions diagram as SVG + mermaid code link
-* \[Jan 06, 2026] tidy: 📐 improve domain-workflows file tree naming
-* \[Jan 02, 2026] feat: 🔄️ [GITBOOK-12] add "Domain Project" series
-* \[Dec 31, 2025] feat: 🔄️ [GITBOOK-11] revamp Status Changelog: use Expandable  sections, more resilient to changes in GitBook
-* \[Dec 30, 2025] feat: ✨ complete "Domain Workflows"
-* \[Dec 30, 2025] feat: 🔄️ [GITBOOK-10] add the audience page
 
 </details>
 
@@ -42,6 +42,8 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-tablet-screen">:tablet-screen:</i>  Shopfoo</summary>
 
+* \[Mar 02, 2026] test: 🧪 architecture of Server and Feat
+* \[Mar 02, 2026] refactor: ♻️ improve Shopfoo.Product.Tests namespaces
 * \[Feb 26, 2026] feat: 👔 use retail price (if any) as the default prices for sales to input
 * \[Feb 26, 2026] feat: ✨ display sales stats; input sales
 * \[Feb 25, 2026] feat: 🚸 Add toast notification on receive supply save
@@ -50,7 +52,5 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Feb 25, 2026] feat: ✨ add ReceiveSupply workflow with validation
 * \[Feb 25, 2026] feat: ✨ Add ReceiveSupply types and API contract
 * \[Feb 25, 2026] feat: 🖼️ display last purchase price in an ActionsDropdown component
-* \[Feb 25, 2026] feat: ✨ display purchase prices with margin
-* \[Feb 25, 2026] refactor: ♻️ fix Shopfoo.Tests.Common namespace
 
 </details>
