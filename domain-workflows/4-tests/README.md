@@ -212,40 +212,9 @@ Unquote's key feature is **step-by-step reduction**: on failure, it evaluates th
 
   The caveat is that the reduction stops at the first `false` sub-expression — subsequent assertions are not evaluated.
 
-### Multiple assertions
+### Full-state and multiple assertions
 
-For **multiple assertions**, an alternative to `test <@ ... && ... @>` is to bundle actual and expected values into an **anonymous record** with `=!`:
-
-```fsharp
-{| A = actualA; B = actualB |} =! {| A = expectedA; B = expectedB |}
-```
-
-This reports all mismatches at once — unlike `&&` which stops at the first failure — while remaining a single assertion.
-
-### Prefer constructing the expected value
-
-When the result is a union type (`Option`, `Result`…), avoid pattern matching to extract the inner value. Instead, construct the full expected value and compare directly:
-
-```fsharp
-// ✖️ Fragile: pattern match + failwith
-match result with
-| Ok actual -> actual =! expected
-| Error _ -> failwith "Expected Ok"
-
-// ✅ Better: single assertion, full reduction on failure
-result =! Ok expected
-```
-
-This keeps assertions as a single expression, produces clearer failure messages (Unquote shows the actual value alongside the expected one), and avoids `failwith` branches that provide no useful diagnostic.
-
-When the result contains non-deterministic values (e.g. a generated `Guid` or a `DateTime`), constructing the full expected value is not possible. In this case, **project** the result to strip out the unpredictable parts before asserting:
-
-```fsharp
-// The result contains a generated InvoiceId — project it away
-result |> Result.map _.Amount =! Ok 100m
-```
-
-This technique is known as **scrubbing** in approval testing libraries (e.g. [Verify](https://github.com/VerifyTests/Verify)): replacing volatile values with stable placeholders or removing them entirely so that assertions remain deterministic.
+For best practices on constructing full expected values and combining multiple assertions in a single check, see [Better assertions](../../tips-and-tricks/better-assertions.md) in Tips & Tricks.
 
 ## Example-Based Tests
 
@@ -266,32 +235,7 @@ member _.``deduct sales from initial stock``() =
 
 ### Parameterized Tests
 
-TUnit offers several ways to provide data to the tests. `[<Arguments>]` attribute is simpler one — equivalent to xUnit's `[<InlineData>]` — but it accepts only **constant values**: numbers, strings, and enums. Since F# domain code typically uses discriminated unions rather than enums, a useful trick is to define a **mirror enum** alongside an **active pattern** that converts it to the domain type. The active pattern is applied directly in the parameter definition, so the test body works with the domain type without any conversion boilerplate:
-
-```fsharp
-// Types.fs — mirror enum + active pattern
-type CurrencyEnum =
-    | EUR = 'e'
-    | USD = 'u'
-
-module Currency =
-    let (|FromEnum|) (currency: CurrencyEnum) =
-        match currency with
-        | CurrencyEnum.EUR -> Currency.EUR
-        | CurrencyEnum.USD -> Currency.USD
-        | _ -> invalidArg "currency" $"Invalid currency: {currency}"
-```
-
-```fsharp
-// Test — the active pattern converts in the parameter itself
-[<Test>]
-[<Arguments(CurrencyEnum.EUR)>]
-[<Arguments(CurrencyEnum.USD)>]
-member _.``update retail price to SoldOut given a product with no stock``(Currency.FromEnum currency) =
-    // `currency` is already a `Currency` domain type here
-```
-
-For more complex test data that cannot be expressed as constants, TUnit offers `[<MethodDataSource>]` and `[<ClassDataSource>]`. These attributes reference a method or a class that produces test cases at runtime, removing the constant-value constraint. They are more powerful but also more verbose — requiring a separate data source definition. See the [TUnit data-driven testing overview](https://tunit.dev/docs/writing-tests/data-driven-overview) for all the possibilities.
+TUnit offers several ways to provide data to the tests. The simplest is the `[<Arguments>]` attribute — equivalent to xUnit's `[<InlineData>]` — but it accepts only constant values. For domain types, see [Parameterized tests: mirror enums with active patterns](../../tips-and-tricks/parameterized-tests-mirror-enums.md) in Tips & Tricks.
 
 ## Property-Based Tests
 
@@ -307,18 +251,7 @@ member _.``return the average price of purchases within 1Y``(...) =
 
 ### Active patterns as lightweight generators
 
-Writing custom FsCheck generators can be verbose — especially for domain types with many constraints. A lighter alternative is to use **active patterns** that transform types FsCheck already knows how to generate:
-
-```fsharp
-let (|PositiveEuros|) (PositiveInt amount) : Money = Money.Euros(decimal amount)
-```
-
-`PositiveInt` is a built-in FsCheck wrapper. The `PositiveEuros` active pattern converts it into a valid `Money` value — no custom `Arb` or `Gen` required. It can be used directly in the test parameter:
-
-```fsharp
-member _.``return the average price of purchases within 1Y``
-    (PositiveInt q1, PositiveEuros p1, PositiveInt q2, PositiveEuros p2) = ...
-```
+FsCheck generators can be verbose for constrained domain types. A lighter alternative is to use active patterns — see [Active patterns as lightweight FsCheck generators](../../tips-and-tricks/lightweight-fscheck-generators.md) in Tips & Tricks.
 
 Compare this with generating a valid `Book`, which requires a custom generator composing multiple fields — a valid ISBN (with checksum), a list of authors (each with a valid OLID), tags, etc.:
 
@@ -332,8 +265,6 @@ let genBook: Gen<Book> =
         return { ISBN = isbn; Subtitle = subtitle; Authors = Set authors; Tags = Set tags }
     }
 ```
-
-The rule of thumb: **use active patterns** when you can derive a valid domain value from a single primitive that FsCheck already generates; **use custom generators** when the domain type has structural invariants spanning multiple fields.
 
 ### Validation Testing
 

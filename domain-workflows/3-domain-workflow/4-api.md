@@ -230,21 +230,8 @@ member private this.VerifyCancel(cancelAfterStep, expectedStatus, expectedHistor
 
 The `canUndoExceptAfterShipOrder` predicate pattern-matches on `UndoCriteria`: it returns `false` when the error is `OrderCannotBeCancelledAfterShipping` (meaning the order has already been shipped and cannot be reversed), and `true` for all other errors (allowing full undo). This demonstrates how to implement **domain-specific undo policies** by inspecting the workflow error.
 
-{% hint style="success" %}
-## About the `BusinessError(As OrderCannotBeCancelledAfterShipping)` pattern
-
-The `BusinessError` case of the `Error` union wraps an `IBusinessError` **interface**, not a concrete type. Each domain defines its own error type implementing this interface — here, `OrderError` is a discriminated union with cases like `OrderCannotBeCancelledAfterShipping`. Since `BusinessError` holds an `IBusinessError`, we cannot directly pattern-match on the concrete union case.
-
-This is where the `As` **active pattern** comes in:
-
-```fsharp
-let inline (|As|_|) (input: obj) : 't option =
-    match input with
-    | :? 't as value -> Some value
-    | _ -> None
-```
-
-`As` performs a type test and cast (inspired by C#'s `as` operator). It lets us combine a type check with nested pattern matching in a single expression: `BusinessError(As OrderCannotBeCancelledAfterShipping)` tests that the `IBusinessError` value is an `OrderError` _and_ specifically the `OrderCannotBeCancelledAfterShipping` case — all without intermediate `match` expressions or guard clauses.
+{% hint style="info" %}
+See [The `As` active pattern](../../tips-and-tricks/as-active-pattern.md) for details on this pattern matching technique.
 {% endhint %}
 
 ### Interface Implementation

@@ -36,6 +36,16 @@
 * [Translations 🚧](front-end/translations.md)
 * [Tests 🚧](front-end/tests.md)
 
+## Tips & Tricks
+
+* [Introduction](tips-and-tricks/README.md)
+  * [The `As` active pattern](tips-and-tricks/as-active-pattern.md)
+  * [Type hierarchy without OOP: SKU](tips-and-tricks/sku-type-hierarchy.md)
+  * [Parameterized tests: mirror enums](tips-and-tricks/parameterized-tests-mirror-enums.md)
+  * [Lightweight FsCheck generators](tips-and-tricks/lightweight-fscheck-generators.md)
+  * [Better assertions](tips-and-tricks/better-assertions.md)
+  * [Strongly-typed identifiers](tips-and-tricks/strongly-typed-ids.md)
+
 ## Appendices
 
 * [Resources 🚧](appendices/resources.md)
