@@ -17,6 +17,10 @@ Here is a simplified view from the solution explorer:
 ├──📂 Feat/
 │  ├──🗃️ Shopfoo.Home
 │  └──🗃️ Shopfoo.Product 👈👈
+│     ├──📂 Model/
+│     │  ├──📄 Product.fs       👈 Validation logic
+│     │  ├──📄 Prices.fs
+│     │  └──📄 Stock.fs
 │     ├──📂 Workflows/
 │     │  ├──📄 Prelude.fs       👈 Instructions + helpers
 │     │  ├──📄 AddProduct.fs
@@ -38,6 +42,7 @@ Here is a simplified view from the solution explorer:
 
 We will examine each part separately:
 
+* [Domain Model](0-domain-model.md) explains how the domain model is split between shared types (`Domain.Types`) and aggregates (`Model/`) following DDD principles.
 * [Instructions](1-instructions.md) describes how the instruction interface is defined, along with the ergonomic helpers for composing programs.
 * [Workflows](2-workflows.md) presents how to write domain workflows by analyzing typical use cases, including parallel execution and workflow cancellation with undo (saga pattern).
 * [Data](3-data.md) indicates a way to organize the data access layer, whether it is to access a database or call an external API.
