@@ -7,7 +7,9 @@
 
 ## Architecture
 
-* [TODO 🚧](architecture/todo.md)
+* [Architecture](architecture/README.md)
+  * [Solution Organisation](architecture/1-solution-orga.md)
+  * [Principles](architecture/2-principles.md)
 
 ## Domain workflows
 
