@@ -25,10 +25,10 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 02, 2026] feat: ✨ front-end elmish pages (intro and data-flow)
 * \[Mar 02, 2026] wip: 🚧 prepare font-end chapter
 * \[Mar 02, 2026] feat: ✨ architecture chapter
-* \[Mar 02, 2026] feat: ✨ architecture chapter
-* \[Mar 02, 2026] feat: ✨ domain model
+* \[Mar 02, 2026] feat: ✨ domain model page
 * \[Mar 02, 2026] feat: ✨ tips & tricks chapter
 * \[Feb 27, 2026] feat: 👔 write domain-workflows/4-tests page
 * \[Feb 27, 2026] feat: 👔 complete "Domain Workflows" chapter, updated to describe the V4 program
