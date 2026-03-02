@@ -1,6 +1,0 @@
----
-icon: presentation-screen
----
-
-# Introduction 🚧
-

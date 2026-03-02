@@ -31,9 +31,8 @@
 
 ## Front-end
 
-* [Elmish🚧](front-end/elmish/README.md)
-  * [Introduction 🚧](front-end/elmish/introduction.md)
-  * [Data flow 🚧](front-end/elmish/data-flow.md)
+* [Elmish](front-end/elmish/README.md)
+  * [Data flow](front-end/elmish/data-flow.md)
 * [Navigation 🚧](front-end/navigation.md)
 * [Notifications](front-end/notifications.md)
 * [Remoting 🚧](front-end/remoting.md)
