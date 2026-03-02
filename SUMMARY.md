@@ -35,8 +35,11 @@
   * [Introduction 🚧](front-end/elmish/introduction.md)
   * [Data flow 🚧](front-end/elmish/data-flow.md)
 * [Navigation 🚧](front-end/navigation.md)
+* [Notifications](front-end/notifications.md)
 * [Remoting 🚧](front-end/remoting.md)
+* [Security 🚧](front-end/security.md)
 * [Translations 🚧](front-end/translations.md)
+* [Validation 🚧](front-end/validation.md)
 * [Tests 🚧](front-end/tests.md)
 
 ## Tips & Tricks
