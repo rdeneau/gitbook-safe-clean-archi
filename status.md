@@ -25,6 +25,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 03, 2026] feat: 👔 improve architecture chapter
 * \[Mar 02, 2026] feat: ✨ front-end elmish pages (intro and data-flow)
 * \[Mar 02, 2026] wip: 🚧 prepare font-end chapter
 * \[Mar 02, 2026] feat: ✨ architecture chapter
@@ -34,7 +35,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Feb 27, 2026] feat: 👔 complete "Domain Workflows" chapter, updated to describe the V4 program
 * \[Feb 27, 2026] feat: 👔 complete "Domain Workflows" chapter, updated to describe the V4 program
 * \[Feb 25, 2026] feat: 👔 indicate the pros of the instruction aliases in program V4
-* \[Jan 06, 2026] feat: 🖼️ show instructions diagram as SVG + mermaid code link
 
 </details>
 
