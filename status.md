@@ -25,6 +25,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 03, 2026] feat: 🔄️ [GITBOOK-15] improve pages tree
 * \[Mar 03, 2026] tidy: 📐 cosmetic changes
 * \[Mar 03, 2026] feat: 🔄️ [GITBOOK-14] add missing icons
 * \[Mar 03, 2026] feat: 👔 improve architecture chapter
@@ -34,7 +35,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 02, 2026] feat: ✨ domain model page
 * \[Mar 02, 2026] feat: ✨ tips & tricks chapter
 * \[Feb 27, 2026] feat: 👔 write domain-workflows/4-tests page
-* \[Feb 27, 2026] feat: 👔 complete "Domain Workflows" chapter, updated to describe the V4 program
 
 </details>
 
