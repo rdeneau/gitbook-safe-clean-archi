@@ -308,7 +308,7 @@ let processPayment (currentDate: DateTimeOffset, payment) =
     }
 ```
 
-This example comes from Roman Nevolin's excellent article [Fighting complexity in software development](https://github.com/atsapura/CardManagement/blob/master/article/Fighting.Complexity.md#business-logic).
+This example comes from Roman Liman's excellent article [Fighting complexity in software development](https://github.com/atsapura/CardManagement/blob/master/article/Fighting.Complexity.md#business-logic).
 
 ## Pattern Name and Origins
 
