@@ -24,6 +24,10 @@ A collection of general coding tips and tricks, illustrated with examples from t
 * [Lightweight FsCheck generators](lightweight-fscheck-generators.md)
 * [Parameterized tests with mirror enums](parameterized-tests-mirror-enums.md)
 
+### `#Tooling`
+
+* [F# formatting with Fantomas](fsharp-formatting.md)
+
 ### `#TypeModeling`
 
 * [Strongly-typed identifiers](strongly-typed-ids.md)

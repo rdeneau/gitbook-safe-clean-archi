@@ -47,6 +47,7 @@
 
 * [Index](tips-and-tricks/README.md)
   * [As active pattern](tips-and-tricks/as-active-pattern.md)
+  * [F# formatting with Fantomas](tips-and-tricks/fsharp-formatting.md)
   * [Better assertions](tips-and-tricks/better-assertions.md)
   * [Lightweight FsCheck generators](tips-and-tricks/lightweight-fscheck-generators.md)
   * [Parameterized tests: mirror enums](tips-and-tricks/parameterized-tests-mirror-enums.md)
