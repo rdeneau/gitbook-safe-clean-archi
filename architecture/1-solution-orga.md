@@ -89,28 +89,38 @@ flowchart BT
 
 ## Projects purpose
 
-- **src/Core**: Foundation libraries shared across the solution.
-  - Used everywhere, up to `UI.Client` — can contains some `#if FABLE_COMPILER` directives:
-    - **Shopfoo.Common**:  Helpers for base types (`String`, `Seq`…). No dependencies.
-    - **Shopfoo.Domain.Types**:  Domain model: types only, with no behaviors except `Guard` clauses to prevent invalid state.
-  - Backend-only:
-    - **Shopfoo.Data**:  Data-layer helpers: HTTP, JSON/XML serialization, DI extensions.
-    - **Shopfoo.Program**:  The `program` computation expression, saga runner, instruction preparer, and monitoring infrastructure.
+### src/Core
 
-- **src/Feat**: Features. Each project is a DDD **bounded context**:
-  - **Shopfoo.Home**: Supportive bounded context — translations and user data access.
-  - **Shopfoo.Product**: Product core bounded context.
+Foundation libraries shared across the solution.
 
-- **src/UI**: Presentation layer, based on the [SAFE](https://safe-stack.github.io/) stack:
-  - **Shopfoo.Shared**: Shared types and Remoting API contracts consumed by both Client and Server.
-  - **Shopfoo.Server**: ASP.NET entry point (exe). Hosts the Remoting API handlers, acts as the composition root for DI.
-  - **Shopfoo.Client**: SPA written in F#, compiled to JavaScript via [Fable](https://fable.io/). Follows the [Elmish](https://elmish.github.io/) MVU pattern.
+- Used everywhere, up to `UI.Client` — can contains some `#if FABLE_COMPILER` directives:
+  - **Shopfoo.Common**:  Helpers for base types (`String`, `Seq`…). No dependencies.
+  - **Shopfoo.Domain.Types**:  Domain model: types only, with no behaviors except `Guard` clauses to prevent invalid state.
+- Backend-only:
+  - **Shopfoo.Data**:  Data-layer helpers: HTTP, JSON/XML serialization, DI extensions.
+  - **Shopfoo.Program**:  The `program` computation expression, saga runner, instruction preparer, and monitoring infrastructure.
 
-- **tests/**:
-  - **Shopfoo.Tests.Common** (Common/): Shared test utilities and FsCheck arbitrary generators.
-  - **Shopfoo.Program.Tests** (Core/): Saga pattern tests with a dedicated Order domain context.
-  - **Shopfoo.Product.Tests** (Feat/): Product workflow tests through `IProductApi` — see [Tests](../domain-workflows/4-tests/README.md).
-  - **Shopfoo.Client.Tests** (UI/): Client-side tests (filters, routing).
+### src/Feat
+
+Features. Each project is a DDD **bounded context**:
+
+- **Shopfoo.Home**: Supportive bounded context — translations and user data access.
+- **Shopfoo.Product**: Product core bounded context.
+
+### src/UI
+
+Presentation layer, based on the [SAFE](https://safe-stack.github.io/) stack:
+
+- **Shopfoo.Shared**: Shared types and Remoting API contracts consumed by both Client and Server.
+- **Shopfoo.Server**: ASP.NET entry point (exe). Hosts the Remoting API handlers, acts as the composition root for DI.
+- **Shopfoo.Client**: SPA written in F#, compiled to JavaScript via [Fable](https://fable.io/). Follows the [Elmish](https://elmish.github.io/) MVU pattern.
+
+### tests
+
+- **Shopfoo.Tests.Common** (Common/): Shared test utilities and FsCheck arbitrary generators.
+- **Shopfoo.Program.Tests** (Core/): Saga pattern tests with a dedicated Order domain context.
+- **Shopfoo.Product.Tests** (Feat/): Product workflow tests through `IProductApi` — see [Tests](../domain-workflows/4-tests/README.md).
+- **Shopfoo.Client.Tests** (UI/): Client-side tests (filters, routing).
 
 ## Domain Workflows
 

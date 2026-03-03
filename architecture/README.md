@@ -6,14 +6,14 @@ The target applications are full-stack applications written in F#. The architect
 
 | Good parts                                      | Bad parts                                                                 |
 | ----------------------------------------------- | ------------------------------------------------------------------------- |
-| **Any paradigm**                                |                                                                           |
+| — **_Any paradigm_** ——                         |                                                                           |
 | Separation of concerns                          | Strong coupling                                                           |
 | Cohesion, Consistency                           | Technical layers                                                          |
-| **Object-oriented**                             |                                                                           |
+| — **_Object-oriented_** ——                      |                                                                           |
 | Abstraction, Decoupling (ISP, DIP)              | Inheritance, LSP violations                                               |
 | Dependency Injection, Encapsulation             | Many files, Ceremony, Verbosity                                           |
 | Clean and hexagonal architectures               | Cyclic dependencies                                                       |
-| **Functional (in F#)**                          |                                                                           |
+| — **_Functional (in F#)_** ——                   |                                                                           |
 | Lightweight syntax                              | `internal`/`private` not used enough                                      |
 | Immutability, Structural equality               |                                                                           |
 | Higher-order functions, Composition, Pipelines  |                                                                           |

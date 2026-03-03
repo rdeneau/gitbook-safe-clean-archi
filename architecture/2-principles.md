@@ -268,25 +268,25 @@ The DI container handles object instantiation, life cycle (transient, scoped, si
 The architecture rules listed above are enforced by tests located in `tests/Shopfoo.Feat.Tests/ArchitectureTests.fs` and `tests/Shopfoo.Server.Tests/ArchitectureTests.fs`:
 
 ```
-Feat
-└── FeatArchitectureTests
-    ├── Domain types should not depend on feat projects
-    ├── Feat data clients should be internal
-    ├── Feat data DTOs should be public to prevent serialization issues
-    ├── Feat data mappers should be internal
-    ├── Feat data pipelines should be internal
-    ├── Feat project should not reference other feat projects
-    ├── Feat project should not reference the Server project
-    ├── Workflow class name should end with Workflow
-    ├── Workflows should be in their dedicated file, named without the Workflow suffix
-    ├── Workflows should be sealed and internal classes
-    ├── Workflows should not depend on data DTOs
-    └── Workflows should not depend on Data types
+📂 Feat
+└── 🧪 FeatArchitectureTests
+    ├── ✅ Domain types should not depend on feat projects
+    ├── ✅ Feat data clients should be internal
+    ├── ✅ Feat data DTOs should be public to prevent serialization issues
+    ├── ✅ Feat data mappers should be internal
+    ├── ✅ Feat data pipelines should be internal
+    ├── ✅ Feat project should not reference other feat projects
+    ├── ✅ Feat project should not reference the Server project
+    ├── ✅ Workflow class name should end with Workflow
+    ├── ✅ Workflows should be in their dedicated file, named without the Workflow suffix
+    ├── ✅ Workflows should be sealed and internal classes
+    ├── ✅ Workflows should not depend on data DTOs
+    └── ✅ Workflows should not depend on Data types
 
-UI
-└── ServerArchitectureTests
-    ├── Remoting API request handlers should be sealed and in their dedicated file
-    ├── Server project should not access data DTOs, public just to prevent serialization issues
-    ├── Server project should not access Feat data layer
-    └── Server project should not access Feat internal elements using InternalsVisibleTo
+📂 UI
+└── 🧪 ServerArchitectureTests
+    ├── ✅ Remoting API request handlers should be sealed and in their dedicated file
+    ├── ✅ Server project should not access data DTOs, public just to prevent serialization issues
+    ├── ✅ Server project should not access Feat data layer
+    └── ✅ Server project should not access Feat internal elements using InternalsVisibleTo
 ```
