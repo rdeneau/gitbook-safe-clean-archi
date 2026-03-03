@@ -6,7 +6,7 @@ The following principles are either embedded in the code design, or checked usin
 
 ### Modular Monolith
 
-A modular monolith structures the application into independent modules with well-defined boundaries, split based on logical boundaries. Modules are loosely coupled and communicate through a public API.
+> A **modular monolith** structures the application into independent modules with well-defined boundaries, split based on logical boundaries. Modules are loosely coupled and communicate through a public API.
 
 The application exposes modules located in the `src/Feat/` folder.
 
@@ -14,7 +14,13 @@ The application exposes modules located in the `src/Feat/` folder.
 **Architecture rule:** Domain project should not reference other domain projects.
 {% endhint %}
 
+🔗 [What Is a Modular Monolith?](https://www.milanjovanovic.tech/blog/what-is-a-modular-monolith) — Milan Jovanović
+
 ### Clean Architecture
+
+![Clean Architecture Layers](clean-archi-layers.png)
+
+🔗 [Why Clean Architecture Is Great For Complex Projects](https://www.milanjovanovic.tech/blog/why-clean-architecture-is-great-for-complex-projects) — Milan Jovanović
 
 The architecture maps to Clean Architecture layers:
 
@@ -27,7 +33,13 @@ The architecture maps to Clean Architecture layers:
 
 ### Hexagonal Architecture
 
-The Clean Architecture is de facto compatible with the Hexagonal Architecture: the hexagon surrounds the Application and Domain layers. It distinguishes dependencies that _drive_ the hexagon (left side) from those _driven by_ it (right side).
+The *Clean Architecture* is de facto compatible with the *Hexagonal Architecture*: the hexagon surrounds the *Application* and *Domain* layers.
+
+The *Hexagonal Architecture* uses another **terminology**: dependencies are abstracted behind **ports**, implemented in outer layers by **adapters**. There are no prescribed ways to define ports and adapters: ports are not necessarily interfaces, and adapters are not necessarily referring to the *Adapter* design pattern ([refactoring.guru](https://refactoring.guru/design-patterns/adapter), [Wikipedia](https://en.wikipedia.org/wiki/Adapter_pattern)).
+
+It distinguishes dependencies that *drive* the hexagon (left side) from those *driven by* it (right side).
+
+![Hexagonal Architecture Layers](hexa-archi-layers.png)
 
 **Left side:** The `UI/Server` project drives domains through their `I{Domain}Api` (ports) and adapts them to the Remoting API. Tests can exercise the `I{Domain}Api`, mocking its dependencies.
 
@@ -36,20 +48,104 @@ The Clean Architecture is de facto compatible with the Hexagonal Architecture: t
 1. Application Workflows define their right ports as **Instructions**. The Workflow Runner acts as the adapter, driving the Data Pipelines.
 2. Data Pipelines can expose their dependencies as interfaces (`IXxxApi`), implemented by concrete Clients, following the dependency inversion principle.
 
+```mermaid
+graph BT
+    subgraph "Domain/"
+        Types
+    end
+    subgraph "Workflows/"
+        Workflows --> Instructions
+    end
+    subgraph "Data/"
+        Client --> DTOs
+        Mappers --> DTOs
+        Mappers --> Types
+        Pipeline --> Client
+        Pipeline --> Mappers
+    end
+    subgraph Api
+        Runner
+    end
+    Runner --> Workflows
+    Runner --> Instructions
+    Runner --> Pipeline
+```
+
 ### Vertical Slice Architecture
 
-Instead of organizing code by technical layers, Vertical Slice Architecture organizes it by business features. The domain projects in `src/Feat/` are self-contained, including almost all layers: Application, Domain, Infrastructure — `Workflows/` and `Data/` folders in the code.
+> Instead of organizing your code by technical layers (`Controllers`, `Services`, `Repositories`), **Vertical Slice Architecture** organizes it by **business features**. Each feature becomes a **self-contained** "slice" that includes **everything needed for that specific functionality**. \
+> 🔗 [Vertical Slice Architecture Is Easier Than You Think](https://www.milanjovanovic.tech/blog/vertical-slice-architecture-is-easier-than-you-think) — Milan Jovanović
+
+The *Safe Clean Architecture* does not implement vertical slices by the book, but applies its principle at the module level of the modular monolith: the domain projects in `src/Feat/` are self-contained, including almost all layers: Application, Domain, Infrastructure — `Workflows/` and `Data/` folders in the code.
 
 ### Screaming Architecture
 
-The system communicates its purpose through its structure:
+> Build a system that truly "screams" about the problems it solves, […] that communicates its purpose through its structure. \
+> By organizing your system around use cases, you align your codebase with the core business domain. \
+> 🔗 [Screaming Architecture](https://www.milanjovanovic.tech/blog/screaming-architecture) — Milan Jovanović
 
-- **Domain projects** contain a `Workflows/` folder where each workflow (use case) is in a dedicated file.
-- **Remoting API** folders contain a handler per file, exposing the capabilities consumed by the Client.
+The *Safe Clean Architecture* applies this principle at two levels:
+
+**Domain projects** can contain a `Workflows/` folder where each workflow (use case) is in a dedicated file.
+
+```text
+Shopfoo.Product
+├── Model/
+├── Workflows/
+│   ├── Prelude.fs
+│   ├── AddProduct.fs       👈
+│   ├── DetermineStock.fs   👈
+│   ├── ReceiveSupply.fs    👈
+│   ├── MarkAsSoldOut.fs    👈
+│   ├── RemoveListPrice.fs  👈
+│   ├── SavePrices.fs       👈
+│   └── SaveProduct.fs      👈
+├── Data/
+├── Api.fs
+└── DependencyInjection.fs
+```
 
 {% hint style="success" %}
 **Architecture rule:** Workflows should be in their dedicated file, named without the `Workflow` suffix.
 {% endhint %}
+
+**Remoting API** folders contain a handler per file, exposing the capabilities consumed by the Client.
+
+```text
+Shopfoo.Server
+├── Remoting/
+│   ├── FeatApi.fs
+│   ├── Security.fs
+│   ├── Catalog/
+│   │   ├── AddProductHandler.fs         👈
+│   │   ├── GetBooksDataHandler.fs       👈
+│   │   ├── GetProductsHandler.fs        👈
+│   │   ├── GetProductHandler.fs         👈
+│   │   ├── SaveProductHandler.fs        👈
+│   │   ├── SearchAuthorsHandler.fs      👈
+│   │   ├── SearchBooksHandler.fs        👈
+│   │   └── CatalogApiBuilder.fs
+│   ├── Home/
+│   │   ├── IndexHandler.fs              👈
+│   │   ├── GetTranslationsHandler.fs    👈
+│   │   └── HomeApiBuilder.fs
+│   ├── Prices/
+│   │   ├── AdjustStockHandler.fs        👈
+│   │   ├── DetermineStockHandler.fs     👈
+│   │   ├── GetPricesHandler.fs          👈
+│   │   ├── GetPurchasePricesHandler.fs  👈
+│   │   ├── GetSalesStatsHandler.fs      👈
+│   │   ├── InputSaleHandler.fs          👈
+│   │   ├── SavePricesHandler.fs         👈
+│   │   ├── MarkAsSoldOutHandler.fs      👈
+│   │   ├── ReceiveSupplyHandler.fs      👈
+│   │   ├── RemoveListPriceHandler.fs    👈
+│   │   └── PricesApiBuilder.fs
+│   └── RootApiBuilder.fs
+├── WebApp.fs
+├── DependencyInjection.fs
+└── Program.fs
+```
 
 {% hint style="success" %}
 **Architecture rule:** Remoting API request handlers should be sealed and in their dedicated file.
@@ -69,8 +165,50 @@ Abstraction hides implementation complexity (the "how") behind a simplified, ess
 
 ### Dependency Inversion (DIP)
 
-1. High-level modules should not import from low-level modules. Both should depend on abstractions.
-2. Abstractions should not depend on details. Details should depend on abstractions.
+This principle, abbreviated DIP, states that:
+
+> 1. High-level modules should not import from low-level modules. Both should depend on abstractions.
+> 2. Abstractions should not depend on details. Details should depend on abstractions.
+
+It can be illustrated with the following diagram:
+
+```mermaid
+graph LR
+    %% Dependency inverted
+    subgraph M1[Module High with DIP]
+        A'[A] -.-> I'[I]
+    end
+    subgraph M2[Module Low]
+        B'[B]
+    end
+    I' ~~~ M2
+    B' --> I'
+
+    %% Direct dependency
+    subgraph Module High
+        A
+    end
+    subgraph Module Low
+        B
+    end
+    A --> B
+```
+
+On the first line:
+
+- `A` depends directly on `B`.
+- `Module High` depends on `Module Low`, breaking the first statement of the DIP.
+
+On the second line:
+
+- `A` and `B` both depend on `I`: `A` defines `I` and wraps it, `B` implements `I`.
+- The direction of dependencies is now inverted: `Module Low` depends on `Module High`, through the `I` abstraction.
+- At compile time, `A` is independent of `B`, whereas at runtime `A` deals with an object whose real type is `B` in production code, or with a mock object—a.k.a. test double— in unit tests.
+
+**Benefits:**
+
+- **Abstractions.** DIP shares the benefits and drawbacks of abstractions.
+- **Inverting Control and Ownership.** The true power of DIP lies in its ability to make high-level, policy-driving modules dictate the terms of engagement to low-level, detail-oriented modules. It goes far beyond simple swappability. **True Plug-in Architecture** is the most direct benefit, with interfaces acting as extension points. DIP is the primary mechanism for creating strong **Architectural Boundaries**. It ensures that dependencies *always* point inward, from "Details" toward the "Core Business Rules".
 
 {% hint style="success" %}
 **Architecture rule:** Domain types should not depend on domain projects.
@@ -84,11 +222,11 @@ Abstraction hides implementation complexity (the "how") behind a simplified, ess
 **Architecture rule:** Domain projects should not reference the `UI/Server` project.
 {% endhint %}
 
-The abstraction between Workflows and Data are the **program instructions** — see [Domain workflows](../domain-workflows/1-introduction/README.md).
+The abstraction between Workflows and Data are the **program instructions** — see [Domain workflows](../domain-workflows/README.md).
 
 ### Encapsulation
 
-Limits direct access to internal state and behaviour. Achieved mainly via `private` (inside projects) and `internal` (between projects) keywords.
+Limits direct access to internal state and behavior. Achieved mainly via `private` (inside projects) and `internal` (between projects) keywords.
 
 **Encapsulation in the domain projects:**
 
@@ -103,16 +241,19 @@ Limits direct access to internal state and behaviour. Achieved mainly via `priva
 **Architecture rules for Data components:**
 
 - Clients: `internal`
-- Client Settings: public (needed for DI)
-- Entities (DTOs): public (to avoid serialization issues)
+- Client Settings: `public` (needed for DI)
+- Entities (DTOs): `public` (to avoid serialization issues)
 - Mappers: `internal`
 - Pipelines: `internal`
-- Data Entities should not be used outside of their respective namespace.
+{% endhint %}
+
+{% hint style="success" %}
+**Architecture rule:** Data Entities should not be used outside of their respective namespace.
 {% endhint %}
 
 ### Dependency Injection
 
-DI achieves the Inversion of Control ("Don't call us, we call you!"). Dependencies appear in the type definition:
+DI achieves the *Inversion of Control* ("Don't call us, we call you!"). Dependencies appear in the type definition:
 
 - **C# way:** Constructor parameters — e.g. `UI/Server/Remoting/{Page}/{Request}Handler` depends on `FeatApi`.
 - **F# way:** Function parameters — e.g. `Feat/{Domain}/Data/{Api}/{Api}Pipeline` depends on `{Api}Client(s)`.
