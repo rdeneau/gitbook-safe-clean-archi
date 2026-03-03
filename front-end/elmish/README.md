@@ -4,53 +4,26 @@ icon: command
 
 # Elmish
 
-## Elmish in SAFEr Template
+**Elmish** is an F# implementation of the [Elm Architecture](https://guide.elm-lang.org/architecture/) (also known as MVU — Model-View-Update). It structures UI logic around basic concepts:
 
-The Shopfoo.Client project is based on the **SAFEr template**. Unlike the classic SAFE template where a single Elmish program manages the entire application state in a russian-doll / top-down hierarchy, the SAFEr template uses **`React.useElmish`** at the component level.
+* **Model**: immutable state, generally a record
+* **Messages** (`Msg`): discriminated union of possible events
+* `update`: function that produces a new model and optional side effects (`Cmd`)
+* `view`: pure function that renders the model and dispatches messages
 
-Each page or form component owns its own Elmish loop (`Model`, `Msg`, `init`, `update`), scoped to the component's lifetime. This approach:
-
-- Keeps each component's state **local and self-contained**
-- Avoids a monolithic root model that grows with every new feature
-- Leverages React's component lifecycle to mount/unmount Elmish loops naturally
-
-{% hint style="info" %}
-All components using Elmish import `open Feliz.UseElmish` and follow the same pattern:
-
-```fsharp
-let model, dispatch = React.useElmish (init, update, [| dependencies |])
+```mermaid
+graph LR
+    Model -- rendered in --> View -- dispatch a message --> Update -- compute a new model --> Model
 ```
+
+**Benefits:**
+
+* This unidirectional data flow makes state changes predictable and easy to reason about.
+* The `update` function is straightforward to unit test (setting `Cmd` values aside).
+* Even though commands can trigger asynchronous operations (API calls, timers, etc.), our application code remains entirely synchronous — async orchestration is handled at a higher level by the Elmish runtime.
+
+In the F# ecosystem, Elmish is provided by the [Fable.Elmish](https://elmish.github.io/elmish/) library and integrates with React through [Feliz](https://zaid-ajaj.github.io/Feliz/).
+
+{% hint style="warning" %}
+Managing local React state (e.g. via `React.useState`) alongside an Elmish model can interfere with the purity of the MVU loop. The Elmish model is no longer the single source of truth: some state lives outside `update`, invisible to the message-driven data flow, and harder to test. Use React hooks for truly view-only concerns (e.g., toggling a UI element), but prefer the Elmish model for any state that influences business logic or data flow.
 {% endhint %}
-
-## Elmish Components in Shopfoo.Client
-
-### Root Page
-
-| Component | File      | Description                                                                      |
-| --------- | --------- | -------------------------------------------------------------------------------- |
-| `AppView` | `View.fs` | Root component: manages global context (translations, user), dispatches to pages |
-
-### Stateful Pages
-
-| Component            | File                            | Description                                   |
-| -------------------- | ------------------------------- | --------------------------------------------- |
-| `LoginView`          | `Pages/Login.fs`                | Login page                                    |
-| `ProductIndexView`   | `Pages/Product/Index/Page.fs`   | Product listing with filters                  |
-| `ProductDetailsView` | `Pages/Product/Details/Page.fs` | Product details, orchestrates sub-forms below |
-
-### Stateless Pages
-
-The remaining pages (`About`, `Admin`, `NotFound`) are purely presentational — they render static content and don't require an Elmish loop.
-
-### Individual Form Components
-
-These components live inside the Product Details page. Each has its own `useElmish` loop for managing form state, validation, and API calls.
-
-| Component           | File                                     | Description                      |
-| ------------------- | ---------------------------------------- | -------------------------------- |
-| `ActionsForm`       | `Pages/Product/Details/Actions.fs`       | Product actions (drawer)         |
-| `CatalogInfoForm`   | `Pages/Product/Details/CatalogInfo.fs`   | Edit product catalog information |
-| `ManagePriceForm`   | `Pages/Product/Details/ManagePrice.fs`   | Price management (drawer)        |
-| `ReceiveSupplyForm` | `Pages/Product/Details/ReceiveSupply.fs` | Receive supply stock (drawer)    |
-| `InputSalesForm`    | `Pages/Product/Details/InputSales.fs`    | Input sales data (drawer)        |
-| `AdjustStockForm`   | `Pages/Product/Details/AdjustStock.fs`   | Adjust stock quantity (drawer)   |

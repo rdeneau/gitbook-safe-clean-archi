@@ -101,7 +101,7 @@ Callbacks typically follow a `(data, ApiError option)` tuple convention, letting
 
 **Limitation:** a callback is just a function — the child only has the parameter name and signature to understand when to call it. This can become unclear when multiple callbacks are passed. It is also unclear when the callback's type is inferred and not used directly but forwarded (e.g. from the view function to `update`): hovering over the parameter only shows a generic function signature, with no hint about its purpose.
 
-One improvement is to **replace individual callback functions with an object** exposing named methods. The object type and method argument names provide more context than a bare function. This is the approach used by [`DrawerControl`](#drawer) described below. The trade-off is that F# type inference does not work with object method calls, so the variable must be **explicitly annotated** (e.g. `(drawerControl: DrawerControl)`).
+One improvement is to **replace individual callback functions with an object** exposing named methods. The object type and method argument names provide more context than a bare function. This is the approach used by [`DrawerControl`](data-flow.md#drawer) described below. The trade-off is that F# type inference does not work with object method calls, so the variable must be **explicitly annotated** (e.g. `(drawerControl: DrawerControl)`).
 
 ## Concrete data flows
 
@@ -162,33 +162,32 @@ The sold-out status is derived from prices in `ActionsForm` and displayed by `Ca
 
 ## Summary
 
-```txt
-AppView (root Elmish model: FullContext, Toast)
+<pre class="language-txt"><code class="lang-txt">AppView (root Elmish model: FullContext, Toast)
 │
-├── env (Env object: IFullContext, IFillTranslations, ILoginUser, IShowToast)
-│   │
-│   ├── LoginView
-│   │   ↑ env.FillTranslations(translations)
-│   │   ↑ env.LoginUser(user)
-│   │
-│   ├── ProductDetailsView (local state: drawer, productModel)
-│   │   │
-│   │   ├── CatalogInfoForm
-│   │   │   ↓ fullContext, productModel, fillTranslations
-│   │   │   ↑ onSaveProduct(product, error)
-│   │   │
-│   │   ├── ActionsForm
-│   │   │   ↓ fullContext, drawerControl
-│   │   │   ↑ onSavePrice(prices, error)
-│   │   │   ↑ setSoldOut(bool)
-│   │   │
-│   │   └── ManagePriceForm (in drawer)
-│   │       ↓ fullContext, drawerControl
-│   │       ↑ onSave(prices, error)
-│   │
-│   └── ProductIndexView
-│       ↑ env.FillTranslations(translations)
+<strong>└── env (Env object: IFullContext, IFillTranslations, ILoginUser, IShowToast)
+</strong>    │
+    ├── LoginView
+    │   ↑ env.FillTranslations(translations)
+    │   ↑ env.LoginUser(user)
+    │
+    ├── ProductDetailsView (local state: drawer, productModel)
+    │   │
+    │   ├── CatalogInfoForm
+    │   │   ↓ fullContext, productModel, fillTranslations
+    │   │   ↑ onSaveProduct(product, error)
+    │   │
+    │   ├── ActionsForm
+    │   │   ↓ fullContext, drawerControl
+    │   │   ↑ onSavePrice(prices, error)
+    │   │   ↑ setSoldOut(bool)
+    │   │
+    │   └── ManagePriceForm (in drawer)
+    │       ↓ fullContext, drawerControl
+    │       ↑ onSave(prices, error)
+    │
+    └── ProductIndexView
+        ↑ env.FillTranslations(translations)
 
 ↓ = top-down (props, env)
 ↑ = bottom-up (callbacks)
-```
+</code></pre>

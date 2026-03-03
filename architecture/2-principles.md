@@ -1,3 +1,7 @@
+---
+icon: lightbulb-exclamation-on
+---
+
 # Principles
 
 ## Architecture Principles

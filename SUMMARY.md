@@ -7,9 +7,10 @@
 
 ## Architecture
 
-* [Architecture](architecture/README.md)
-  * [Solution Organisation](architecture/1-solution-orga.md)
-  * [Principles](architecture/2-principles.md)
+* [Introduction](architecture/architecture.md)
+* [Overview](architecture/architecture-1.md)
+* [Solution Organisation](architecture/1-solution-orga.md)
+* [Principles](architecture/2-principles.md)
 
 ## Domain workflows
 
@@ -32,6 +33,7 @@
 ## Front-end
 
 * [Elmish](front-end/elmish/README.md)
+  * [SAFEr template](front-end/elmish/elmish.md)
   * [Data flow](front-end/elmish/data-flow.md)
 * [Navigation 🚧](front-end/navigation.md)
 * [Notifications](front-end/notifications.md)
@@ -43,13 +45,13 @@
 
 ## Tips & Tricks
 
-* [Introduction](tips-and-tricks/README.md)
-  * [The As active pattern](tips-and-tricks/as-active-pattern.md)
-  * [Type hierarchy without OOP: SKU](tips-and-tricks/sku-type-hierarchy.md)
-  * [Parameterized tests: mirror enums](tips-and-tricks/parameterized-tests-mirror-enums.md)
-  * [Lightweight FsCheck generators](tips-and-tricks/lightweight-fscheck-generators.md)
+* [Index](tips-and-tricks/README.md)
+  * [As active pattern](tips-and-tricks/as-active-pattern.md)
   * [Better assertions](tips-and-tricks/better-assertions.md)
+  * [Lightweight FsCheck generators](tips-and-tricks/lightweight-fscheck-generators.md)
+  * [Parameterized tests: mirror enums](tips-and-tricks/parameterized-tests-mirror-enums.md)
   * [Strongly-typed identifiers](tips-and-tricks/strongly-typed-ids.md)
+  * [Type hierarchy without OOP: SKU](tips-and-tricks/sku-type-hierarchy.md)
 
 ## Appendices
 
