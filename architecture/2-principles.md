@@ -18,7 +18,7 @@ The application exposes modules located in the `src/Feat/` folder.
 
 ### Clean Architecture
 
-![Clean Architecture Layers](clean-archi-layers.png)
+![Clean Architecture Layers](../.gitbook/assets/clean-archi-layers.png)
 
 🔗 [Why Clean Architecture Is Great For Complex Projects](https://www.milanjovanovic.tech/blog/why-clean-architecture-is-great-for-complex-projects) — Milan Jovanović
 
@@ -33,13 +33,13 @@ The architecture maps to Clean Architecture layers:
 
 ### Hexagonal Architecture
 
-The *Clean Architecture* is de facto compatible with the *Hexagonal Architecture*: the hexagon surrounds the *Application* and *Domain* layers.
+The _Clean Architecture_ is de facto compatible with the _Hexagonal Architecture_: the hexagon surrounds the _Application_ and _Domain_ layers.
 
-The *Hexagonal Architecture* uses another **terminology**: dependencies are abstracted behind **ports**, implemented in outer layers by **adapters**. There are no prescribed ways to define ports and adapters: ports are not necessarily interfaces, and adapters are not necessarily referring to the *Adapter* design pattern ([refactoring.guru](https://refactoring.guru/design-patterns/adapter), [Wikipedia](https://en.wikipedia.org/wiki/Adapter_pattern)).
+The _Hexagonal Architecture_ uses another **terminology**: dependencies are abstracted behind **ports**, implemented in outer layers by **adapters**. There are no prescribed ways to define ports and adapters: ports are not necessarily interfaces, and adapters are not necessarily referring to the _Adapter_ design pattern ([refactoring.guru](https://refactoring.guru/design-patterns/adapter), [Wikipedia](https://en.wikipedia.org/wiki/Adapter_pattern)).
 
-It distinguishes dependencies that *drive* the hexagon (left side) from those *driven by* it (right side).
+It distinguishes dependencies that _drive_ the hexagon (left side) from those _driven by_ it (right side).
 
-![Hexagonal Architecture Layers](hexa-archi-layers.png)
+![Hexagonal Architecture Layers](../.gitbook/assets/hexa-archi-layers.png)
 
 **Left side:** The `UI/Server` project drives domains through their `I{Domain}Api` (ports) and adapts them to the Remoting API. Tests can exercise the `I{Domain}Api`, mocking its dependencies.
 
@@ -73,22 +73,22 @@ graph BT
 
 ### Vertical Slice Architecture
 
-> Instead of organizing your code by technical layers (`Controllers`, `Services`, `Repositories`), **Vertical Slice Architecture** organizes it by **business features**. Each feature becomes a **self-contained** "slice" that includes **everything needed for that specific functionality**. \
+> Instead of organizing your code by technical layers (`Controllers`, `Services`, `Repositories`), **Vertical Slice Architecture** organizes it by **business features**. Each feature becomes a **self-contained** "slice" that includes **everything needed for that specific functionality**.\
 > 🔗 [Vertical Slice Architecture Is Easier Than You Think](https://www.milanjovanovic.tech/blog/vertical-slice-architecture-is-easier-than-you-think) — Milan Jovanović
 
-The *Safe Clean Architecture* does not implement vertical slices by the book, but applies its principle at the module level of the modular monolith: the domain projects in `src/Feat/` are self-contained, including almost all layers: Application, Domain, Infrastructure — `Workflows/` and `Data/` folders in the code.
+The _Safe Clean Architecture_ does not implement vertical slices by the book, but applies its principle at the module level of the modular monolith: the domain projects in `src/Feat/` are self-contained, including almost all layers: Application, Domain, Infrastructure — `Workflows/` and `Data/` folders in the code.
 
 ### Screaming Architecture
 
-> Build a system that truly "screams" about the problems it solves, […] that communicates its purpose through its structure. \
-> By organizing your system around use cases, you align your codebase with the core business domain. \
+> Build a system that truly "screams" about the problems it solves, \[…] that communicates its purpose through its structure.\
+> By organizing your system around use cases, you align your codebase with the core business domain.\
 > 🔗 [Screaming Architecture](https://www.milanjovanovic.tech/blog/screaming-architecture) — Milan Jovanović
 
-The *Safe Clean Architecture* applies this principle at two levels:
+The _Safe Clean Architecture_ applies this principle at two levels:
 
 **Domain projects** can contain a `Workflows/` folder where each workflow (use case) is in a dedicated file.
 
-```text
+```
 Shopfoo.Product
 ├── Model/
 ├── Workflows/
@@ -111,7 +111,7 @@ Shopfoo.Product
 
 **Remoting API** folders contain a handler per file, exposing the capabilities consumed by the Client.
 
-```text
+```
 Shopfoo.Server
 ├── Remoting/
 │   ├── FeatApi.fs
@@ -196,19 +196,19 @@ graph LR
 
 On the first line:
 
-- `A` depends directly on `B`.
-- `Module High` depends on `Module Low`, breaking the first statement of the DIP.
+* `A` depends directly on `B`.
+* `Module High` depends on `Module Low`, breaking the first statement of the DIP.
 
 On the second line:
 
-- `A` and `B` both depend on `I`: `A` defines `I` and wraps it, `B` implements `I`.
-- The direction of dependencies is now inverted: `Module Low` depends on `Module High`, through the `I` abstraction.
-- At compile time, `A` is independent of `B`, whereas at runtime `A` deals with an object whose real type is `B` in production code, or with a mock object—a.k.a. test double— in unit tests.
+* `A` and `B` both depend on `I`: `A` defines `I` and wraps it, `B` implements `I`.
+* The direction of dependencies is now inverted: `Module Low` depends on `Module High`, through the `I` abstraction.
+* At compile time, `A` is independent of `B`, whereas at runtime `A` deals with an object whose real type is `B` in production code, or with a mock object—a.k.a. test double— in unit tests.
 
 **Benefits:**
 
-- **Abstractions.** DIP shares the benefits and drawbacks of abstractions.
-- **Inverting Control and Ownership.** The true power of DIP lies in its ability to make high-level, policy-driving modules dictate the terms of engagement to low-level, detail-oriented modules. It goes far beyond simple swappability. **True Plug-in Architecture** is the most direct benefit, with interfaces acting as extension points. DIP is the primary mechanism for creating strong **Architectural Boundaries**. It ensures that dependencies *always* point inward, from "Details" toward the "Core Business Rules".
+* **Abstractions.** DIP shares the benefits and drawbacks of abstractions.
+* **Inverting Control and Ownership.** The true power of DIP lies in its ability to make high-level, policy-driving modules dictate the terms of engagement to low-level, detail-oriented modules. It goes far beyond simple swappability. **True Plug-in Architecture** is the most direct benefit, with interfaces acting as extension points. DIP is the primary mechanism for creating strong **Architectural Boundaries**. It ensures that dependencies _always_ point inward, from "Details" toward the "Core Business Rules".
 
 {% hint style="success" %}
 **Architecture rule:** Domain types should not depend on domain projects.
@@ -222,7 +222,7 @@ On the second line:
 **Architecture rule:** Domain projects should not reference the `UI/Server` project.
 {% endhint %}
 
-The abstraction between Workflows and Data are the **program instructions** — see [Domain workflows](../domain-workflows/README.md).
+The abstraction between Workflows and Data are the **program instructions** — see [Domain workflows](../domain-workflows/).
 
 ### Encapsulation
 
@@ -230,8 +230,8 @@ Limits direct access to internal state and behavior. Achieved mainly via `privat
 
 **Encapsulation in the domain projects:**
 
-- `UI/Server` should access only the `I{Domain}Api` and the `DependencyInjection` helpers.
-- Test projects can access internal members using `InternalsVisibleTo` entries in `.fsproj` files.
+* `UI/Server` should access only the `I{Domain}Api` and the `DependencyInjection` helpers.
+* Test projects can access internal members using `InternalsVisibleTo` entries in `.fsproj` files.
 
 {% hint style="success" %}
 **Architecture rule:** Domain workflows should be `internal`.
@@ -240,11 +240,11 @@ Limits direct access to internal state and behavior. Achieved mainly via `privat
 {% hint style="success" %}
 **Architecture rules for Data components:**
 
-- Clients: `internal`
-- Client Settings: `public` (needed for DI)
-- Entities (DTOs): `public` (to avoid serialization issues)
-- Mappers: `internal`
-- Pipelines: `internal`
+* Clients: `internal`
+* Client Settings: `public` (needed for DI)
+* Entities (DTOs): `public` (to avoid serialization issues)
+* Mappers: `internal`
+* Pipelines: `internal`
 {% endhint %}
 
 {% hint style="success" %}
@@ -253,11 +253,11 @@ Limits direct access to internal state and behavior. Achieved mainly via `privat
 
 ### Dependency Injection
 
-DI achieves the *Inversion of Control* ("Don't call us, we call you!"). Dependencies appear in the type definition:
+DI achieves the _Inversion of Control_ ("Don't call us, we call you!"). Dependencies appear in the type definition:
 
-- **C# way:** Constructor parameters — e.g. `UI/Server/Remoting/{Page}/{Request}Handler` depends on `FeatApi`.
-- **F# way:** Function parameters — e.g. `Feat/{Domain}/Data/{Api}/{Api}Pipeline` depends on `{Api}Client(s)`.
-- **Program:** Abstracted as instructions in the program-based domain workflows.
+* **C# way:** Constructor parameters — e.g. `UI/Server/Remoting/{Page}/{Request}Handler` depends on `FeatApi`.
+* **F# way:** Function parameters — e.g. `Feat/{Domain}/Data/{Api}/{Api}Pipeline` depends on `{Api}Client(s)`.
+* **Program:** Abstracted as instructions in the program-based domain workflows.
 
 #### DI Container
 
@@ -267,7 +267,7 @@ The DI container handles object instantiation, life cycle (transient, scoped, si
 
 The architecture rules listed above are enforced by tests located in `tests/Shopfoo.Feat.Tests/ArchitectureTests.fs` and `tests/Shopfoo.Server.Tests/ArchitectureTests.fs`:
 
-```text
+```
 Feat
 └── FeatArchitectureTests
     ├── Domain types should not depend on feat projects

@@ -44,7 +44,7 @@
 ## Tips & Tricks
 
 * [Introduction](tips-and-tricks/README.md)
-  * [The `As` active pattern](tips-and-tricks/as-active-pattern.md)
+  * [The As active pattern](tips-and-tricks/as-active-pattern.md)
   * [Type hierarchy without OOP: SKU](tips-and-tricks/sku-type-hierarchy.md)
   * [Parameterized tests: mirror enums](tips-and-tricks/parameterized-tests-mirror-enums.md)
   * [Lightweight FsCheck generators](tips-and-tricks/lightweight-fscheck-generators.md)

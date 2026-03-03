@@ -1,3 +1,7 @@
+---
+icon: clipboard-list-check
+---
+
 # Validation 🚧
 
 {% hint style="warning" %}

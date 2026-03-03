@@ -1,3 +1,7 @@
+---
+icon: shield-user
+---
+
 # Security 🚧
 
 {% hint style="warning" %}

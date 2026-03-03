@@ -136,7 +136,7 @@ The `let! ... and! ...` syntax compiles into a call to `MergeSources`, which use
 
 ### DetermineStock — Query workflow
 
-This query workflow orchestrates multiple instructions and applies a domain rule inspired by the **Decider** pattern (*):
+This query workflow orchestrates multiple instructions and applies a domain rule inspired by the **Decider** pattern (\*):
 
 🔗 [Source code](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Workflows/DetermineStock.fs)
 
@@ -161,7 +161,7 @@ type internal DetermineStockWorkflow private () =
 Notice that `getSales` and `getStockEvents` use `Program.defaultValue []` instead of `requireSome` — returning an empty list when data is missing rather than failing. This is a design choice per workflow.
 
 {% hint style="info" %}
-## (*) Decider pattern
+### (\*) Decider pattern
 
 The `Seq.fold` accumulating stock quantity over the sorted event list is the `evolve` function from the Decider pattern: given a current state and an event, produce the next state. Applying it over the full event sequence reconstructs the current state from scratch — the same principle as Event Sourcing, but without a persistent event store.
 
@@ -191,10 +191,10 @@ type IOrderInstructions =
     abstract member TransitionOrder: (Cmd.TransitionOrder -> Async<Result<unit, Error>>)
 ```
 
-All instructions are commands (no queries), each returning a `Result`. Commands that produce an ID (`PaymentId`, `InvoiceId`, `ParcelId`) (*) return it in the `Ok` track — enabling the saga to pass these IDs to subsequent undo functions.
+All instructions are commands (no queries), each returning a `Result`. Commands that produce an ID (`PaymentId`, `InvoiceId`, `ParcelId`) (\*) return it in the `Ok` track — enabling the saga to pass these IDs to subsequent undo functions.
 
 {% hint style="info" %}
-(*) In production designs, it is generally preferable for the client to generate IDs before sending a command. Client-generated IDs make idempotency straightforward: retrying the same command with the same ID is safe because the server can detect and ignore duplicates. Here, the IDs are generated server-side by the instructions specifically to illustrate two things: how a command's return value flows into the next step of the workflow, and how that same return value is captured by the saga runner and passed to the undo function.
+(\*) In production designs, it is generally preferable for the client to generate IDs before sending a command. Client-generated IDs make idempotency straightforward: retrying the same command with the same ID is safe because the server can detect and ignore duplicates. Here, the IDs are generated server-side by the instructions specifically to illustrate two things: how a command's return value flows into the next step of the workflow, and how that same return value is captured by the saga runner and passed to the undo function.
 {% endhint %}
 
 ### Order Workflow with Cancellation Support
@@ -331,7 +331,7 @@ this.VerifyCancel(
 The saga state preserves the **complete step history in LIFO order**, including each step's status (`RunDone`, `UndoDone`, `RunFailed`, `UndoFailed`). This provides full observability into what happened during the workflow execution.
 
 {% hint style="info" %}
-## Saga without messages
+### Saga without messages
 
 This saga pattern operates entirely in-process, synchronously (within a single `Async` computation). There is no message bus, no distributed transaction coordinator. The "undo" functions are plain async functions called in reverse LIFO order. This makes the pattern suitable for orchestrating multiple data-layer calls within a single request, while keeping the workflow logic pure and testable.
 {% endhint %}

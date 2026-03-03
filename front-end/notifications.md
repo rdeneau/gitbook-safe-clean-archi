@@ -1,3 +1,7 @@
+---
+icon: message-check
+---
+
 # Notifications
 
 ## Toast notifications
@@ -93,8 +97,8 @@ match model.Toast with
 
 **6. Toast component** (`Components/Toast.fs`): A React component that renders a DaisyUI alert positioned as a toast. It supports two dismiss modes:
 
-- `Auto`: the toast disappears after a timeout (3 seconds).
-- `Manual`: the toast stays visible with a close button — used for errors.
+* `Auto`: the toast disappears after a timeout (3 seconds).
+* `Manual`: the toast stays visible with a close button — used for errors.
 
 ```fsharp
 [<RequireQualifiedAccess>]
@@ -137,7 +141,7 @@ let Toast key alertProps dismiss onDismiss children =
 
 Child components use `Cmd.ofEffect` to call `env.ShowToast` (or other environment callbacks like `env.FillTranslations`) from their `update` function. This is a pragmatic choice: it avoids threading toast messages through each component's own `Msg` type and keeps the communication simple.
 
-[Jordan Marr](https://jordanmarr.github.io/fsharp/unit-testing-fable-dotnet/#avoid-browser-specific-functions-in-elmish-handlers) also suggests using the `Cmd` track for toast notifications. His approach wraps *Toastify* calls behind helper commands (`Cmd.error`, `Cmd.info`…), hiding the library dependency. However, because toast display is handled entirely through side-effect commands, there is no model state to assert on in tests.
+[Jordan Marr](https://jordanmarr.github.io/fsharp/unit-testing-fable-dotnet/#avoid-browser-specific-functions-in-elmish-handlers) also suggests using the `Cmd` track for toast notifications. His approach wraps _Toastify_ calls behind helper commands (`Cmd.error`, `Cmd.info`…), hiding the library dependency. However, because toast display is handled entirely through side-effect commands, there is no model state to assert on in tests.
 
 Shopfoo takes a different approach: the `Toast` is stored in the Elmish model (`Toast option`), which means the toast state is observable and testable — e.g. verifying that after a save error, the model contains the expected `Toast.Prices(_, Some error)`. This makes the rendering logic deterministic and unit-testable without involving the DOM.
 
