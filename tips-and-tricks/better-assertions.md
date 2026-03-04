@@ -46,3 +46,92 @@ test
 ```
 
 The `test <@ ... && ... @>` style with Unquote stops reducing at the first `false` sub-expression — subsequent assertions are not evaluated. The anonymous record approach reports **all** mismatches at once while remaining a single assertion, giving a complete diagnostic on failure.
+
+## Pre-conditions with `assume` / `assumeThat`
+
+In longer tests, some assertions are **not** the final check — they guard intermediate steps (Arrange/Act phases) so that the test fails early with a clear message instead of a confusing `NullReferenceException` or wrong diagnostic later.
+
+To make this intent explicit, define `assume` and `assumeThat` aliases:
+
+```fsharp
+let inline assume expr = test expr
+let inline assumeThat message assertion = testThat message assertion
+```
+
+{% hint style="info" %}
+`assume` / `assumeThat` are semantically identical to `test` / `testThat` — they produce the same Unquote reduction on failure. The distinct names signal to the reader: *"this is a guard, not the thing we're testing."*
+{% endhint %}
+
+{% hint style="warning" %}
+The naming mirrors NUnit's `Assume.That()`, but the behavior differs: NUnit marks the test as **Inconclusive** (skipped) when an assumption fails, whereas our `assume` / `assumeThat` raise a **Failure** like any other assertion. This is a TUnit limitation (no Inconclusive status), but it's arguably better — a broken pre-condition means the test setup is wrong and should be fixed, not silently skipped.
+{% endhint %}
+
+## Named assertions with `testThat` / `assumeThat`
+
+When `test <@ ... @>` or `assume <@ ... @>` is not self-explanatory enough, you can attach a **message** that appears in the Unquote reduction on failure. This is especially useful for complex boolean expressions where the reduction alone may not tell you *what* the assertion is checking.
+
+```fsharp
+let inline testThat message assertion =
+    test <@ let _ = message in %assertion @>
+
+let inline assumeThat message assertion = testThat message assertion
+```
+
+The trick is `let _ = message in %assertion`: the `message` string is spliced into the quotation so that Unquote prints it as the first reduction step, acting as a human-readable label.
+
+{% hint style="info" %}
+`testThat` / `assumeThat` are semantically identical to `test` / `assume` — they produce the same Unquote reduction on failure, with the message prepended. Use the named variants when the expression alone would not make the intent obvious.
+{% endhint %}
+
+### Failure output
+
+```fsharp
+let actual, expected = -12, 9
+testThat "actual should equal expected" <@ actual = expected @>
+```
+
+```text
+message; actual = expected
+"actual should equal expected"; actual = expected
+actual = expected
+-12 = 9
+false
+```
+
+The first line shows the message alongside the expression, giving immediate context.
+
+### Example
+
+```fsharp
+[<Test>]
+member _.``clear non-seed data after reset``() =
+    async {
+        use fixture = new ApiTestFixture()
+
+        // Arrange
+        let! _ = fixture.Api.ResetAllCaches()
+        let product = CleanCode.Domain.product // Alternate version of the seed book, with an ISBN formatted differently
+        let sku = product.SKU
+        let! addResult = fixture.Api.AddProduct(product, Currency.EUR)
+        let! productBefore = fixture.Api.GetProduct sku
+        let! pricesBefore = fixture.Api.GetPrices sku
+
+        assumeThat
+            "Non-seed product and its prices have been added"
+            <@
+                addResult = Ok()
+                && productBefore |> Option.map _.SKU = Some sku
+                && pricesBefore |> Option.map _.SKU = Some sku
+            @>
+
+        // Act
+        let! resetResult = fixture.Api.ResetAllCaches()
+
+        // Assert
+        let! productAfter = fixture.Api.GetProduct sku
+        let! pricesAfter = fixture.Api.GetPrices sku
+        testThat "Non-seed product and prices are cleared" <@ resetResult = Ok() && productAfter = None && pricesAfter = None @>
+    }
+```
+
+Here `assume` and `assumeThat` guard the Arrange phase while `testThat` carries the final assertion with an explicit description.
