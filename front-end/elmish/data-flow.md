@@ -164,30 +164,30 @@ The sold-out status is derived from prices in `ActionsForm` and displayed by `Ca
 
 <pre class="language-txt"><code class="lang-txt">AppView (root Elmish model: FullContext, Toast)
 │
-<strong>└── env (Env object: IFullContext, IFillTranslations, ILoginUser, IShowToast)
-</strong>    │
-    ├── LoginView
-    │   ↑ env.FillTranslations(translations)
-    │   ↑ env.LoginUser(user)
+└── env (Env object: IFullContext, IFillTranslations, ILoginUser, IShowToast)
     │
+    ├── LoginView
+<strong>    │   ↑ env.FillTranslations(translations)
+</strong><strong>    │   ↑ env.LoginUser(user)
+</strong>    │
     ├── ProductDetailsView (local state: drawer, productModel)
     │   │
     │   ├── CatalogInfoForm
     │   │   ↓ fullContext, productModel, fillTranslations
-    │   │   ↑ onSaveProduct(product, error)
-    │   │
+<strong>    │   │   ↑ onSaveProduct(product, error)
+</strong>    │   │
     │   ├── ActionsForm
     │   │   ↓ fullContext, drawerControl
-    │   │   ↑ onSavePrice(prices, error)
-    │   │   ↑ setSoldOut(bool)
-    │   │
+<strong>    │   │   ↑ onSavePrice(prices, error)
+</strong><strong>    │   │   ↑ setSoldOut(bool)
+</strong>    │   │
     │   └── ManagePriceForm (in drawer)
     │       ↓ fullContext, drawerControl
-    │       ↑ onSave(prices, error)
-    │
+<strong>    │       ↑ onSave(prices, error)
+</strong>    │
     └── ProductIndexView
-        ↑ env.FillTranslations(translations)
-
+<strong>        ↑ env.FillTranslations(translations)
+</strong>
 ↓ = top-down (props, env)
-↑ = bottom-up (callbacks)
-</code></pre>
+<strong>↑ = bottom-up (callbacks)
+</strong></code></pre>

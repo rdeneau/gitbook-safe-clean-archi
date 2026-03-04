@@ -5,6 +5,10 @@
 * [Audience](audience.md)
 * [Status](status.md)
 
+## Shopfoo
+
+* [Introduction 🚧](shopfoo/introduction.md)
+
 ## Architecture
 
 * [Introduction](architecture/architecture.md)
