@@ -25,6 +25,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 04, 2026] feat: 🔄️ [GITBOOK-16] add Shopfoo chapter 🚧
 * \[Mar 03, 2026] feat: ✨ front-end security
 * \[Mar 03, 2026] feat: ✨ front-end navigation
 * \[Mar 03, 2026] tidy: 📐 fix Roman Liman name
@@ -34,7 +35,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 03, 2026] feat: 🔄️ [GITBOOK-14] add missing icons
 * \[Mar 03, 2026] feat: 👔 improve architecture chapter
 * \[Mar 02, 2026] feat: ✨ front-end elmish pages (intro and data-flow)
-* \[Mar 02, 2026] wip: 🚧 prepare font-end chapter
 
 </details>
 
