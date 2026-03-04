@@ -170,7 +170,7 @@ The `FullContext` record (`Shared/Remoting.fs`) holds the current `User`, an opt
 type FullContext = {
     Lang: Lang
     User: User
-    Token: AuthToken option       // ← serialized User
+    Token: AuthToken option       // ← encrypted User (AES-256-GCM)
     Translations: AppTranslations
 }
 ```
@@ -210,7 +210,7 @@ Cmd.loadPrices   (fullContext.PrepareRequest sku)
 Cmd.saveProduct  (fullContext.PrepareRequest product)
 ```
 
-### Token issuance — server-side serialization
+### Token issuance — server-side encryption
 
 The `AuthToken` is a simple wrapper: `type AuthToken = AuthToken of string`.
 
@@ -222,7 +222,7 @@ type Persona = { Name: PersonaName; Claims: Claims; Token: AuthToken }
 type HomeIndexResponse = { Personas: Persona list }
 ```
 
-The token is produced **server-side** in the `IndexHandler` by serializing the corresponding `User` to JSON:
+The token is produced **server-side** in the `IndexHandler` by serializing the corresponding `User` to JSON and then **encrypting it with AES-256-GCM**:
 
 ```fsharp
 for name, claims in personas ->
@@ -231,8 +231,14 @@ for name, claims in personas ->
       Token = tokenFor (User.LoggedIn(name, claims)) }
 
 // where tokenFor is defined in Security.fs:
-let internal tokenFor user = user |> JsonFSharp.serialize |> AuthToken
+let internal tokenFor user = user |> JsonFSharp.serialize |> Crypto.encrypt |> AuthToken
 ```
+
+The `Crypto` module (private to `Security.fs`) uses `System.Security.Cryptography.AesGcm` with an **ephemeral 256-bit key** generated at server startup. Each encrypted token is a Base64 string containing `nonce (12 bytes) + cipherText + tag (16 bytes)`. Since the key lives only in memory, all tokens become invalid when the server restarts (users must re-login).
+
+{% hint style="info" %}
+The token is opaque to the client — it never decodes or inspects it. Only the server can decrypt it.
+{% endhint %}
 
 When the user selects a persona, the client reconstructs the `User` and stores it alongside the `Token` in the `FullContext` via `WithPersona`:
 
@@ -247,7 +253,7 @@ From that point on, every API call made through `PrepareRequest` includes this t
 
 ### Authorization handler (`Server/Remoting/Security.fs`)
 
-On the server, `checkToken` extracts the `User` from the token with `JsonFSharp.deserialize` (reversing `tokenFor`) and compares its claims against the required ones. The `authorizeHandler` function wraps every API handler — it checks the token first, then delegates to the handler with the decoded `User`:
+On the server, `checkToken` **decrypts** the token with `Crypto.decrypt`, then deserializes the JSON back into a `User` and compares its claims against the required ones. If decryption fails (tampered or forged token), the request is rejected with `TokenInvalid`. The `authorizeHandler` function wraps every API handler — it checks the token first, then delegates to the handler with the decoded `User`:
 
 ```fsharp
 let authorizeHandler
