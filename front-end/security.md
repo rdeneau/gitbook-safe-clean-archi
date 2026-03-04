@@ -37,11 +37,11 @@ let (|UserCanAccess|_|) feat (user: User) = ...
 let (|UserCanNotAccess|_|) feat (user: User) = ...
 ```
 
-## Login page — role selection
+## Login page — persona selection
 
 Since there is no real authentication, the Login page (`Pages/Login.fs`) displays a table of predefined personas. The user clicks a row to "log in" as that persona.
 
-The personas are defined in `Home/Data/Users.fs`:
+The `Persona` type is a discriminated union defined in `Domain.Types/Security.fs`, alongside the other security types:
 
 | Persona         | About | Catalog | Sales | Warehouse | Admin |
 | --------------- | ----- | ------- | ----- | --------- | ----- |
@@ -52,45 +52,22 @@ The personas are defined in `Home/Data/Users.fs`:
 | Administrator   | View  | Edit    | Edit  | Edit      | Edit  |
 
 ```fsharp
-// Home/Data/Users.fs
-module private Claims =
-    let guest: Claims =
-        Map [
-            Feat.About, Access.View
-            Feat.Catalog, Access.View
-        ]
+// Domain.Types/Security.fs
+[<RequireQualifiedAccess>]
+type Persona =
+    | Guest
+    | CatalogEditor
+    | Sales
+    | ProductManager
+    | Administrator
 
-    let catalogEditor: Claims =
-        guest
-        |> Map.add Feat.Catalog Access.Edit
-        |> Map.add Feat.Sales Access.View
-        |> Map.add Feat.Warehouse Access.View
+    member this.Name: string = ...
+    member this.Claims: Claims = ...
 
-    let sales: Claims =
-        guest
-        |> Map.add Feat.Sales Access.Edit
-        |> Map.add Feat.Warehouse Access.Edit
-
-    let productManager: Claims =
-        guest
-        |> Map.add Feat.Catalog Access.Edit
-        |> Map.add Feat.Sales Access.Edit
-        |> Map.add Feat.Warehouse Access.Edit
-
-    let admin: Claims =
-        productManager
-        |> Map.add Feat.Admin Access.Edit
+    static member All = [ Guest; CatalogEditor; Sales; ProductManager; Administrator ]
 ```
 
-The personas are built incrementally: each one extends a base persona by adding or upgrading feature access:
-
-```mermaid
-graph LR
-    Guest -->|+ Catalog Edit<br/>+ Sales View<br/>+ Warehouse View| CatalogEditor[Catalog Editor]
-    Guest -->|+ Sales Edit<br/>+ Warehouse Edit| Sales
-    Guest -->|+ Catalog Edit<br/>+ Sales Edit<br/>+ Warehouse Edit| ProductManager[Product Manager]
-    ProductManager -->|+ Admin Edit| Administrator
-```
+Each case declares its claims explicitly as a `Map` literal — there is no incremental building.
 
 ## Client-side access control
 
@@ -214,23 +191,25 @@ Cmd.saveProduct  (fullContext.PrepareRequest product)
 
 The `AuthToken` is a simple wrapper: `type AuthToken = AuthToken of string`.
 
-When the *Login* page loads, it calls the `HomeApi.Index` endpoint which returns a list of `Persona` records — each containing a name, claims, and a pre-computed `AuthToken`:
+When the *Login* page loads, it calls the `HomeApi.Index` endpoint which returns a list of `AuthPersona` records — each pairing a `Persona` with a pre-computed `AuthToken`:
 
 ```fsharp
-type Persona = { Name: PersonaName; Claims: Claims; Token: AuthToken }
-
-type HomeIndexResponse = { Personas: Persona list }
+// Shared/Remoting.fs
+type AuthPersona = { Persona: Persona; Token: AuthToken }
+type HomeIndexResponse = { Personas: AuthPersona list }
 ```
 
 The token is produced **server-side** in the `IndexHandler` by serializing the corresponding `User` to JSON and then **encrypting it with AES-256-GCM**:
 
 ```fsharp
-for name, claims in personas ->
-    { Name = name
-      Claims = claims
-      Token = tokenFor (User.LoggedIn(name, claims)) }
+for persona in personas ->
+    { Persona = persona
+      Token = tokenFor (User.LoggedIn(persona.Name, persona.Claims)) }
+```
 
-// where tokenFor is defined in Security.fs:
+`tokenFor` is defined in Security.fs:
+
+```fsharp
 let internal tokenFor user = user |> JsonFSharp.serialize |> Crypto.encrypt |> AuthToken
 ```
 
@@ -243,7 +222,7 @@ The token is opaque to the client — it never decodes or inspects it. Only the 
 When the user selects a persona, the client reconstructs the `User` and stores it alongside the `Token` in the `FullContext` via `WithPersona`:
 
 ```fsharp
-member this.WithPersona(persona: Persona) =
+member this.WithPersona(persona: AuthPersona) =
     { this with
         User = User.LoggedIn(persona.Name, persona.Claims)
         Token = Some persona.Token }
@@ -288,3 +267,67 @@ GetTranslations = GetTranslationsHandler(...) |> Security.authorizeHandler Claim
 ```
 
 This ensures that even if a user bypasses client-side checks, the server rejects unauthorized requests.
+
+### Testing Remoting API security
+
+The `RemotingApi/XxxApiSecurityTests` classes verify that each endpoint of the related `XxxApi` is correctly secured.
+Unlike the lower-level `AuthorizeHandlerShould` tests (which test `authorizeHandler` in isolation with a stub handler),
+these tests build the real `RootApi` via Dependency Injection — the same way the server does — and call each endpoint
+with tokens from the actual personas.
+
+**Test fixture setup (`RemotingApi/Helpers.fs`):**
+
+```fsharp
+let api =
+    let emptyConfig = ConfigurationBuilder().Build() :> IConfiguration
+    let services =
+        ServiceCollection()
+            // Production dependencies
+            .AddRemotingApi(emptyConfig)
+            // Dependencies overrides for testing
+            .AddSingleton<IWorkMonitors, WorkMonitorsMock>()
+            .AddSingleton<IFakeStoreClient>(Substitute.For<IFakeStoreClient>())
+            .AddSingleton<IOpenLibraryClient>(Substitute.For<IOpenLibraryClient>())
+            .AddSingleton(BooksRepository.ofList Fakes.allBooks)
+            // ... other repos seeded empty
+
+    let provider = services.BuildServiceProvider()
+    provider.GetRequiredService<RootApiBuilder>().Build()
+```
+
+**Test helpers:**
+
+The `Helpers.fs` module provides a `PersonaOrAnonymousEnum` char enum used as `[<Arguments>]` in tests (char values avoid F# DU serialization issues in test runners):
+
+```fsharp
+type PersonaOrAnonymousEnum =
+    | Anonymous = 'a'
+    | Guest = 'g'
+    | CatalogEditor = 'c'
+    | Sales = 's'
+    | ProductManager = 'p'
+    | Administrator = 'A'
+
+type ExpectedResult =
+    | Accepted = 'a'
+    | Rejected = 'r'
+```
+
+The `PersonaOrAnonymousEnumToken` active pattern resolves an enum value to an `AuthToken option`, and `expect` dispatches to `assertAccepted` or `assertRejected`.
+
+**Test structure:**
+
+Tests are split into one class per API — `AdminApiSecurityTests`, `CatalogApiSecurityTests`, `HomeApiSecurityTests`, `PricesApiSecurityTests`. Each class uses `[<MethodDataSource>]` for sets of accepted/rejected personas, or `[<Arguments>]` for single-endpoint cases:
+
+```fsharp
+// CatalogApiSecurityTests.fs
+[<Test; MethodDataSource(nameof PersonasWithCatalogViewAccepted)>]
+member _.``GetProducts accepts only personas with Catalog View``(PersonaOrAnonymousEnumToken token, result) =
+    expect result (api.Catalog.GetProducts(makeQueryWithTranslations Provider.OpenLibrary token))
+```
+
+**Test strategy:**
+
+- **Reject** — a persona with insufficient claims gets `Error(ServerError.AuthError UserUnauthorized)`.
+- **Accept** — a persona with sufficient claims gets a result that is _not_ an `AuthError`.
+  The handler may succeed or return a business error; only the auth layer matters here.
