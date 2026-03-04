@@ -5,9 +5,9 @@
 * [Audience](audience.md)
 * [Status](status.md)
 
-## Shopfoo
+## Shopfoo 🚧
 
-* [Introduction 🚧](shopfoo/introduction.md)
+* [Introduction](shopfoo/introduction.md)
 
 ## Architecture
 
