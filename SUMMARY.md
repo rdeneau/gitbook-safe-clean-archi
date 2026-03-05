@@ -43,9 +43,9 @@
 * [Notifications](front-end/notifications.md)
 * [Remoting](front-end/remoting.md)
 * [Security](front-end/security.md)
-* [Translations 🚧](front-end/translations.md)
-* [Validation 🚧](front-end/validation.md)
 * [Tests 🚧](front-end/tests.md)
+* [Translations](front-end/translations.md)
+* [Validation 🚧](front-end/validation.md)
 
 ## Tips & Tricks
 
