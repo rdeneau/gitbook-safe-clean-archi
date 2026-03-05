@@ -25,16 +25,16 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 05, 2026] feat: ✨ front-end remoting
+* \[Mar 04, 2026] feat: 👔 update security in relation with changes in Shopfoo
+* \[Mar 04, 2026] feat: 👔 improve better-assertions: assume|test(That)
+* \[Mar 04, 2026] feat: ✨ shopfoo introduction
 * \[Mar 04, 2026] refactor: ♻️ move shopfoo intro from welcome to shopfoo chapter intro
 * \[Mar 04, 2026] feat: 👔 encryption in front-end security
 * \[Mar 04, 2026] feat: 🔄️ [GITBOOK-16] add Shopfoo chapter 🚧
 * \[Mar 03, 2026] feat: ✨ front-end security
 * \[Mar 03, 2026] feat: ✨ front-end navigation
 * \[Mar 03, 2026] tidy: 📐 fix Roman Liman name
-* \[Mar 03, 2026] feat: ✨ tip "F# formatting"
-* \[Mar 03, 2026] feat: 🔄️ [GITBOOK-15] improve pages tree
-* \[Mar 03, 2026] tidy: 📐 cosmetic changes
-* \[Mar 03, 2026] feat: 🔄️ [GITBOOK-14] add missing icons
 
 </details>
 
@@ -42,15 +42,15 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-tablet-screen">:tablet-screen:</i>  Shopfoo</summary>
 
-* \[Mar 02, 2026] test: 🧪 architecture of Server and Feat
-* \[Mar 02, 2026] refactor: ♻️ improve Shopfoo.Product.Tests namespaces
-* \[Feb 26, 2026] feat: 👔 use retail price (if any) as the default prices for sales to input
-* \[Feb 26, 2026] feat: ✨ display sales stats; input sales
-* \[Feb 25, 2026] feat: 🚸 Add toast notification on receive supply save
-* \[Feb 25, 2026] feat: ✨ add Receive Purchased Products drawer
-* \[Feb 25, 2026] feat: 👔 wire ReceiveSupply server handler
-* \[Feb 25, 2026] feat: ✨ add ReceiveSupply workflow with validation
-* \[Feb 25, 2026] feat: ✨ Add ReceiveSupply types and API contract
-* \[Feb 25, 2026] feat: 🖼️ display last purchase price in an ActionsDropdown component
+* \[Mar 05, 2026] refactor: ♻️ use AreaApi to qualify the Remoting API of a functional area
+* \[Mar 05, 2026] tidy: 🧹 Route.builder example
+* \[Mar 05, 2026] fix: 🐛 support book w/o covers
+* \[Mar 05, 2026] feat: 👔 support custom LogLevel in WorkLogger
+* \[Mar 05, 2026] fix(ResetCache): 🐛 add missing Admin endpoint + refactor apiHttpHandler
+* \[Mar 05, 2026] feat: 🖼️ finalize Admin page: add translations, improve alerts
+* \[Mar 04, 2026] feat(Admin): ✨ reset all caches + refactor Persona DU
+* \[Mar 04, 2026] fix: 🔒️ encrypt tokens
+* \[Mar 04, 2026] tidy: 📐 place tests in a namespace for discoverability by Rider
+* \[Mar 03, 2026] refactor: ♻️ improve Persona type to represent a logged-in user only
 
 </details>
