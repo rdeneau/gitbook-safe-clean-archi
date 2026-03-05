@@ -25,6 +25,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 05, 2026] feat: ✨ front-end translations
 * \[Mar 05, 2026] tidy(SUMMARY): 🧹 remove 🚧 for complete pages
 * \[Mar 05, 2026] feat: ✨ front-end remoting
 * \[Mar 04, 2026] feat: 👔 update security in relation with changes in Shopfoo
@@ -34,7 +35,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 04, 2026] feat: 👔 encryption in front-end security
 * \[Mar 04, 2026] feat: 🔄️ [GITBOOK-16] add Shopfoo chapter 🚧
 * \[Mar 03, 2026] feat: ✨ front-end security
-* \[Mar 03, 2026] feat: ✨ front-end navigation
 
 </details>
 
