@@ -43,7 +43,9 @@
 * [Notifications](front-end/notifications.md)
 * [Remoting](front-end/remoting.md)
 * [Security](front-end/security.md)
-* [Tests 🚧](front-end/tests.md)
+* [Tests 🚧](front-end/tests/README.md)
+  * [Elmish loop tests 🚧](front-end/tests/elmish-loop-tests.md)
+  * [Playwright scenarios 🚧](front-end/tests/playwright-scenarios.md)
 * [Translations](front-end/translations.md)
 * [Validation 🚧](front-end/validation.md)
 
