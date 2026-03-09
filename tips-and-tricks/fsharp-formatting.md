@@ -55,7 +55,6 @@ Stroustrup is a good middle ground: more readable than Cramped (which can bury t
 ```fsharp
 // Stroustrup — record type
 type FullContext = {
-    Lang: Lang
     User: User
     Token: AuthToken option
     Translations: AppTranslations
@@ -63,7 +62,6 @@ type FullContext = {
 
 // Stroustrup — record value
 static member Default: FullContext = {
-    Lang = Lang.English
     User = User.Anonymous
     Token = None
     Translations = AppTranslations()

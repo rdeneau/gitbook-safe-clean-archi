@@ -10,10 +10,10 @@ icon: globe
 
 The key files are:
 
-- **`Shopfoo.Domain.Types/Translations.fs`** — Core types: `PageCode`, `TagCode`, `TranslationKey`, and the `Translations` data structure.
+- **`Shopfoo.Domain.Types/Translations.fs`** — Core types: `PageCode`, `TagCode`, `TranslationKey`, and the `Translations` data structure (including the current `Lang`).
 - **`Shopfoo.Shared/Translations.fs`** — The `AppTranslations` facade and page-specific translator classes (`Home`, `Login`, `Product`).
 - **`Shopfoo.Shared/Remoting.fs`** — `FullContext` with `FillTranslations`, `QueryDataAndTranslations`, and the `QueryWithTranslations` type alias.
-- **`Shopfoo.Client/View.fs`** — The Elmish loop that owns the translation cache and handles the dispatched `FillTranslations` messages.
+- **`Shopfoo.Client/View.fs`** — The Elmish loop that owns the translation cache and handles the dispatched `FillTranslations` messages. Also contains `AppView` and the `ReactDOM.createRoot` entry point.
 - **`Shopfoo.Client/Pages/Shared.fs`** — The `Env.IFillTranslations` interface that pages use to push translations into the cache.
 
 ## Core types
@@ -38,14 +38,16 @@ type TranslationKey = { Page: PageCode; Tag: TagCode }
 
 ### The `Translations` record
 
-The raw translation data is a nested map:
+The raw translation data combines the language with a nested map:
 
 ```fsharp
 type Translations = {
+    Lang: Lang
     Pages: Map<PageCode, Map<TagCode, string>>
 }
 ```
 
+- **`Lang`** — The language of the translations contained in `Pages`.
 - **Outer map:** `PageCode` → inner map (one entry per page).
 - **Inner map:** `TagCode` → translated string.
 
@@ -229,12 +231,19 @@ The application's global state is held in `FullContext`, which stores the curren
 ```fsharp
 [<RequireQualifiedAccess>]
 type FullContext = {
-    Lang: Lang
     User: User
     Token: AuthToken option
     Translations: AppTranslations
 }
 ```
+
+The current language is a computed property derived from the translations:
+
+```fsharp
+member this.Lang = this.Translations.Translations.Lang
+```
+
+Since `Translations` carries its own `Lang`, there is no separate `Lang` field in `FullContext` — the language always stays in sync with the loaded translations.
 
 Two members manage the cache:
 
@@ -342,7 +351,7 @@ For more details on the `Env` pattern and how child pages communicate with the r
 Even error responses can carry translations — `ApiError` has a `Translations` field. This ensures that error messages can be displayed in the user's language even if the main data load fails.
 {% endhint %}
 
-In `View.fs`, the root Elmish loop handles the `FillTranslations` message by merging the incoming data into the global cache:
+In `View.fs`, the root Elmish `update` function handles the `FillTranslations` message by merging the incoming data into the global cache:
 
 ```fsharp
 | Msg.FillTranslations translations ->
@@ -354,7 +363,7 @@ In `View.fs`, the root Elmish loop handles the `FillTranslations` message by mer
 When the user changes the display language, the root `AppView` fetches translations for all pages that were previously populated — there is no need to re-fetch pages that were never loaded:
 
 ```fsharp
-module private Cmd =
+module internal Cmd =
     let fetchTranslations (cmder: Cmder, request: Request<GetTranslationsRequest>) =
         let lang = request.Body.Lang // Warning: `request.Lang` is the current lang, not the requested one
 
@@ -364,7 +373,7 @@ module private Cmd =
             Success = fun data -> ChangeLang(lang, Done(Ok data))
         }
 
-let private update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
+let internal update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     let updateLangStatus lang status = [
         for menu in model.LangMenus do
             if menu.Lang = lang then
@@ -375,24 +384,22 @@ let private update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
 
     match msg with
     | Msg.ChangeLang(lang, Start) ->
-        { model with LangMenus = updateLangStatus lang Remote.Loading },
+        { model with LangMenus = updateLangStatus lang Remote.Loading; Toast = None },
         Cmd.fetchTranslations (
             model.FullContext.PrepareRequest { Lang = lang; PageCodes = model.FullContext.Translations.PopulatedPages }
         )
 
     | Msg.ChangeLang(lang, Done(Ok data)) ->
-        let fullContext = {
-            model.FullContext with
-                Lang = lang
-                Translations = AppTranslations().Fill(data.Translations)
-        }
+        let fullContext = { model.FullContext with Translations = AppTranslations().Fill(data.Translations) }
         { model with FullContext = fullContext; LangMenus = updateLangStatus lang (Remote.Loaded()) },
         Cmd.batch [ ... ]
 
     ...
 ```
 
-Notice that on success, translations are built from scratch (`AppTranslations().Fill(...)`) rather than merged into the existing cache. This ensures a clean replacement — no stale strings from the previous language leak through.
+The `Msg`, `Model`, `Cmd`, `init`, and `update` are `internal` (not `private`) to allow unit testing from `Shopfoo.Client.Tests` via `InternalsVisibleTo`.
+
+Notice that on success, translations are built from scratch (`AppTranslations().Fill(...)`) rather than merged into the existing cache. This ensures a clean replacement — no stale strings from the previous language leak through. Since the `Lang` is carried by `Translations` itself, the `FullContext.Lang` computed property automatically reflects the new language.
 
 ## Consuming translations in views
 

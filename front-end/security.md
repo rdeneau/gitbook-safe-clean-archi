@@ -141,15 +141,15 @@ Claims are also verified server-side on every Remoting API call. The mechanism r
 
 ### Passing the token with each request
 
-The `FullContext` record (`Shared/Remoting.fs`) holds the current `User`, an optional `AuthToken`, the current `Lang`, and the loaded `Translations`:
+The `FullContext` record (`Shared/Remoting.fs`) holds the current `User`, an optional `AuthToken`, and the loaded `Translations` (which carry their own `Lang`):
 
 ```fsharp
 type FullContext = {
-    Lang: Lang
     User: User
     Token: AuthToken option       // ← encrypted User (AES-256-GCM)
     Translations: AppTranslations
-}
+} with
+    member this.Lang = this.Translations.Translations.Lang
 ```
 
 Every API call in `Shared/Remoting.fs` is typed as a function taking a `Request<'t>`:

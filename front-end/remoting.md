@@ -453,11 +453,13 @@ Both recommend using `Result` to model operations that might fail. *Shopfoo*'s `
 `Cmder` wraps calls to the Remoting API into Elmish `Cmd` values. It is obtained from `FullContext`:
 
 ```fsharp
-type Cmder = { User: User }
+type Cmder = { User: User; UnitTestSession: UnitTestSession option }
 
 type FullContext with
-    member this.Cmder: Cmder = { User = this.User }
+    member this.Cmder: Cmder = { User = this.User; UnitTestSession = this.UnitTestSession }
 ```
+
+The `UnitTestSession` field supports unit testing: when `Some`, `ofApiRequest` uses the provided `MockedApi` instead of the real `Server.api` proxy. In production, this is always `None`.
 
 Its single method, `ofApiRequest`, takes an `ApiRequestArgs` record and produces a `Cmd<'msg>`:
 
