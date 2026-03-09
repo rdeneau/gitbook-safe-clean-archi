@@ -1,2 +1,0 @@
-# Elmish loop tests 🚧
-
