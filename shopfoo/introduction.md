@@ -16,39 +16,7 @@ The only pieces missing to be production-ready are those that would prevent me f
 
 Shopfoo is an **admin console** (a.k.a. back-office) for a retail store selling two types of items: **books** and **other products**.
 
-### Catalog & Data Sources
-
-- **Books** are fetched from the [OpenLibrary API](https://openlibrary.org/developers/api).
-- **Other products** come from the [FakeStore API](https://fakestoreapi.com).
-
-Each item has pricing information: a **retail price** and an optional **list price** (e.g. the manufacturer's recommended retail price).
-
-### Cache & Seeding
-
-The application relies on an in-memory cache. On startup, a seeding phase populates the cache with around fifteen books. Products are then added and updated progressively as the user interacts with the application.
-
-### Event Simulation
-
-Shopfoo lets users simulate events that would happen automatically in a real e-commerce platform connected to:
-
-- a **front-end storefront** (sales),
-- a **warehouse** handling stock and order fulfilment,
-- a **supplier system** for restocking.
-
-From any product page, users can record:
-
-- **Sales** — simulating purchases made on the storefront,
-- **Stock arrivals** — simulating deliveries from a supplier,
-- **Stock adjustments** — simulating inventory corrections after a warehouse count.
-
-### Extranet Features
-
-Beyond product management, Shopfoo also demonstrates classic back-office features:
-
-- **User authentication** — login/logout flow,
-- **User rights management** — role-based access control,
-- **Language switching** — internationalisation (i18n),
-- **Theme switching** — visual theme customisation.
+It demonstrates several back-office features: user authentication, role-based access control, internationalisation, theme switching, product catalogue management, and event simulation.
 
 ## Technical stack
 
@@ -79,4 +47,9 @@ The solution is based on the [SAFEr.Template](https://github.com/Dzoukr/SAFEr.Te
 
 ## What's next
 
-The following pages of this chapter walk through how the application works and describe its different pages with their features.
+The following pages walk through how the application works and describe its features:
+
+- [General Features](general.md) — login, default page, About and Admin pages
+- [Navigation & UI](navigation.md) — breadcrumb, menu, language and theme selectors
+- [Products](products.md) — catalogue, data sources, cache, filtering and search
+- [Product Management](management.md) — task-based UI, editing, pricing, stock and sales

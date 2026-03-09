@@ -8,6 +8,10 @@
 ## Shopfoo 🚧
 
 * [Introduction](shopfoo/introduction.md)
+* [General Features](shopfoo/general.md)
+* [Navigation & UI](shopfoo/navigation.md)
+* [Products](shopfoo/products.md)
+* [Product Management](shopfoo/management.md)
 
 ## Architecture
 
