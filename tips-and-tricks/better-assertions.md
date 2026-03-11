@@ -29,7 +29,7 @@ This technique is known as **scrubbing** in approval testing libraries (e.g. [Ve
 
 ## Multiple assertions in a single check
 
-This full-state approach also combines well with **multiple assertions**. Rather than checking values one by one (and losing context on the first failure), bundle all actual and expected values into an **anonymous record** with `=!`:
+This full-state approach also combines well with **multiple assertions**. Rather than checking values one by one (and losing context on the first failure), bundle all actual and expected values into a **tuple** or an **anonymous record** with `=!`:
 
 ```fsharp
 // ✖️ Stops at the first failure — you don't see the other mismatches
@@ -40,12 +40,18 @@ test
         && sagaState.Status = SagaStatus.Failed(originalError = expectedError, undoErrors = [])
     @>
 
-// ✅ Reports all mismatches at once
+// ✅ Tuple: sufficient for a few values with obvious meaning
+(result, orderCreated) =! (Error expectedError, None)
+
+// ✅ Anonymous record: prefer for more than 4 values, or when a primitive's values are ambiguous
 {| Result = result; OrderCreated = orderCreated; SagaStatus = sagaState.Status |}
-    =! {| Result = Error expectedError; OrderCreated = None; SagaStatus = SagaStatus.Failed(originalError = expectedError, undoErrors = []) |}
+=! {| Result = Error expectedError; OrderCreated = None; SagaStatus = SagaStatus.Failed(originalError = expectedError, undoErrors = []) |}
 ```
 
-The `test <@ ... && ... @>` style with Unquote stops reducing at the first `false` sub-expression — subsequent assertions are not evaluated. The anonymous record approach reports **all** mismatches at once while remaining a single assertion, giving a complete diagnostic on failure.
+The `test <@ ... && ... @>` style with Unquote stops reducing at the first `false` sub-expression — subsequent assertions are not evaluated. Both the tuple and anonymous record approaches report **all** mismatches at once while remaining a single assertion, giving a complete diagnostic on failure.
+
+- Use a **tuple** when you have ≤ 4 values and their meaning is obvious from context.
+- Prefer an **anonymous record** when you have more than 4 values, or when a primitive value's role is not obvious — the field names act as built-in labels.
 
 ## Pre-conditions with `assume` / `assumeThat`
 
