@@ -25,16 +25,16 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 11, 2026] feat: ✅ complete shopfoo chapter
+* \[Mar 11, 2026] feat(elmish/tests): improve Scenario 2 with latest shopfoo changes
+* \[Mar 11, 2026] feat(better-assertions): 👔 recommend tuple for single assertion
+* \[Mar 11, 2026] wip: 🚧 front-end/versioning
+* \[Mar 11, 2026] feat(safer-template): add a preliminary warning regarding Elmish min knowledge
+* \[Mar 09, 2026] feat: ✨ shopfoo features documentation
+* \[Mar 09, 2026] feat: ✨ front-end/elmish/tests
+* \[Mar 09, 2026] refactor(front-end): ♻️ sync with latest changes in shopfoo
 * \[Mar 06, 2026] feat: 🔄️ [GITBOOK-17] prepare front-end tests pages
 * \[Mar 05, 2026] feat: ✨ front-end translations
-* \[Mar 05, 2026] tidy(SUMMARY): 🧹 remove 🚧 for complete pages
-* \[Mar 05, 2026] feat: ✨ front-end remoting
-* \[Mar 04, 2026] feat: 👔 update security in relation with changes in Shopfoo
-* \[Mar 04, 2026] feat: 👔 improve better-assertions: assume|test(That)
-* \[Mar 04, 2026] feat: ✨ shopfoo introduction
-* \[Mar 04, 2026] refactor: ♻️ move shopfoo intro from welcome to shopfoo chapter intro
-* \[Mar 04, 2026] feat: 👔 encryption in front-end security
-* \[Mar 04, 2026] feat: 🔄️ [GITBOOK-16] add Shopfoo chapter 🚧
 
 </details>
 
@@ -42,15 +42,15 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-tablet-screen">:tablet-screen:</i>  Shopfoo</summary>
 
+* \[Mar 09, 2026] tidy: 📐 add Env.prepareRequest helper
+* \[Mar 09, 2026] fix(search): 🐛 support author w/o photos
+* \[Mar 09, 2026] test(AppView): 🧪 resolvePageAccess
+* \[Mar 06, 2026] tidy: 🧹 minor formatting
+* \[Mar 06, 2026] test: 🧪 translations at the Client/App level
+* \[Mar 06, 2026] feat(FullContext): ✨ add UnitTestSession to ease unit tests (mock api, ignore cmd)
+* \[Mar 06, 2026] refactor: ♻️ add Lang in Translations
+* \[Mar 06, 2026] refactor(Client): ♻️ merge (App)View in App
 * \[Mar 05, 2026] refactor: ♻️ use AreaApi to qualify the Remoting API of a functional area
 * \[Mar 05, 2026] tidy: 🧹 Route.builder example
-* \[Mar 05, 2026] fix: 🐛 support book w/o covers
-* \[Mar 05, 2026] feat: 👔 support custom LogLevel in WorkLogger
-* \[Mar 05, 2026] fix(ResetCache): 🐛 add missing Admin endpoint + refactor apiHttpHandler
-* \[Mar 05, 2026] feat: 🖼️ finalize Admin page: add translations, improve alerts
-* \[Mar 04, 2026] feat(Admin): ✨ reset all caches + refactor Persona DU
-* \[Mar 04, 2026] fix: 🔒️ encrypt tokens
-* \[Mar 04, 2026] tidy: 📐 place tests in a namespace for discoverability by Rider
-* \[Mar 03, 2026] refactor: ♻️ improve Persona type to represent a logged-in user only
 
 </details>
