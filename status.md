@@ -25,6 +25,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 11, 2026] feat: 🔄️ [GITBOOK-18] finalize shopfoo chapter
 * \[Mar 11, 2026] feat: ✅ complete shopfoo chapter
 * \[Mar 11, 2026] feat(elmish/tests): improve Scenario 2 with latest shopfoo changes
 * \[Mar 11, 2026] feat(better-assertions): 👔 recommend tuple for single assertion
@@ -34,7 +35,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 09, 2026] feat: ✨ front-end/elmish/tests
 * \[Mar 09, 2026] refactor(front-end): ♻️ sync with latest changes in shopfoo
 * \[Mar 06, 2026] feat: 🔄️ [GITBOOK-17] prepare front-end tests pages
-* \[Mar 05, 2026] feat: ✨ front-end translations
 
 </details>
 
