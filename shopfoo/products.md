@@ -1,3 +1,7 @@
+---
+icon: product-hunt
+---
+
 # Products
 
 This page describes how Shopfoo fetches, caches, and displays its product catalog, and how users can search and filter products.
@@ -10,10 +14,7 @@ All display state — active filters, search term, sort column and direction —
 
 Shopfoo sells two types of products, each sourced from a different external API:
 
-| Provider                                                  | Type         | Categories                           |
-| --------------------------------------------------------- | ------------ | ------------------------------------ |
-| [FakeStore API](https://fakestoreapi.com)                 | **🏪 Bazaar** | 👗 Clothing, 🔌 Electronics, 💍 Jewelry |
-| [OpenLibrary API](https://openlibrary.org/developers/api) | **📘 Books**  | 📚 Books                              |
+<table><thead><tr><th width="197">Provider</th><th width="158.199951171875">Type</th><th>Categories</th></tr></thead><tbody><tr><td><a href="https://fakestoreapi.com">FakeStore API</a></td><td><strong>🏪 Bazaar</strong></td><td>👗 Clothing, 🔌 Electronics, 💍 Jewelry</td></tr><tr><td><a href="https://openlibrary.org/developers/api">OpenLibrary API</a></td><td><strong>📘 Books</strong></td><td>📚 Books</td></tr></tbody></table>
 
 ## Cache & Seeding
 
@@ -29,21 +30,21 @@ Each row shows the key product attributes:
 
 | Column      | 🏪 Bazaar | 📘 Books | Notes                            |
 | ----------- | :-------: | :------: | -------------------------------- |
-| #           |    ✅     |    ✅    | Row number                       |
-| SKU         |    ✅     |    ✅    |                                  |
-| Category    |    ✅     |    —     |                                  |
-| Name        |    ✅     |    ✅    | Books: title + optional subtitle |
-| Authors     |    —      |    ✅    |                                  |
-| Tags        |    —      |    ✅    |                                  |
-| Description |    ✅     |    ✅    |                                  |
+| #           |     ✅     |     ✅    | Row number                       |
+| SKU         |     ✅     |     ✅    |                                  |
+| Category    |     ✅     |     —    |                                  |
+| Name        |     ✅     |     ✅    | Books: title + optional subtitle |
+| Authors     |     —     |     ✅    |                                  |
+| Tags        |     —     |     ✅    |                                  |
+| Description |     ✅     |     ✅    |                                  |
 
 ### Bazaar
 
-![Bazaar](./img/bazaar.png)
+![Bazaar](../.gitbook/assets/bazaar.png)
 
 ### Books
 
-![Books](./img/books.png)
+![Books](../.gitbook/assets/books.png)
 
 ### Truncation
 
@@ -74,7 +75,7 @@ All columns except **Description** are sortable. Clicking a column header cycles
 | ⏶    | Green | Sorted ascending               |
 | ⏷    | Green | Sorted descending              |
 
-![Sorted by SKU in ascendent order](./img/sort-by-sku-asc.png)
+![Sorted by SKU in ascendent order](../.gitbook/assets/sort-by-sku-asc.png)
 
 ## Filter & search
 
@@ -84,10 +85,7 @@ The product page has its own **toolbar** above the table, organized in three par
 
 **2. Attribute filters** — faceted filters that vary by product type:
 
-| Type      | Filters                                                              |
-| --------- | -------------------------------------------------------------------- |
-| 🏪 Bazaar | One filter with 3 positions: 👗 Clothing, 🔌 Electronics, 💍 Jewelry |
-| 📘 Books  | Two dropdown filters: Authors and Tags                               |
+<table><thead><tr><th width="166.79998779296875">Type</th><th>Filters</th></tr></thead><tbody><tr><td>🏪 Bazaar</td><td>One filter with 3 positions: 👕 Clothing, 📺 Electronics, 💎 Jewelry</td></tr><tr><td>📘 Books</td><td>Two dropdown filters: Authors and Tags</td></tr></tbody></table>
 
 Each filter option shows the number of matching products.
 
@@ -95,17 +93,27 @@ When a filter is active, the matching values in the corresponding table column a
 
 **3. Text search** — a free-text input that searches across all table columns (except the row number `#`). Only rows containing the search term are displayed. Two options complement the search:
 
-- **Case-sensitive** — toggles case sensitivity (disabled by default).
-- **Highlight matches** — found occurrences are highlighted in the results (enabled by default).
+* **Case-sensitive** — toggles case sensitivity (disabled by default).
+* **Highlight matches** — found occurrences are highlighted in the results (enabled by default).
 
-**Demo:**
+<details open>
 
-![Filters](./img/filters.gif)
+<summary><span data-gb-custom-inline data-tag="emoji" data-code="1f5a5">🖥️</span> <strong>Demo</strong></summary>
 
-## OpenLibrary search
+![Filters](../.gitbook/assets/filters.gif)
 
-When browsing 📘 **Books** with an active text search term, a 🔍 **search button** appears in the toolbar. Clicking it triggers a query to the OpenLibrary API using the current search term, fetching up to **30 results**. Those results are then re-filtered locally by the same text search to produce the final list, which is merged directly into the table alongside the books already in the cache. Books loaded this way are identifiable by the ✨ emoji prefixed to their title.
+</details>
 
-![OpenLibrary search](./img/openlib-search.gif)
+## Open Library search
+
+When browsing 📘 **Books** with an active text search term, a 🔍 **search button** appears in the toolbar. Clicking it triggers a query to the _Open Library API_ using the current search term, fetching up to **30 results**. Those results are then re-filtered locally by the same text search to produce the final list, which is merged directly into the table alongside the books already in the cache. Books loaded this way are identifiable by the ✨ emoji prefixed to their title.
+
+<details open>
+
+<summary><span data-gb-custom-inline data-tag="emoji" data-code="1f5a5">🖥️</span> <strong>Demo</strong></summary>
+
+![OpenLibrary search](../.gitbook/assets/openlib-search.gif)
+
+</details>
 
 From there, a selected book can be permanently added to the in-memory cache — this is covered in detail in the [Product Management](management.md) page.
