@@ -4,6 +4,10 @@ icon: shield-heart
 
 # SAFEr template
 
+{% hint style="warning" %}
+This section assumes a basic familiarity with the Elmish pattern. Otherwise, please read [The Elmish Book](https://zaid-ajaj.github.io/the-elmish-book/) first. It is a must-read.
+{% endhint %}
+
 The `Shopfoo.Client` project is based on the **SAFEr template**. Unlike the classic SAFE template, where a single Elmish program manages the entire application state in a Russian-doll/top-down hierarchy, the SAFEr template uses **`React.useElmish`** at the component level.
 
 Each page or form component owns its own Elmish loop (`Model`, `Msg`, `init`, `update`), scoped to the component's lifetime. This approach:

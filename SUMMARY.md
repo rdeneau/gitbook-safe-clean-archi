@@ -41,7 +41,7 @@
 ## Front-end
 
 * [Elmish](front-end/elmish/README.md)
-  * [SAFEr template](front-end/elmish/elmish.md)
+  * [SAFEr template](front-end/elmish/safer-template.md)
   * [Data flow](front-end/elmish/data-flow.md)
   * [Tests](front-end/elmish/tests.md)
 * [Navigation](front-end/navigation.md)
