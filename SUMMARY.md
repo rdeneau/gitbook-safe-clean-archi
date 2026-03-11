@@ -50,6 +50,7 @@
 * [Security](front-end/security.md)
 * [Translations](front-end/translations.md)
 * [Validation 🚧](front-end/validation.md)
+* [Versioning 🚧](front-end/versioning.md)
 
 ## Tips & Tricks
 
