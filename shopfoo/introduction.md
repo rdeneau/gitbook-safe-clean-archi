@@ -51,5 +51,5 @@ The following pages walk through how the application works and describe its feat
 
 - [General Features](general.md) — login, default page, About and Admin pages
 - [Navigation & UI](navigation.md) — breadcrumb, menu, language and theme selectors
-- [Products](products.md) — catalogue, data sources, cache, filtering and search
+- [Products](products.md) — catalog, data sources, cache, filtering and search
 - [Product Management](management.md) — task-based UI, editing, pricing, stock and sales

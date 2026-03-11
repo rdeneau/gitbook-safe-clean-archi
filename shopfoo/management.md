@@ -6,28 +6,43 @@ This page describes how products are managed in Shopfoo: editing product informa
 
 Product management in Shopfoo spans four business areas:
 
-| Area | Responsibility |
-|------|---------------|
-| **Catalog** | Product information and pricing |
-| **Sales** | Customer orders and revenue |
-| **Purchases** | Supplier orders and restocking |
-| **Warehouse** | Stock levels and inventory corrections |
+| Area          | Responsibility                         | Claim            |
+| ------------- | -------------------------------------- | ---------------- |
+| **Catalog**   | Product information                    | `Feat.Catalog`   |
+| **Sales**     | Pricing, customer orders and revenue   | `Feat.Sales`     |
+| **Purchases** | Supplier orders and restocking         | `Feat.Warehouse` |
+| **Warehouse** | Stock levels and inventory corrections | `Feat.Warehouse` |
+
+Each business area on the product page is only rendered if the current user holds the corresponding claim. Within a visible area, the access level further determines the UI state: a **View** claim renders form components as read-only or disabled; an **Edit** claim enables full interaction.
 
 ## Task-Based UI approach
 
 Rather than a single generic edit form, Shopfoo uses a **Task-Based UI**: each user intention maps to a dedicated, focused command. This avoids the anaemic CRUD screens typical of back-offices and makes the business intent explicit.
 
+![alt text](./img/areas.png)
+
 {% hint style="info" %}
 For an introduction to Task-Based UIs, see Derek Comartin's video [Task-Based UI](https://www.youtube.com/watch?v=BgRMHpqxVKA).
 {% endhint %}
 
-📸 _Screenshot: product page showing the available task commands_
-
 ## Product editing
 
-The **Edit product** task allows users to modify the descriptive information of a product (name, subtitle, author, etc.). This maps to the **Catalog** business area.
+The **Edit product** task allows users to modify the descriptive information of a product. The fields available depend on the product type:
 
-📸 _Screenshot: product edit form_
+| Field       | 🏪 Bazaar | 📘 Books | Required | Max Length | Component                 |
+| ----------- | :------: | :-----: | :------: | :--------: | ------------------------- |
+| Name        |    ✅     |    ✅    |    ✅     |    128     | Text input                |
+| Category    |    ✅     |    —    |    ✅     |     —      | Radio button group        |
+| Subtitle    |    —     |    ✅    |          |    256     | Text input                |
+| Authors     |    —     |    ✅    |          |     —      | Multi-select              |
+| Image URL   |    ✅     |    ✅    |          |     —      | Text input + live preview |
+| Description |    ✅     |    ✅    |          |    512     | Text input                |
+
+Visual feedback guides the user during editing: a **character counter** (`remaining / max`) is displayed for length-constrained fields, and a **red border** highlights any field with an invalid value after edition.
+
+{% hint style="info" %}
+See the [Validation](../front-end/validation.md) page for the front-end validation implementation details.
+{% endhint %}
 
 ## Pricing management
 
@@ -38,24 +53,40 @@ The **Update pricing** task manages the two price fields independently:
 
 This is a separate task from general editing because pricing decisions often involve different roles or approval workflows.
 
-## Purchase entry
+The available pricing actions are:
 
-The **Record purchase** task simulates a **stock arrival from a supplier**. It represents goods received from a supplier, affecting both the **Purchases** area (supplier order) and the **Warehouse** area (stock increase).
+| Action           | List price | Retail price | Condition    |
+| ---------------- | :--------: | :----------: | ------------ |
+| Define           |     ✅      |      ✅       | Price = None |
+| Increase price   |     ✅      |      ✅       | Price ≠ None |
+| Decrease price   |     ✅      |      ✅       | Price ≠ None |
+| Remove           |     ✅      |      —       | Price ≠ None |
+| Mark as sold out |     —      |      ✅       | Stock = 0    |
 
-Users enter the quantity received. The stock level is updated accordingly.
+![Pricing](./img/pricing.gif)
 
-📸 _Screenshot: purchase entry form (stock arrival)_
+{% hint style="info" %}
+The pricing drawer uses the [DaisyUI Drawer](https://daisyui.com/components/drawer/) component and opens from the **right**, pushing the "Actions" column to the left. This keeps all prices visible while the drawer is open — handy when entering a price relative to the others (e.g. for a book, the Retail Price should never exceed the List Price, even though nothing enforces this technically).
+{% endhint %}
 
 ## Sales entry
 
-The **Record sale** task simulates a **customer purchase** on the storefront. It affects the **Sales** area (revenue) and the **Warehouse** area (stock decrease).
+The **Input sales** task simulates **customer purchases** on the storefront. It affects the **Sales** area (revenue) and the **Warehouse** area (stock decrease).
 
-Users enter the quantity sold. The stock level is decremented accordingly.
+Users enter the sale date, then the quantity bought, and finally the sale price — which is pre-filled with the current Retail Price. The stock level is decremented accordingly.
 
-📸 _Screenshot: sales entry form_
+![Input sales](./img/input-sales.gif)
+
+## Purchase entry
+
+The **Receive purchased products** task simulates a **stock arrival from a supplier**. It represents goods received from a supplier, affecting both the **Purchases** area (supplier order) and the **Warehouse** area (stock increase).
+
+Users enter the purchase date, then the quantity supplied, and finally the purchase price — which is not pre-filled. The stock level is incremented accordingly.
+
+![Receive products](./img/receive-products.gif)
 
 ## Stock adjustment
 
-The **Adjust stock** task simulates an **inventory correction** following a warehouse count. It falls under the **Warehouse** area and allows entering a positive or negative quantity delta to reconcile the recorded stock with the physical count.
+The **Inventory adjustment** task simulates an **inventory correction** following a warehouse count. It falls under the **Warehouse** area and allows entering a different quantity to reconcile the recorded stock with the physical count.
 
-📸 _Screenshot: stock adjustment form_
+![Inventory adjustment](./img/inventory-adjustment.gif)

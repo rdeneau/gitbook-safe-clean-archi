@@ -1,62 +1,111 @@
 # Products
 
-This page describes how Shopfoo fetches, caches, and displays its product catalogue, and how users can search and filter products.
+This page describes how Shopfoo fetches, caches, and displays its product catalog, and how users can search and filter products.
 
-## Cache & Seeding
-
-The application relies on an **in-memory cache** — there is no persistent database. On startup, a **seeding phase** populates the cache with around fifteen books. Products are then added and updated **progressively** as the user interacts with the application: browsing a product for the first time fetches it from the external API and stores it in the cache.
+{% hint style="info" %}
+All display state — active filters, search term, sort column and direction — is reflected in the URL. Any combination can be bookmarked or shared as a direct link.
+{% endhint %}
 
 ## Provider choice
 
 Shopfoo sells two types of products, each sourced from a different external API:
 
-| Type | Source |
-|------|--------|
-| **Books** | [OpenLibrary API](https://openlibrary.org/developers/api) |
-| **Other products** | [FakeStore API](https://fakestoreapi.com) |
+| Provider                                                  | Type         | Categories                           |
+| --------------------------------------------------------- | ------------ | ------------------------------------ |
+| [FakeStore API](https://fakestoreapi.com)                 | **🏪 Bazaar** | 👗 Clothing, 🔌 Electronics, 💍 Jewelry |
+| [OpenLibrary API](https://openlibrary.org/developers/api) | **📘 Books**  | 📚 Books                              |
+
+## Cache & Seeding
+
+The application relies on an **in-memory cache** — there is no persistent database. On startup, a **seeding phase** populates the cache with around fifteen books. Products are then added and updated **progressively** as the user interacts with the application: browsing a product for the first time fetches it from the external API and stores it in the cache.
 
 The provider is determined by the product type and is transparent to the user.
 
 ## Table display
 
-Products are listed in a **sortable table**. Each row shows the key product attributes. Clicking a column header sorts the list by that column.
+Products are listed in a **sortable table**. The table header is **sticky**: it remains visible at the top of the page while scrolling down through a long list.
 
-**Columns common to all products:** name, retail price, list price (MSRP), stock quantity.
+Each row shows the key product attributes:
 
-**Book-specific columns:** subtitle, author(s), publication year, ISBN.
+| Column      | 🏪 Bazaar | 📘 Books | Notes                            |
+| ----------- | :-------: | :------: | -------------------------------- |
+| #           |    ✅     |    ✅    | Row number                       |
+| SKU         |    ✅     |    ✅    |                                  |
+| Category    |    ✅     |    —     |                                  |
+| Name        |    ✅     |    ✅    | Books: title + optional subtitle |
+| Authors     |    —      |    ✅    |                                  |
+| Tags        |    —      |    ✅    |                                  |
+| Description |    ✅     |    ✅    |                                  |
 
-📸 _Screenshot: product table — books_
+### Bazaar
 
-📸 _Screenshot: product table — other products_
+![Bazaar](./img/bazaar.png)
 
-## Book specifics
+### Books
 
-Books have dedicated fields not present on other products:
+![Books](./img/books.png)
 
-- **Subtitle**
-- **Author(s)**
-- **Publication year**
-- **ISBN**
+### Truncation
 
-These fields are displayed in the table and on the book detail page.
+Long text cells (**Name** and **Description**) are truncated with an ellipsis and capped at 2 lines by default. On mouse hover, the row expands to reveal up to 3 lines. For books specifically, the **Name** column also changes layout on hover: the two-line `Title ↵ Subtitle` view collapses into a single `Title: Subtitle` line.
 
-## Pricing
+Example:
 
-Each product has two price fields:
+```txt
+┌────────┬──────────────────────────────────┬───────────────────────────────────────┐
+│ State  │ Name                             │ Description                           │
+├────────┼──────────────────────────────────┼───────────────────────────────────────┤
+│ Normal │ Clean Code                       │ Even bad code can function. But if    │
+│        │ A Handbook of Agile Software…    │ code isn't clean, it can bring a…     │
+├────────┼──────────────────────────────────┼───────────────────────────────────────┤
+│ Hover  │ Clean Code: A Handbook of Agile  │ Even bad code can function. But if    │
+│        │ Software Craftsmanship           │ code isn't clean, it can bring a      │
+│        │                                  │ development organization to its…      │
+└────────┴──────────────────────────────────┴───────────────────────────────────────┘
+```
 
-- **Retail price** — the price charged to the customer.
-- **List price** (MSRP) — the manufacturer's or publisher's recommended retail price. Optional.
+### Sorting
+
+All columns except **Description** are sortable. Clicking a column header cycles through ascending and descending order. An icon in the header indicates the current sort state:
+
+| Icon | Color | Meaning                        |
+| ---- | ----- | ------------------------------ |
+| ⏶⏷   | Grey  | Sortable, not currently sorted |
+| ⏶    | Green | Sorted ascending               |
+| ⏷    | Green | Sorted descending              |
+
+![Sorted by SKU in ascendent order](./img/sort-by-sku-asc.png)
 
 ## Filter & search
 
-### Inline pre-filtering
+The product page has its own **toolbar** above the table, organized in three parts:
 
-The table provides an **inline filter** row that lets users type directly into each column to narrow down the displayed results in real time.
+**1. Product type switcher** — selects between 🏪 Bazaar and 📘 Books. The total number of products of the selected type is displayed next to the label, independently of any active filters.
 
-📸 _Screenshot: product table with active inline filter_
+**2. Attribute filters** — faceted filters that vary by product type:
 
-### OpenLibrary search fallback
+| Type      | Filters                                                              |
+| --------- | -------------------------------------------------------------------- |
+| 🏪 Bazaar | One filter with 3 positions: 👗 Clothing, 🔌 Electronics, 💍 Jewelry |
+| 📘 Books  | Two dropdown filters: Authors and Tags                               |
 
-When the inline pre-filter is applied to the **books** list and returns **no results** from the cache, Shopfoo automatically queries the **OpenLibrary API** to search for matching books. Any books found are added to the cache and displayed in the table, allowing users to discover and load new books on demand.
+Each filter option shows the number of matching products.
 
-📸 _Screenshot: OpenLibrary search results loaded into the table_
+When a filter is active, the matching values in the corresponding table column are highlighted — governed by the same **Highlight matches** toggle as the text search.
+
+**3. Text search** — a free-text input that searches across all table columns (except the row number `#`). Only rows containing the search term are displayed. Two options complement the search:
+
+- **Case-sensitive** — toggles case sensitivity (disabled by default).
+- **Highlight matches** — found occurrences are highlighted in the results (enabled by default).
+
+**Demo:**
+
+![Filters](./img/filters.gif)
+
+## OpenLibrary search
+
+When browsing 📘 **Books** with an active text search term, a 🔍 **search button** appears in the toolbar. Clicking it triggers a query to the OpenLibrary API using the current search term, fetching up to **30 results**. Those results are then re-filtered locally by the same text search to produce the final list, which is merged directly into the table alongside the books already in the cache. Books loaded this way are identifiable by the ✨ emoji prefixed to their title.
+
+![OpenLibrary search](./img/openlib-search.gif)
+
+From there, a selected book can be permanently added to the in-memory cache — this is covered in detail in the [Product Management](management.md) page.

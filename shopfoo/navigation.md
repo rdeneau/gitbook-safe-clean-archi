@@ -31,7 +31,7 @@ Each breadcrumb segment can act as a **navigation link** to move back up the hie
 - **Products** links to `/products`, unless the current page is already `/products`.
 
 {% hint style="info" %}
-See the [Navigation](../front-end/navigation.md) chapter for the client-side routing and breadcrumb implementation.
+See the [Front-end > Navigation](../front-end/navigation.md) chapter for the client-side routing and breadcrumb implementation.
 {% endhint %}
 
 ## User menu

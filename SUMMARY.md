@@ -5,7 +5,7 @@
 * [Audience](audience.md)
 * [Status](status.md)
 
-## Shopfoo 🚧
+## Shopfoo
 
 * [Introduction](shopfoo/introduction.md)
 * [General Features](shopfoo/general.md)
