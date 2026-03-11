@@ -34,10 +34,21 @@ type DelayedMessageHandling =
     | Drop
     | EmitImmediately
 
-type UnitTestSession = { DelayedMessageHandling: DelayedMessageHandling; MockedApi: RootApi }
+type UnitTestSession = {
+    DelayedMessageHandling: DelayedMessageHandling
+    MockedApi: RootApi
+    Now: DateTime option
+}
 ```
 
-When `FullContext.UnitTestSession` is `Some`, the [`Cmder.ofApiRequest`](../remoting.md) method uses the provided `MockedApi` instead of `Server.api`. In production, `UnitTestSession` is always `None`.
+When `FullContext.UnitTestSession` is `Some`, the [`Cmder.ofApiRequest`](../remoting.md) method uses the provided `MockedApi` instead of `Server.api`. The `Now` field allows tests to inject a deterministic date instead of `DateTime.Now`. In production, `UnitTestSession` is always `None` and `fullContext.Now` falls back to `DateTime.Now`:
+
+```fsharp
+member this.Now =
+    this.UnitTestSession
+    |> Option.bind _.Now
+    |> Option.defaultValue DateTime.Now
+```
 
 {% hint style="info" %}
 This design combines three patterns from James Shore's [Testing Without Mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks):
@@ -55,12 +66,13 @@ In `Shopfoo.Client.Tests`, a `FullContext` extension method makes it easy to ena
 
 ```fsharp
 type FullContext with
-    member fullContext.WithUnitTestSession(delayedMessageHandling, ?mockedApi) = {
+    member fullContext.WithUnitTestSession(delayedMessageHandling, ?mockedApi, ?now) = {
         fullContext with
             UnitTestSession =
                 Some {
                     DelayedMessageHandling = delayedMessageHandling
                     MockedApi = defaultArg mockedApi RootApiMock.NothingImplemented
+                    Now = now
                 }
     }
 ```
@@ -126,13 +138,12 @@ type AppShould() =
     [<Arguments(Lang.Enum.English, "About")>]
     [<Arguments(Lang.Enum.French, "A propos")>]
     member _.``populate the FullContext after a ChangeLang success message``(Lang.FromEnum lang, about) =
-        let newModel, _ =
+        let { FullContext = actual }, _ =
             defaultModel
             |> update (Msg.ChangeLang(lang, Done(Ok { Lang = lang; Translations = Translations.In lang })))
 
-        newModel.FullContext.Lang =! lang
-        newModel.FullContext.Translations.Home.About =! about
-        newModel.FullContext.Translations.PopulatedPages =! Translations.AllPages
+        (actual.Lang, actual.Translations.Home.About, actual.Translations.PopulatedPages)
+        =! (lang, about, Translations.AllPages)
 ```
 
 Notable test coverage includes:
@@ -147,100 +158,234 @@ Notable test coverage includes:
 The `update` function is `internal` (not `private`) to allow the test project `Shopfoo.Client.Tests` to call it via `InternalsVisibleTo`.
 {% endhint %}
 
-### Strategy 2: full Elmish loop with mocked API
+### Strategy 2: full message cascade with mocked API
 
-Some scenarios require verifying the **entire message cascade** — the initial message triggers a `Cmd`, which produces another message, which triggers another `Cmd`, and so on. In this case, we run a real Elmish `Program` in the test, with the `MockedApi` implementing the endpoints that will be called.
+Some scenarios require verifying the **entire message cascade** — the initial message triggers a `Cmd`, which produces another message, which triggers another `Cmd`, and so on. Strategy 1 discards the `Cmd` and only asserts on the model after a single `update` call. Strategy 2 executes the full cascade, including API calls via mocked endpoints, and asserts on the final state and side effects (callbacks).
 
-The code excerpts below come from a real application built on this architecture, whose source cannot be shared in full. The key idea: the test builds a `Fixture` with a mocked API, injects a list of scenario messages, and lets the Elmish loop execute them — including all cascading messages produced by `Cmd` values.
+The examples below are drawn from `CatalogInfoShould.fs`, which tests the `CatalogInfo` form component — the form that adds or edits a product's catalog information.
 
-#### Mocking specific API endpoints
+#### Extracting message construction helpers
 
-The fixture starts from `RootApiMock.NothingImplemented` and selectively overrides the endpoints needed by the scenario:
-
-```fsharp
-init fixture
-|> withChannels []
-|> withPools [ poolToDelete ]
-|> mockHotelChannelsApi (fun api ->
-    { api with
-        DeleteChannelPool = mockResponseOk () }
-)
-|> runScenario [ msgs.Delete ]
-```
-
-#### Running the Elmish program
-
-`runScenario` builds a real Elmish `Program` that:
-
-1. Calls `init` to get the initial model and commands
-2. Dispatches each scenario message in order
-3. Lets cascading messages (from `Cmd` values) execute between scenario messages
-4. Records a **trace** of every model state, tagged with its origin (`Init`, `ScenarioMsg`, `CascadingMsg`, etc.)
+In the view, messages are typically constructed inline inside `dispatch(...)` calls. To make them testable, we can extract them into a `Msg` companion module:
 
 ```fsharp
-Program.mkProgram init update view
-|> Program.withErrorHandler ignore
-|> Program.run
+[<RequireQualifiedAccess>]
+module internal Msg =
+    type ProductMsg = Product -> Msg
+
+    // -- Product ----
+
+    let addProduct: ProductMsg = fun product -> Msg.AddProduct(product, Start)
+
+    let private changeCategory category : ProductMsg = fun product -> Msg.ProductChanged { product with Category = category }
+    let changeDescription description : ProductMsg = fun product -> Msg.ProductChanged { product with Description = description }
+    let changeImageUrl url : ProductMsg = fun product -> Msg.ProductChanged { product with ImageUrl = ImageUrl.Valid url }
+    let changeName name : ProductMsg = fun product -> Msg.ProductChanged { product with Title = name }
+
+    // -- Bazaar ----
+
+    let private changeBazaarProduct newBazaarProduct : ProductMsg = changeCategory (Category.Bazaar newBazaarProduct)
+    let changeBazaarCategory newBazaarCategory bazaarProduct : ProductMsg = changeBazaarProduct { bazaarProduct with Category = newBazaarCategory }
+
+    // -- Book ----
+
+    let private changeBook newBook : ProductMsg = changeCategory (Category.Books newBook)
+    let changeBookSubtitle subtitle book : ProductMsg = changeBook { book with Subtitle = subtitle }
+    let toggleBookTag (isChecked, tag) book : ProductMsg = changeBook { book with Tags = book.Tags.Toggle(tag, isChecked) }
+    let toggleBookAuthor (isChecked, author) book : ProductMsg = changeBook { book with Authors = book.Authors.Toggle(author, isChecked) }
 ```
 
-The `view` function acts as the message dispatcher — it dispatches the next queued message if the previous `update` produced no `Cmd` (i.e., no cascading message is expected):
+The view then delegates to these helpers:
 
 ```fsharp
-let view state dispatch =
-    Option.iter dispatch state.NextMessageToDispatch
-    currentState <- state
+// Before: inline construction
+yield! propOnChangeOrReadonly (fun name ->
+    dispatch (ProductChanged { product with Title = name }))
+
+// After: extracted helper
+yield! propOnChangeOrReadonly (fun name ->
+    dispatch (Msg.changeName name product))
 ```
 
-#### Tracing message origins
+#### Fake data and mocked API endpoints
 
-Each model snapshot is tagged with a `TraceOrigin`:
+The test starts from `RootApiMock.NothingImplemented` and selectively overrides the endpoints needed by the scenario.
+
+`FakeData` is a record that holds the data injected into the `UnitTestSession` of `FullContext` to adapt it to the current test. Using a record serves two purposes: it is easy to thread through `mockedApi`, `fullContext`, and `runScenario` as a single argument, and FsCheck can generate random values for it automatically — covering both the happy path and error cases without separate test methods.
 
 ```fsharp
-type TraceOrigin =
-    | Init
-    | AfterInit of Msg
-    | ScenarioMsg of Msg
-    | CascadingMsg of Msg
+type FakeData = {
+    Now: DateTime
+    AddProductResponse: Response<unit>
+} with
+    member private this.AddProductResult: ApiResult<unit> = this.AddProductResponse |> Response.toApiResult
+    member this.AddProductError: ApiError option = this.AddProductResult |> Result.tryGetError
+
+    member this.AddProductDate: Remote<DateTime> =
+        match this.AddProductResult with
+        | Ok _ -> Remote.Loaded this.Now
+        | Error apiError -> Remote.LoadError apiError
+
+let mockedApi (fake: FakeData) = {
+    RootApiMock.NothingImplemented with
+        RootApi.Catalog.AddProduct = fun _ -> async { return fake.AddProductResponse }
+        RootApi.Catalog.GetBooksData = fun _ -> async { return Ok { Authors = Set.empty; Tags = Set.empty } }
+}
+
+let fullContext (fake: FakeData) =
+    FullContext.Default
+        .WithTranslations(Translations.In Lang.English)
+        .WithPersona({ Persona = Persona.CatalogEditor; Token = AuthToken "test" })
+        .WithUnitTestSession(DelayedMessageHandling.Drop, mockedApi fake, fake.Now)
 ```
 
-This allows assertions on intermediate states — for example, verifying that during a deletion, the model shows "deleting" before reaching the final state:
+`FakeData.AddProductDate` computes the expected `Remote<DateTime>` for assertions — `Remote.Loaded now` on success, `Remote.LoadError` on failure. This lets the same test verify both the happy path and error cases without separate test methods.
+
+#### The `Scenario` module — generic Elmish loop simulator
+
+Instead of running a real Elmish `Program`, we simulate the loop manually. This is simpler and avoids browser-dependent code (`Cmd.navigatePath`, etc.).
+
+Each scenario step is a `'model -> 'msg` function (not a plain `'msg`), because `Msg.*` helpers need the **current** product from the model — mirroring how the view always has the current product in scope.
+
+The loop simulation is extracted into a generic, page-agnostic `Scenario` module:
 
 ```fsharp
-|> expectAll [
-    // Verify the intermediate state during the Deleting phase
-    findTraceHaving (TraceOrigin.CascadingMsg msgs.Deleting)
-    >> (fun { Model = model } -> model.PoolBeingDeleted =! Some deletedPoolId)
+[<RequireQualifiedAccess>]
+module Scenario
 
-    // Verify the final state
-    (fun (OutputModel model) -> model.PoolBeingDeleted =! None)
-]
+type Step<'model, 'msg> = 'model -> 'msg
+type Update<'model, 'msg> = 'msg -> 'model -> 'model * Cmd<'msg>
+
+let rec private processCmd (update: Update<'model, 'msg>) (model: 'model) (cmd: Cmd<'msg>) : 'model =
+    let dispatchedMsgs = ResizeArray()
+    let dispatch: 'msg -> unit = dispatchedMsgs.Add
+
+    for sub in cmd do
+        sub dispatch
+
+    (model, dispatchedMsgs)
+    ||> Seq.fold (fun m msg ->
+        let m', cmd' = update msg m
+        processCmd update m' cmd'
+    )
+
+/// Simulates an Elmish loop: applies each step to the current model,
+/// then recursively processes all cascading messages from the resulting Cmd.
+let run (initialModel: 'model) (update: Update<'model, 'msg>) (steps: Step<'model, 'msg> list) : 'model =
+    (initialModel, steps)
+    ||> List.fold (fun model step ->
+        let msg = step model
+        let model', cmd = update msg model
+        processCmd update model' cmd
+    )
 ```
 
-#### Controlling delayed messages per scenario
+**How it works:**
 
-Tests can switch `DelayedMessageHandling` to verify different stages of an animated sequence. With `Drop`, the test observes the state right after the success message (e.g. a highlight animation still visible). With `EmitImmediately`, the delayed message fires synchronously, so the test observes the final cleaned-up state:
+1. Each `step` function receives the current model and returns a `Msg`
+2. `update` processes the message, returning `(model', cmd)`
+3. `processCmd` executes each sub in the `Cmd` list, collecting dispatched messages
+4. Cascading messages are processed recursively until no more are dispatched
+5. `Cmd.ofEffect` (used for callbacks like `onSaveProduct`) executes the effect, captured via `saveProductCalls`
+6. `Cmd.none` produces no dispatched messages, ending the cascade
+
+**Why this works synchronously:** In test mode, `Cmder.ofApiRequest` uses `Cmd.OfAsyncWith.either Async.StartImmediate` instead of `Cmd.OfAsync.either`. This makes the async API call execute synchronously when the sub is invoked, so `dispatched.Add` receives the response message immediately.
+
+#### The `Step` module and `runScenario` helper
+
+A test class for an Elmish page can optionally define step helpers that know how to extract domain objects from the model. Grouping them in a `Step` module with `[<RequireQualifiedAccess>]` gives clean qualified access (`Step.changeProduct`, `Step.changeBook`, etc.) and makes scenarios easier to write and read:
 
 ```fsharp
-// Drop: the highlight stays on after pool creation
-fixture |> runCreateChannelPoolScenario [
-    PoolName newPoolName.Value
-    MockCreatePoolResult (Created poolId)
-    DelayedMessageHandling Drop
-]
-|> expectPoolBeingCreated (Some(poolId, Highlight.On))
+type Step = Model -> Msg // Scenario.Step<Model, Msg>
 
-// EmitImmediately: the delayed message fires, highlight is gone
-fixture |> runCreateChannelPoolScenario [
-    PoolName newPoolName.Value
-    MockCreatePoolResult (Created poolId)
-    DelayedMessageHandling EmitImmediately
-]
-|> expectPoolBeingCreated None
+[<RequireQualifiedAccess>]
+module Step =
+    let inline private productStep (f: Product -> Msg) : Step = productOf >> f
+
+    let addProduct: Step = productStep Msg.addProduct
+    let fetchProduct product : Step = fun _ -> Msg.ProductFetched(Ok({ Product = Some product }, Translations.Empty))
+
+    let changeProduct (f: 'a -> Product -> Msg) (value: 'a) : Step = productStep (f value)
+    let changeBook (f: 'a -> Book -> Product -> Msg) (value: 'a) : Step = productStep (fun product -> f value (bookOf product) product)
+    let changeBazaar (f: 'a -> BazaarProduct -> Product -> Msg) (value: 'a) = productStep (fun product -> f value (bazaarOf product) product)
 ```
 
-{% hint style="info" %}
-Shopfoo does not yet use Strategy 2. Its `update` tests all follow Strategy 1 (single call, discard `Cmd`). The examples above illustrate what becomes possible when more complex scenarios need to be validated end-to-end.
-{% endhint %}
+`runScenario` wires `FakeData` into `Scenario.run` and captures `onSaveProduct` callbacks:
+
+```fsharp
+let runScenario fakeData (steps: Step list) =
+    let saveProductCalls = ResizeArray()
+    let onSaveProduct (product, apiError) = saveProductCalls.Add(product, apiError)
+
+    let update': Msg -> Model -> Model * Cmd<Msg> =
+        update ignore onSaveProduct (fullContext fakeData)
+
+    let finalModel = Scenario.run emptyModel update' steps
+    finalModel, List.ofSeq saveProductCalls
+```
+
+#### Complete test: `CatalogInfoShould`
+
+A private shared helper asserts on the product, save date, and `onSaveProduct` callback in a single tuple comparison. Each test method then reads as a pure scenario — expectations out, data and steps in:
+
+```fsharp
+type CatalogInfoShould() =
+    member private _.``add a product and get`` expected fakeData steps =
+        let model, saveProductCalls = runScenario fakeData steps
+
+        (model.Product, model.SaveDate, saveProductCalls)
+        =! (Remote.Loaded expected, fakeData.AddProductDate, [ expected, fakeData.AddProductError ])
+
+    [<Test; FsCheckProperty(MaxTest = 5)>]
+    member this.``add a complete book, filling in field by field`` fakeData =
+        this.``add a product and get`` TidyFirst.product fakeData [
+            Step.fetchProduct (Empty.bookProduct TidyFirst.isbn)
+
+            Step.changeProduct Msg.changeName TidyFirst.product.Title
+            Step.changeProduct Msg.changeDescription TidyFirst.product.Description
+            Step.changeProduct Msg.changeImageUrl TidyFirst.product.ImageUrl.Url
+            Step.changeBook Msg.changeBookSubtitle TidyFirst.subtitle
+            Step.changeBook Msg.toggleBookAuthor (true, TidyFirst.author)
+            Step.changeBook Msg.toggleBookTag (true, TidyFirst.tag1)
+            Step.changeBook Msg.toggleBookTag (true, TidyFirst.tag2)
+
+            Step.addProduct
+        ]
+```
+
+The same pattern supports bazaar products — `Step.changeBazaar` extracts the `BazaarProduct` from the model, mirroring how `Step.changeBook` extracts the `Book`:
+
+```fsharp
+    [<Test; FsCheckProperty(MaxTest = 5)>]
+    member this.``add a complete bazaar product, filling in field by field`` fakeData =
+        this.``add a product and get`` MensCottonJacket.product fakeData [
+            Step.fetchProduct (Empty.bazaarProduct MensCottonJacket.fsid)
+
+            Step.changeBazaar Msg.changeBazaarCategory MensCottonJacket.category
+            Step.changeProduct Msg.changeName MensCottonJacket.product.Title
+            Step.changeProduct Msg.changeDescription MensCottonJacket.product.Description
+            Step.changeProduct Msg.changeImageUrl MensCottonJacket.product.ImageUrl.Url
+
+            Step.addProduct
+        ]
+```
+
+The `[<FsCheckProperty(MaxTest = 5)>]` attribute generates 5 random `FakeData` values per test, covering different dates and both `Ok()` and `Error(...)` API responses. The `fakeData.AddProductDate` member computes the expected `SaveDate` for each case, so the same scenario handles both the happy path and error cases.
+
+The `Step.addProduct` step triggers the following cascade:
+
+1. `update` returns `{ model with SaveDate = Remote.Loading }` + `Cmd.addProduct ...`
+2. `processCmd` executes the Cmd — mocked `AddProduct` API returns `fakeData.AddProductResponse` — dispatches `AddProduct(product, Done(...))`
+3. `update` processes `Done(...)` — sets `SaveDate = Remote.Loaded fullContext.Now` (or `Remote.LoadError`) + `Cmd.ofEffect(onSaveProduct(product, error))`
+4. `processCmd` executes `Cmd.ofEffect` — `onSaveProduct` is called, captured in `saveProductCalls`
+5. `Cmd.ofEffect` does not dispatch any message — cascade ends
+
+#### Controlling delayed messages
+
+Tests can switch `DelayedMessageHandling` to verify different stages of an animated sequence:
+
+- **`Drop`** — silences delayed messages; useful when testing a single `update` call in isolation or when delayed messages are irrelevant
+- **`EmitImmediately`** — dispatches the message synchronously as `Cmd.ofMsg`; useful when running a full cascade to verify the complete message sequence including animations
 
 ## Other Client tests
 
