@@ -5,9 +5,17 @@ icon: location-check
 
 # Status
 
+## 2026-03-12
+
+* ✅ GitBook complete
+* ✅ Shopfoo complete, [release 1.4.1](https://github.com/rdeneau/shopfoo/releases/tag/v1.4.1) deployed \
+  💡 Eventual improvements:
+  * [ ] Integrate and document Playwright
+  * [ ] Migrate to .NET 10, Fable 5 (currently in [RC](https://fable.io/blog/2026/2026-02-27-Fable_5_release_candidate.html)), Feliz v3
+
 ## 2025-12-31
 
-* Write [Broken link](/broken/pages/z3HBNOBV1sf5vt0bl6gy "mention")
+* Write [Motivations](motivations.md)
 * Publish _Shopfoo_ [version 1.2](https://github.com/rdeneau/shopfoo/releases/tag/v1.2.0): complete any feature "under construction" (displayed with the 🚧 emoji). There are still some features to implement - see [README.md#features](https://github.com/rdeneau/shopfoo/tree/main#features)
 
 ## 2025-12-20
