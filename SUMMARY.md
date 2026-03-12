@@ -65,4 +65,4 @@
 
 ## Appendices
 
-* [Resources 🚧](appendices/resources.md)
+* [Resources](appendices/resources.md)
