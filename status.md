@@ -25,6 +25,9 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 12, 2026] feat: 👔 document "Adding a new product" in shopfoo/management.md
+* \[Mar 12, 2026] feat: ✨ front-end/validation.md
+* \[Mar 12, 2026] feat: ✨ front-end/versioning
 * \[Mar 11, 2026] feat: 🔄️ [GITBOOK-18] finalize shopfoo chapter
 * \[Mar 11, 2026] feat: ✅ complete shopfoo chapter
 * \[Mar 11, 2026] feat(elmish/tests): improve Scenario 2 with latest shopfoo changes
@@ -32,9 +35,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 11, 2026] wip: 🚧 front-end/versioning
 * \[Mar 11, 2026] feat(safer-template): add a preliminary warning regarding Elmish min knowledge
 * \[Mar 09, 2026] feat: ✨ shopfoo features documentation
-* \[Mar 09, 2026] feat: ✨ front-end/elmish/tests
-* \[Mar 09, 2026] refactor(front-end): ♻️ sync with latest changes in shopfoo
-* \[Mar 06, 2026] feat: 🔄️ [GITBOOK-17] prepare front-end tests pages
 
 </details>
 
