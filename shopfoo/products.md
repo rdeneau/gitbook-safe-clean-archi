@@ -117,3 +117,11 @@ When browsing 📘 **Books** with an active text search term, a 🔍 **search bu
 </details>
 
 From there, a selected book can be permanently added to the in-memory cache — this is covered in detail in the [Product Management](management.md) page.
+
+## Fake product
+
+Both product lists — Bazaar and Books — include a **fake product** appended at the end. Its purpose is to exercise the product detail page in an error scenario: navigating to it triggers a "product not found" state, since no matching product exists in the cache or the external API.
+
+![Fake product](./img/fake-product.png)
+
+![Product not found](./img/product-not-found.png)

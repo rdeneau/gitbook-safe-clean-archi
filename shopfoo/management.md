@@ -26,7 +26,7 @@ Rather than a single generic edit form, Shopfoo uses a **Task-Based UI**: each u
 ![alt text](../.gitbook/assets/areas.png)
 
 {% hint style="info" %}
-For an introduction to Task-Based UIs, see Derek Comartin's video [Task-Based UI](https://www.youtube.com/watch?v=BgRMHpqxVKA).
+For an introduction to Task-Based UIs, see Derek Comartin's video [Task-Based UI](https://youtu.be/DjZepWrAKzM).
 {% endhint %}
 
 ## Product editing
