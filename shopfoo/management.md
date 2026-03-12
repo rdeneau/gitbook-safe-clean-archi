@@ -118,3 +118,32 @@ The **Inventory adjustment** task simulates an **inventory correction** followin
 ![Inventory adjustment](../.gitbook/assets/inventory-adjustment.gif)
 
 </details>
+
+## Adding a new product
+
+After an [Open Library search](products.md#open-library-search), clicking on a book from the search results (marked with ✨) opens its product detail page. The catalog information fieldset is **pre-filled** with data fetched from the Open Library API (title, subtitle, authors, cover image…).
+
+{% hint style="info" %}
+You can also browse [openlibrary.org/books](https://openlibrary.org/books/) directly, pick the edition you want (e.g. one with a cover image), extract the **OLID** from its URL (e.g. `https://openlibrary.org/books/OL48562615M/Tidy_First` → OLID = `OL48562615M`), and enter it in the Shopfoo URL. It is the presence of an **OLID** (rather than an ISBN) in the SKU that triggers the Open Library lookup and activates add mode.
+{% endhint %}
+
+The page adapts to an **add mode** with two key differences from normal editing:
+
+* The **Actions column** (pricing, sales, purchases, stock) is **not available** — an info banner explains why:
+
+> **New product ✨** — Pricing and inventory can be configured once the product is added.
+
+* The save button at the bottom of the catalog fieldset is labelled **"Add"** instead of "Save".
+
+Once the product is added, the page switches back to **edit mode**: the info banner disappears, the button becomes "Save", and the Actions column is displayed (subject to the user's access level).
+
+{% hint style="info" %}
+Front-end validation (required fields, character limits, broken image detection) is fully active during add mode — see the [Validation](../front-end/validation.md) page for details.
+{% endhint %}
+
+<details open>
+
+<summary><span data-gb-custom-inline data-tag="emoji" data-code="1f5a5">🖥️</span> <strong>Demo</strong></summary>
+
+![Adding a new product](./img/add-product.gif)
+</details>
