@@ -33,6 +33,9 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 12, 2026] feat: ✅ mention completion in status.md
+* \[Mar 12, 2026] feat: 👔 mention the fake product in the list
+* \[Mar 12, 2026] feat: ✨ appendices/resources.md
 * \[Mar 12, 2026] feat: 👔 document "Adding a new product" in shopfoo/management.md
 * \[Mar 12, 2026] feat: ✨ front-end/validation.md
 * \[Mar 12, 2026] feat: ✨ front-end/versioning
@@ -40,9 +43,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 11, 2026] feat: ✅ complete shopfoo chapter
 * \[Mar 11, 2026] feat(elmish/tests): improve Scenario 2 with latest shopfoo changes
 * \[Mar 11, 2026] feat(better-assertions): 👔 recommend tuple for single assertion
-* \[Mar 11, 2026] wip: 🚧 front-end/versioning
-* \[Mar 11, 2026] feat(safer-template): add a preliminary warning regarding Elmish min knowledge
-* \[Mar 09, 2026] feat: ✨ shopfoo features documentation
 
 </details>
 
@@ -50,15 +50,15 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-tablet-screen">:tablet-screen:</i>  Shopfoo</summary>
 
-* \[Mar 09, 2026] tidy: 📐 add Env.prepareRequest helper
-* \[Mar 09, 2026] fix(search): 🐛 support author w/o photos
-* \[Mar 09, 2026] test(AppView): 🧪 resolvePageAccess
-* \[Mar 06, 2026] tidy: 🧹 minor formatting
-* \[Mar 06, 2026] test: 🧪 translations at the Client/App level
-* \[Mar 06, 2026] feat(FullContext): ✨ add UnitTestSession to ease unit tests (mock api, ignore cmd)
-* \[Mar 06, 2026] refactor: ♻️ add Lang in Translations
-* \[Mar 06, 2026] refactor(Client): ♻️ merge (App)View in App
-* \[Mar 05, 2026] refactor: ♻️ use AreaApi to qualify the Remoting API of a functional area
-* \[Mar 05, 2026] tidy: 🧹 Route.builder example
+* \[Mar 12, 2026] chore: 🏷️ release 1.4.1 [skip ci]
+* \[Mar 12, 2026] fix: 🐛 FakeStore not accessible from Azure
+* \[Mar 12, 2026] chore: 🏷️ release 1.4.0 [skip ci]
+* \[Mar 12, 2026] feat: 💄 improve about page disclaimer
+* \[Mar 12, 2026] fix: ⛓️‍💥 error 404 on Azure
+* \[Mar 12, 2026] feat: 🖼️ add favicon.png
+* \[Mar 11, 2026] fix(ManagePrice): 🐛 properly prevent price decrease in case of Increase, and vice versa
+* \[Mar 11, 2026] tidy(Client.Tests): 📐 move Scenario up to the root
+* \[Mar 11, 2026] refactor(AppShould): ♻️ single multi-assertion using tuples
+* \[Mar 11, 2026] fix: 🧪 failing Filters test (to be confirmed)
 
 </details>
