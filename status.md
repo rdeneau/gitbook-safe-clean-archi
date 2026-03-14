@@ -13,6 +13,15 @@ icon: location-check
   * [ ] Integrate and document Playwright
   * [ ] Migrate to .NET 10, Fable 5 (currently in [RC](https://fable.io/blog/2026/2026-02-27-Fable_5_release_candidate.html)), Feliz v3
 
+## 2026-02-10
+
+* _Shopfoo_: Start implementing the [Saga support](domain-workflows/2-program/#saga-support-undo) execution mode for the `Program`, enabling undo of completed instructions when a workflow fails
+
+## 2026-02-07
+
+* _Shopfoo_: Start migrating the `Program` (used in [domain workflows](domain-workflows/2-program/)) to v4—TagLess Final pattern—to support parallel instruction execution
+* The last version of _Shopfoo_ code with Program v3 is available via the [`program-v3`](https://github.com/rdeneau/shopfoo/tree/program-v3/) tag
+
 ## 2025-12-31
 
 * Write [Motivations](motivations.md)

@@ -116,6 +116,35 @@ Under the hood, `DefineProgram.instruction` is just the identity function — it
 - **1 line per instruction** in the helper module
 - No interpreter loop — the CE builder directly composes async functions
 
+### Monadic Bind Without Functor
+
+The `bind` function — essential for the `program` CE's `let!` syntax — illustrates why V4 is fundamentally simpler.
+
+**V3** relied on `Program<'ret>` being an ADT (`Stop | Effect`). Its `bind` had to recursively traverse this tree, calling `Map` on the effect at each node:
+
+```fsharp
+// V3 — recursive, requires IProgramEffect.Map (functor)
+let rec private bind f program =
+    match program with
+    | Stop x -> f x
+    | Effect effect -> effect.Map(bind f) |> Effect
+```
+
+The `effect.Map(bind f)` call is what forced every instruction type to implement `IProgramEffect<'a>.Map` — i.e., to be a **functor**. This was the root cause of the variance problem described above: `Map` had to return `IProgramEffect<'b>`, which imposed covariance constraints incompatible with F#'s strict generic variance checking.
+
+**V4** replaces the ADT with a function `'ins -> Async<'ret>`. Binding two programs is just function composition, with sequencing delegated to `Async`'s own bind (`let!`):
+
+```fsharp
+// V4 — non-recursive, no functor needed
+let bind (f: 'a -> Program<'ins, 'b>) (prog: Program<'ins, 'a>) : Program<'ins, 'b> =
+    fun ins -> async {
+        let! a = prog ins
+        return! f a ins
+    }
+```
+
+The instructions (`'ins`) are simply threaded through as a reader environment — no `Map`, no recursion, no functor constraint. The monadic plumbing is entirely handled by the `Async` computation expression.
+
 ### Parallel Execution
 
 Since `Program<'ins, 'ret>` is just `'ins -> Async<'ret>`, implementing `map2` is trivial:

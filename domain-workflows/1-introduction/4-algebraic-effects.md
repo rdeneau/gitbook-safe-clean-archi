@@ -186,6 +186,15 @@ While V3 achieved domain isolation and type safety, it had significant drawbacks
 
 These limitations motivated the move to V4, based on a radically simpler approach: the **Tagless Final** pattern.
 
+### V3 Source Code
+
+The V3 implementation can be explored in *Shopfoo* via the [`program-v3`](https://github.com/rdeneau/shopfoo/tree/program-v3/) tag:
+
+- [`Core/Shopfoo.Effects`](https://github.com/rdeneau/shopfoo/tree/program-v3/src/Shopfoo.Effects): the program infrastructure — notably `Program.fs` and `Interpreter.fs`
+- [`Feat/Shopfoo.Product`](https://github.com/rdeneau/shopfoo/tree/program-v3/src/Shopfoo.Product): the domain workflows and their [verbose instruction declarations](https://github.com/rdeneau/shopfoo/blob/program-v3/src/Shopfoo.Product/Workflows/Instructions.fs)
+
+The associated documentation is available on the GitBook repository, with a tag of the same name: [`program-v3`](https://github.com/rdeneau/gitbook-safe-clean-archi/tree/program-v3/domain-workflows).
+
 ## What's Next
 
 The next page introduces the [Tagless Final](5-tagless-final.md) pattern (V4), which replaced this entire machinery with a single function type and an instruction interface—dramatically reducing complexity while enabling parallel instruction execution.
