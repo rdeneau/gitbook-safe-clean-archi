@@ -42,6 +42,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 14, 2026] feat: ✨ document migration from program v3 to program v4
 * \[Mar 12, 2026] feat: ✅ mention completion in status.md
 * \[Mar 12, 2026] feat: 👔 mention the fake product in the list
 * \[Mar 12, 2026] feat: ✨ appendices/resources.md
@@ -51,7 +52,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 11, 2026] feat: 🔄️ [GITBOOK-18] finalize shopfoo chapter
 * \[Mar 11, 2026] feat: ✅ complete shopfoo chapter
 * \[Mar 11, 2026] feat(elmish/tests): improve Scenario 2 with latest shopfoo changes
-* \[Mar 11, 2026] feat(better-assertions): 👔 recommend tuple for single assertion
 
 </details>
 
