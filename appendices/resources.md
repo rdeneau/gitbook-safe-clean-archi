@@ -28,7 +28,9 @@ icon: link
 
 ### John Azariah
 
-- [Tagless Final in F#](https://johnazariah.github.io/2025/12/12/tagless-final-01-froggy-tree-house.html)
+- [Tagless Final in F#](https://johnazariah.github.io/2025/12/12/tagless-final-01-froggy-tree-house.html) (series, 2025)
+- [Intent vs Process](https://johnazariah.github.io/2026/03/05/01-your-clean-architecture-has-a-dirty-secret.html) (series, 2026) — Clean Architecture, Free Monad and Tagless Final in C# and F#
+- [Choosing Both Sides of the Coin](https://johnazariah.github.io/2026/03/19/choosing-both-sides-of-the-coin.html) (2026) — Parallelism via `Both` in Free Monad
 
 ### Jordan Marr
 

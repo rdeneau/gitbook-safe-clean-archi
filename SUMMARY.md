@@ -29,6 +29,7 @@
   * [Algebraic Effects](domain-workflows/1-introduction/4-algebraic-effects.md)
   * [Tagless Final](domain-workflows/1-introduction/5-tagless-final.md)
 * [Program](domain-workflows/2-program/README.md)
+  * [Addendum: Pattern Variations](domain-workflows/2-program/pattern-variations.md)
 * [Domain Project](domain-workflows/3-domain-workflow/README.md)
   * [Domain Model](domain-workflows/3-domain-workflow/0-domain-model.md)
   * [Instructions](domain-workflows/3-domain-workflow/1-instructions.md)

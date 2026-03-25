@@ -180,7 +180,8 @@ An `Interpreter` class then recursively walked the `Program` tree, pattern match
 While V3 achieved domain isolation and type safety, it had significant drawbacks:
 
 - **Boilerplate:** Each instruction required a type alias, a union case, an effect class (4 lines), and a helper function—a 5-step recipe.
-- **No parallel execution:** The `IProgramEffect<'a>` interface's `Map` method makes the type essentially a functor, but implementing `map2` (needed for `let! ... and! ...` applicative syntax) proved impossible due to F#'s strict variance checking on generics. Parallel execution of independent instructions was not achievable.
+- **No parallel execution:** The `IProgramEffect<'a>` interface's `Map` method makes the type essentially a functor, but implementing `map2` (needed for `let! ... and! ...` applicative syntax) proved impossible due to F#'s strict variance checking on generics. Parallel execution of independent instructions was not achievable with this design.
+  - However, a **V3bis variant** later demonstrated that parallelism *is* possible with a Free Monad — by adopting `obj` boxing (inspired by [John Azariah](https://johnazariah.github.io/)'s approach) and adding a `Parallel` case to the Program ADT. See the [Pattern Variations](../2-program/pattern-variations.md) addendum for details.
 - **Complex interpreter:** The recursive `loop` function with downcasting (`match eff with | :? 'effect as effect ->`) was fragile and not extensible.
 - **Many moving parts:** Effects, instructions, interpreters, factories—understanding how all components worked together was the main challenge.
 
@@ -194,6 +195,8 @@ The V3 implementation can be explored in *Shopfoo* via the [`program-v3`](https:
 - [`Feat/Shopfoo.Product`](https://github.com/rdeneau/shopfoo/tree/program-v3/src/Shopfoo.Product): the domain workflows and their [verbose instruction declarations](https://github.com/rdeneau/shopfoo/blob/program-v3/src/Shopfoo.Product/Workflows/Instructions.fs)
 
 The associated documentation is available on the GitBook repository, with a tag of the same name: [`program-v3`](https://github.com/rdeneau/gitbook-safe-clean-archi/tree/program-v3/domain-workflows).
+
+The **V3bis variant** (with `obj` boxing and `Parallel` support) is available on the [`program-v3`](https://github.com/rdeneau/shopfoo/tree/program-v3) branch. See the [Pattern Variations](../2-program/pattern-variations.md) addendum for a detailed description.
 
 ## What's Next
 

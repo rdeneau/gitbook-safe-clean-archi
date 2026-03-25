@@ -5,6 +5,11 @@ icon: location-check
 
 # Status
 
+## 2026-03-25
+
+* _GitBook_: New [Pattern Variations](domain-workflows/2-program/pattern-variations.md) addendum — compares Free Monad and Tagless Final implementation variations (John Azariah's approaches, gitbook V3/V3bis/V4), covering instruction typing, parallelism, combinators, and turnkey vs generic design
+* _GitBook_: Update [Algebraic Effects](domain-workflows/1-introduction/4-algebraic-effects.md) page — note that V3bis variant enables parallelism in the Free Monad
+
 ## 2026-03-12
 
 * ✅ GitBook complete

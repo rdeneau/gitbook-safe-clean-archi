@@ -180,9 +180,9 @@ The reader-based design naturally supports:
 - **Observability:** Logging, metrics, and timing are injected at the instruction preparation level.
 - **Testing:** Mock the instruction interface — no interpreter to stub.
 
-## Complementary Resource
+## See Also
 
-- Series [Tagless Final in F#](https://johnazariah.github.io/2025/12/12/tagless-final-01-froggy-tree-house.html) by John Azariah 🐸
+For a detailed comparison of Free Monad and Tagless Final implementation variations — including John Azariah's "Intent vs Process" series and the program V3bis experiment — see the [Pattern Variations](../2-program/pattern-variations.md) addendum.
 
 ## What's Next
 
