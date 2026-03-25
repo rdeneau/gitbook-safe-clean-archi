@@ -47,6 +47,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Mar 25, 2026] feat: 🔄️ [GITBOOK-19] fix addendum
 * \[Mar 25, 2026] feat: ✨ program addendum: pattern variations
 * \[Mar 14, 2026] feat: ✨ document migration from program v3 to program v4
 * \[Mar 12, 2026] feat: ✅ mention completion in status.md
@@ -56,7 +57,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 12, 2026] feat: ✨ front-end/validation.md
 * \[Mar 12, 2026] feat: ✨ front-end/versioning
 * \[Mar 11, 2026] feat: 🔄️ [GITBOOK-18] finalize shopfoo chapter
-* \[Mar 11, 2026] feat: ✅ complete shopfoo chapter
 
 </details>
 
