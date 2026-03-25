@@ -122,6 +122,6 @@ From there, a selected book can be permanently added to the in-memory cache — 
 
 Both product lists — Bazaar and Books — include a **fake product** appended at the end. Its purpose is to exercise the product detail page in an error scenario: navigating to it triggers a "product not found" state, since no matching product exists in the cache or the external API.
 
-![Fake product](./img/fake-product.png)
+![Fake product](../.gitbook/assets/fake-product.png)
 
-![Product not found](./img/product-not-found.png)
+![Product not found](../.gitbook/assets/product-not-found.png)

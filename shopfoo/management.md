@@ -145,5 +145,6 @@ Front-end validation (required fields, character limits, broken image detection)
 
 <summary><span data-gb-custom-inline data-tag="emoji" data-code="1f5a5">🖥️</span> <strong>Demo</strong></summary>
 
-![Adding a new product](./img/add-product.gif)
+![Adding a new product](../.gitbook/assets/add-product.gif)
+
 </details>

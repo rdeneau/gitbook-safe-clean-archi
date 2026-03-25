@@ -5,14 +5,14 @@ icon: lambda
 # Addendum: Pattern Variations
 
 {% hint style="success" %}
-This page is dedicated to **[John Azariah](https://johnazariah.github.io/)**, whose excellent blog posts mentioned below deeply inspired this work. Thank you, John, for sharing these ideas with the community!
+This page is dedicated to [**John Azariah**](https://johnazariah.github.io/), whose excellent blog posts mentioned below deeply inspired this work. Thank you, John, for sharing these ideas with the community!
 {% endhint %}
 
 The Free Monad and Tagless Final patterns originate in Haskell, where they can be expressed directly thanks to language features that F# and C# lack:
 
-- **Type classes** — the foundation of Tagless Final in Haskell (`class Monad m => MyDSL m where ...`). F# and C# use interfaces as a substitute, but interfaces cannot abstract over type constructors.
-- **Higher-Kinded Types (HKTs)** — Haskell can abstract over monadic contexts (`Monad m => m a`), which is essential for both patterns. F#/C# generics are first-order: you can write `Program<'a>` but not `Program<M<'a>>` where `M` itself is a parameter.
-- **GADTs** (Generalized Algebraic Data Types) — Haskell can give each constructor of a data type its own return type (`CheckStock :: [Item] -> OrderStep StockResult`). F# discriminated unions share a single type parameter across all cases; C# approximates GADTs via record inheritance (`record CheckStock(...) : OrderStep<StockResult>`).
+* **Type classes** — the foundation of Tagless Final in Haskell (`class Monad m => MyDSL m where ...`). F# and C# use interfaces as a substitute, but interfaces cannot abstract over type constructors.
+* **Higher-Kinded Types (HKTs)** — Haskell can abstract over monadic contexts (`Monad m => m a`), which is essential for both patterns. F#/C# generics are first-order: you can write `Program<'a>` but not `Program<M<'a>>` where `M` itself is a parameter.
+* **GADTs** (Generalized Algebraic Data Types) — Haskell can give each constructor of a data type its own return type (`CheckStock :: [Item] -> OrderStep StockResult`). F# discriminated unions share a single type parameter across all cases; C# approximates GADTs via record inheritance (`record CheckStock(...) : OrderStep<StockResult>`).
 
 Without these building blocks, F# and C# must **emulate** these patterns rather than implement them directly — each emulation making its own trade-offs in type safety, verbosity, and flexibility. This page explores these variations along several design axes — instruction typing, parallelism, combinator placement, and the trade-off between **generic** (versatile, decoupled) and **turnkey** (integrated, opinionated) designs.
 
@@ -20,10 +20,10 @@ These variations are inspired by [John Azariah's blog](https://johnazariah.githu
 
 ## John Azariah's Resources
 
-- Series [Tagless Final in F#](https://johnazariah.github.io/2025/12/12/tagless-final-01-froggy-tree-house.html)
-- Series [Intent vs Process](https://johnazariah.github.io/2026/03/05/01-your-clean-architecture-has-a-dirty-secret.html) — explores the same Intent-vs-Process separation through an Order Processing domain, comparing Free Monad and Tagless Final in C# and F#
-- Article [Choosing Both Sides of the Coin](https://johnazariah.github.io/2026/03/19/choosing-both-sides-of-the-coin.html) — parallelism via `Both` in Free Monad (C#)
-- Code repository: [johnazariah.github.io/code/intent-vs-process](https://github.com/johnazariah/johnazariah.github.io/tree/main/code/intent-vs-process) — code in C#, F#, and Haskell
+* Series [Tagless Final in F#](https://johnazariah.github.io/2025/12/12/tagless-final-01-froggy-tree-house.html)
+* Series [Intent vs Process](https://johnazariah.github.io/2026/03/05/01-your-clean-architecture-has-a-dirty-secret.html) — explores the same Intent-vs-Process separation through an Order Processing domain, comparing Free Monad and Tagless Final in C# and F#
+* Article [Choosing Both Sides of the Coin](https://johnazariah.github.io/2026/03/19/choosing-both-sides-of-the-coin.html) — parallelism via `Both` in Free Monad (C#)
+* Code repository: [johnazariah.github.io/code/intent-vs-process](https://github.com/johnazariah/johnazariah.github.io/tree/main/code/intent-vs-process) — code in C#, F#, and Haskell
 
 ## The Order Domain
 
@@ -97,7 +97,7 @@ module Order =
     let guard cond reason : Program<unit> = Program.guard cond reason
 ```
 
-They are used in the `placeOrder` program—what is called *domain workflow* in the GitBook—making use of the `program` computation expression:
+They are used in the `placeOrder` program—what is called _domain workflow_ in the GitBook—making use of the `program` computation expression:
 
 ```fsharp
 module FreeMonad =
@@ -144,7 +144,7 @@ public record CalculatePrice(List<Item> Items, Coupon? Coupon) : OrderStep<Price
 ...
 ```
 
-Here, `CheckStock` *is* an `OrderStep<StockResult>` — the return type is encoded in the type itself. This is possible in C# because each step is a separate record inheriting from a generic base, whereas F# discriminated unions share a single type parameter across all cases (no GADTs).
+Here, `CheckStock` _is_ an `OrderStep<StockResult>` — the return type is encoded in the type itself. This is possible in C# because each step is a separate record inheriting from a generic base, whereas F# discriminated unions share a single type parameter across all cases (no GADTs).
 
 The `OrderProgram<T>` type mirrors the F# version — `Done`, `Failed`, `Bind` — plus a `Both<T>` case for parallelism (added in his latest article):
 
@@ -180,7 +180,7 @@ public static OrderProgram<OrderResult> PlaceOrder(OrderRequest request) =>
     select ...;
 ```
 
-The interpreter then decides whether to run `Both` branches sequentially or concurrently — the program structure declares *intent*, the interpreter chooses *strategy*.
+The interpreter then decides whether to run `Both` branches sequentially or concurrently — the program structure declares _intent_, the interpreter chooses _strategy_.
 
 ### GitBook V3: Emulating Algebraic Effects
 
@@ -196,7 +196,7 @@ type Program<'ret> =
     | Effect of IProgramEffect<Program<'ret>>
 ```
 
-Each domain then defines its instructions following a **5-step recipe** (see [Algebraic Effects — V3 Design](../1-introduction/4-algebraic-effects.md#v3-design)). The key building block is `Instruction<'arg, 'ret, 'a>` — a typed record capturing the argument, the return type, and a continuation:
+Each domain then defines its instructions following a **5-step recipe** (see [Algebraic Effects — V3 Design](../1-introduction/4-algebraic-effects.md#v3-design)). The key building block is `Instruction<'arg, 'ret, 'a>` — a full typed class capturing the argument, the return type, and a continuation:
 
 ```fsharp
 type Instruction<'arg, 'ret, 'a>(name: string, arg: 'arg, cont: 'ret -> 'a) =
@@ -385,8 +385,12 @@ let describe (prog: Program<'a>) : ProgramEntry list
 Usage in tests:
 
 ```fsharp
-let entries = Program.describe prog
-entries =! [ Program.ParallelInstructions [ "AddProduct"; "AddPrices" ] ]
+type AddProductShould() =
+    [<Test>]
+    member _.``run addProduct and addPrices in parallel``() =
+        let prog = AddProductWorkflow.Instance.Run(createValidBookProduct (), Currency.EUR)
+        let entries = Program.describe prog
+        entries =! [ Program.ParallelInstructions [ "AddProduct"; "AddPrices" ] ]
 ```
 
 ### Free Monad Comparison
@@ -394,16 +398,16 @@ entries =! [ Program.ParallelInstructions [ "AddProduct"; "AddPrices" ] ]
 | Aspect              | John C#                         | John F#                     | Gitbook V3bis                            | Gitbook V3                             |
 | ------------------- | ------------------------------- | --------------------------- | ---------------------------------------- | -------------------------------------- |
 | Instruction type    | GADT-like `OrderStep<T>`        | Flat DU (no `'a`)           | DU wrapping `Instruction<'req, 'res>`    | Generic DU with typed continuations    |
-| Return type visible | On `OrderStep<T>` type          | At smart constructor only   | On instruction (`Query<SKU, Prices>`)    | On `Instruction<'arg, 'ret, 'a>` type  |
+| Return type visible | On `OrderStep<T>` type          | In smart constructors only  | On instructions (`Query<SKU, Prices>`)   | On `Instruction<'arg, 'ret, 'a>` type  |
 | Continuation        | `Func<object, OrderProgram<T>>` | `obj -> Program<'a>`        | `obj -> Program<'a>`                     | Typed: `'ret -> 'a`                    |
 | Structural analysis | Easy (flat records)             | Easy (flat DU)              | Easy (`IStep.Name` + `Program.describe`) | Hard (wrapped in `IProgramEffect<'a>`) |
 | Parallelism         | `Both<T>` record                | Not implemented             | `Parallel` case + `map2`                 | Blocked (functor Map requirement)      |
 | Functor (Map)       | Not needed                      | Not needed                  | Not needed                               | Required on every effect class         |
-| Boilerplate         | Low                             | Low                         | Medium (~20 lines for 7 instructions)    | High (~45 lines for 5 instructions)    |
+| Boilerplate         | Low                             | Low                         | Medium (\~20 lines for 7 instructions)   | High (\~45 lines for 5 instructions)   |
 | New domain cost     | High (duplicate everything)     | High (duplicate everything) | Low (domain-specific only)               | Low (domain-specific only)             |
 
 {% hint style="info" %}
-## Notes
+### Notes
 
 **New domain cost:** John's approaches tie `Program<'a>`, the CE/LINQ extensions, and the interpreter loop to the Order domain — adding a new domain means duplicating all of them. The gitbook's V3/V3bis make `Program<'a>`, the CE builder, and the interpreter loop **domain-agnostic** — only the instruction DU and smart constructors (+ effect classes for V3) are domain-specific.
 
