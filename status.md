@@ -51,6 +51,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Apr 08, 2026] feat: ✨ TanStack Query outreach link
 * \[Mar 30, 2026] feat: ✨ appendices/outreach page
 * \[Mar 25, 2026] feat: 🔄️ [GITBOOK-19] fix addendum
 * \[Mar 25, 2026] feat: ✨ program addendum: pattern variations
@@ -60,7 +61,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 12, 2026] feat: ✨ appendices/resources.md
 * \[Mar 12, 2026] feat: 👔 document "Adding a new product" in shopfoo/management.md
 * \[Mar 12, 2026] feat: ✨ front-end/validation.md
-* \[Mar 12, 2026] feat: ✨ front-end/versioning
 
 </details>
 
