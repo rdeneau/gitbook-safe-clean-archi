@@ -56,6 +56,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Apr 14, 2026] feat: ♻️ improve instruction preparation: make their name optional, inferred with CallerMemberName attribute
 * \[Apr 08, 2026] feat: ✨ TanStack Query outreach link
 * \[Mar 30, 2026] feat: ✨ appendices/outreach page
 * \[Mar 25, 2026] feat: 🔄️ [GITBOOK-19] fix addendum
@@ -65,7 +66,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 12, 2026] feat: 👔 mention the fake product in the list
 * \[Mar 12, 2026] feat: ✨ appendices/resources.md
 * \[Mar 12, 2026] feat: 👔 document "Adding a new product" in shopfoo/management.md
-* \[Mar 12, 2026] feat: ✨ front-end/validation.md
 
 </details>
 
@@ -73,6 +73,8 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-tablet-screen">:tablet-screen:</i>  Shopfoo</summary>
 
+* \[Apr 14, 2026] tidy: 📐 improve formatting
+* \[Apr 14, 2026] refactor: ♻️ improve instruction preparation: make their name optional, inferred with CallerMemberName attribute
 * \[Mar 12, 2026] chore: 🏷️ release 1.4.1 [skip ci]
 * \[Mar 12, 2026] fix: 🐛 FakeStore not accessible from Azure
 * \[Mar 12, 2026] chore: 🏷️ release 1.4.0 [skip ci]
@@ -81,7 +83,5 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 12, 2026] feat: 🖼️ add favicon.png
 * \[Mar 11, 2026] fix(ManagePrice): 🐛 properly prevent price decrease in case of Increase, and vice versa
 * \[Mar 11, 2026] tidy(Client.Tests): 📐 move Scenario up to the root
-* \[Mar 11, 2026] refactor(AppShould): ♻️ single multi-assertion using tuples
-* \[Mar 11, 2026] fix: 🧪 failing Filters test (to be confirmed)
 
 </details>
