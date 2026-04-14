@@ -275,15 +275,15 @@ By splitting into two calls, `Command(work, name)` infers `'arg` and `'ret` from
 ```fsharp
 // 'arg = Prices, 'ret = unit — inferred from pricesPipeline.AddPrices
 member _.AddPrices =
-    preparer
-        .Command(pricesPipeline.AddPrices, "AddPrices")
+    prepare
+        .Command(pricesPipeline.AddPrices)
         .Reversible(fun prices _ -> pricesPipeline.DeletePrices prices.SKU)
         //           ^^^^^^ typed as Prices — no annotation needed
 
 // 'ret = PreviousValue<Prices> — inferred from pricesPipeline.SavePrices
 member _.SavePrices =
-    preparer
-        .Command(pricesPipeline.SavePrices, "SavePrices")
+    prepare
+        .Command(pricesPipeline.SavePrices)
         .Reversible(fun _ (PreviousValue initialPrices) ->
             async {
                 let! res = pricesPipeline.SavePrices initialPrices
@@ -293,6 +293,26 @@ member _.SavePrices =
 ```
 
 The fluent style is a pleasant side-effect, common in C#, but the primary motivation is type inference ergonomics.
+
+### Auto-deriving instruction names with `[<CallerMemberName>]`
+
+The extension methods on `IInstructionPreparer` use `[<CallerMemberName>]` to capture the instruction name automatically from the object expression member:
+
+```fsharp
+open System.Runtime.CompilerServices
+
+type IInstructionPreparer<'ins when Instructions<'ins>> with
+    member this.Query(work, [<CallerMemberName>] ?name) =
+        this.Query(work, fun _ -> defaultArg name "")
+    member this.Command(work, [<CallerMemberName>] ?name) =
+        this.Command(work, fun _ -> defaultArg name "")
+```
+
+In an object expression like `{ new IProductInstructions with member _.GetPrices = prepare.Query(...) }`, `CallerMemberName` captures `"GetPrices"` — the name of the enclosing member. This eliminates the redundant string literal.
+
+**Resolution rule:** F# resolves instance methods before extension methods. So:
+- `prepare.Query(work)` — 1 argument, interface needs 2 → resolved by the extension method (auto-name)
+- `prepare.Command(work, getName)` — 2 arguments, `getName` is a function → resolved by the interface method (dynamic name)
 
 ### Workflow Runner
 

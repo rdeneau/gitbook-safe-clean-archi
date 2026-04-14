@@ -5,6 +5,11 @@ icon: location-check
 
 # Status
 
+## 2026-04-14
+
+* _Shopfoo_: Apply `[<CallerMemberName>]` in `IInstructionPreparer` extension methods
+* _GitBook_: Update [Program Runner](domain-workflows/2-program/#auto-deriving-instruction-names-with-callermembername) and [Api](domain-workflows/3-domain-workflow/4-api.md)
+
 ## 2026-03-30
 
 * _GitBook_: New [Outreach](appendices/outreach/README.md) section in Appendices — lists LinkedIn posts promoting the GitBook

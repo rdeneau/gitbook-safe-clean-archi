@@ -56,20 +56,20 @@ This internal class depends on `IWorkflowRunnerFactory` (from `Shopfoo.Program`)
 
 ### Instruction Wiring with Undo Support
 
-The most important part is the `prepareInstructions` function, which wires each instruction to its data-layer implementation and undo strategy.
+The most important part is the `prepareInstructions` function, which wires each instruction to its data-layer implementation and undo strategy. The `prepare` parameter is an `IInstructionPreparer` whose extension methods use `[<CallerMemberName>]` to auto-derive the instruction name from the enclosing member (see [Auto-deriving instruction names](../2-program/#auto-deriving-instruction-names-with-callermembername)).
 
 **Product domain example** (from [`Shopfoo.Product`](https://github.com/rdeneau/shopfoo/blob/main/src/Shopfoo.Product/Api.fs)) — only uses queries and reversible commands:
 
 ```fsharp
-let prepareInstructions (preparer: IInstructionPreparer<'ins>) =
+let prepareInstructions (prepare: IInstructionPreparer<'ins>) =
     { new IProductInstructions with
-        member _.GetPrices = preparer.Query(pricesPipeline.GetPrices, "GetPrices")
-        member _.GetSales = preparer.Query(salesPipeline.GetSales, "GetSales")
-        member _.GetStockEvents = preparer.Query(warehousePipeline.GetStockEvents, "GetStockEvents")
+        member _.GetPrices = prepare.Query(pricesPipeline.GetPrices)
+        member _.GetSales = prepare.Query(salesPipeline.GetSales)
+        member _.GetStockEvents = prepare.Query(warehousePipeline.GetStockEvents)
 
         member _.SavePrices =
-            preparer
-                .Command(pricesPipeline.SavePrices, "SavePrices")
+            prepare
+                .Command(pricesPipeline.SavePrices)
                 .Reversible(fun _ (PreviousValue initialPrices) ->
                     async {
                         let! res = pricesPipeline.SavePrices initialPrices
@@ -77,8 +77,8 @@ let prepareInstructions (preparer: IInstructionPreparer<'ins>) =
                     })
 
         member _.SaveProduct =
-            preparer
-                .Command(catalogPipeline.SaveProduct, "SaveProduct")
+            prepare
+                .Command(catalogPipeline.SaveProduct)
                 .Reversible(fun _ (PreviousValue initialProduct) ->
                     async {
                         let! res = catalogPipeline.SaveProduct initialProduct
@@ -86,52 +86,45 @@ let prepareInstructions (preparer: IInstructionPreparer<'ins>) =
                     })
 
         member _.AddPrices =
-            preparer
-                .Command(pricesPipeline.AddPrices, "AddPrices")
-                .Reversible(fun prices _ -> pricesPipeline.DeletePrices prices.SKU)
+            prepare.Command(pricesPipeline.AddPrices).Reversible(fun prices _ -> pricesPipeline.DeletePrices prices.SKU)
 
         member _.AddProduct =
-            preparer
-                .Command(catalogPipeline.AddProduct, "AddProduct")
-                .Reversible(fun product _ -> catalogPipeline.DeleteProduct product.SKU)
+            prepare.Command(catalogPipeline.AddProduct).Reversible(fun product _ -> catalogPipeline.DeleteProduct product.SKU)
+
+        member _.AddStockEvent = prepare.Command(warehousePipeline.AddStockEvent).NotUndoable()
     }
 ```
 
 **Order domain example** (from [`Shopfoo.Program.Tests`](https://github.com/rdeneau/shopfoo/blob/main/tests/Shopfoo.Program.Tests/OrderContext/)) — showcases all three undo strategies (Reversible, Compensatable, NotUndoable):
 
 ```fsharp
-let prepareInstructions (preparer: IInstructionPreparer<'ins>) =
+let prepareInstructions (prepare: IInstructionPreparer<'ins>) =
     { new IOrderInstructions with
         member _.CreateOrder =
-            preparer
-                .Command(orderRepository.CreateOrder, "CreateOrder")
-                .Reversible(fun cmd _ -> orderRepository.DeleteOrder cmd.OrderId)
+            prepare.Command(orderRepository.CreateOrder).Reversible(fun cmd _ -> orderRepository.DeleteOrder cmd.OrderId)
 
         member _.IssueInvoice =
-            preparer
-                .Command(invoiceRepository.IssueInvoice, "IssueInvoice")
+            prepare
+                .Command(invoiceRepository.IssueInvoice)
                 .Compensatable(fun _ invoiceId ->
                     invoiceRepository.CompensateInvoice { InvoiceId = invoiceId })
 
         member _.ProcessPayment =
-            preparer
-                .Command(paymentRepository.ProcessPayment, "ProcessPayment")
+            prepare
+                .Command(paymentRepository.ProcessPayment)
                 .Compensatable(fun _ paymentId ->
                     paymentRepository.RefundPayment { PaymentId = paymentId })
 
         member _.SendNotification =
-            preparer
+            prepare
                 .Command(notificationClient.SendNotification,
                     getName = (fun cmd -> $"SendNotificationOrder%s{cmd.NewStatus.Name}"))
                 .NotUndoable()
 
-        member _.ShipOrder =
-            preparer
-                .Command(warehouseClient.ShipOrder, "ShipOrder")
-                .NotUndoable()
+        member _.ShipOrder = prepare.Command(warehouseClient.ShipOrder).NotUndoable()
 
         member _.TransitionOrder =
-            preparer
+            prepare
                 .Command(orderRepository.TransitionOrder,
                     fun (FromTo(from, to')) -> $"TransitionOrderFrom%s{from}To%s{to'}")
                 .Reversible(fun cmd _ -> orderRepository.TransitionOrder(cmd.Revert()))
@@ -140,13 +133,13 @@ let prepareInstructions (preparer: IInstructionPreparer<'ins>) =
 
 **Key patterns:**
 
-* **Queries** are wrapped with `preparer.Query(work, name)` — this adds logging, timing, and step tracking.
-* **Commands** are wrapped with `preparer.Command(work, name)` followed by the undo strategy:
+* **Queries** are wrapped with `prepare.Query(work)` — the name is auto-derived from the member via `[<CallerMemberName>]`. This adds logging, timing, and step tracking.
+* **Commands** are wrapped with `prepare.Command(work)` followed by the undo strategy:
   * `.Reversible(undoFun)` — the command can be exactly reversed, restoring the previous state. Two flavours are shown: using the `PreviousValue` returned by the command (e.g. `SavePrices` restores the initial prices) or using the original arguments (e.g. `CreateOrder` deletes by `OrderId`, `TransitionOrder` calls `cmd.Revert()`).
   * `.Compensatable(undoFun)` — the command cannot be literally reversed but can be logically compensated. For example, `IssueInvoice` is compensated (not deleted) and `ProcessPayment` is refunded (not reversed). The undo function uses the **return value** (e.g. the `invoiceId` or `paymentId`) to identify what to compensate.
   * `.NotUndoable()` — the command is fire-and-forget; no undo is attempted. Suitable for side effects that cannot be taken back, such as sending a notification or shipping an order.
 * The undo function receives the **original arguments** and the **return value** — enabling it to use the `PreviousValue` to restore the prior state or the returned ID to identify what to undo.
-* The `name` parameter can be a static string or a **dynamic function** (e.g. `TransitionOrder` uses `fun (FromTo(from, to')) -> ...` and `SendNotification` uses `getName = (fun cmd -> ...)`) to produce descriptive step names in the saga history.
+* **Dynamic names**: for instructions whose name depends on the argument, call the interface method directly with a `getName` function — e.g. `prepare.Command(work, fun (FromTo(from, to')) -> ...)` for `TransitionOrder` or `prepare.Command(work, getName = fun cmd -> ...)` for `SendNotification`. F# resolves instance methods before extension methods, so passing 2 arguments bypasses the `CallerMemberName` extension.
 
 ### Running Workflows
 
