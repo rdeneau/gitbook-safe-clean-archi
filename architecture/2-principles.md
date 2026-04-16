@@ -80,7 +80,7 @@ graph BT
 > Instead of organizing your code by technical layers (`Controllers`, `Services`, `Repositories`), **Vertical Slice Architecture** organizes it by **business features**. Each feature becomes a **self-contained** "slice" that includes **everything needed for that specific functionality**.\
 > 🔗 [Vertical Slice Architecture Is Easier Than You Think](https://www.milanjovanovic.tech/blog/vertical-slice-architecture-is-easier-than-you-think) — Milan Jovanović
 
-The _Safe Clean Architecture_ does not implement vertical slices by the book, but applies its principle at the module level of the modular monolith: the domain projects in `src/Feat/` are self-contained, including almost all layers: Application, Domain, Infrastructure — `Workflows/` and `Data/` folders in the code.
+The _Safe Clean Architecture_ does not implement vertical slices by the book — where each use case is its own slice. Instead, it applies the principle one level up: each **module** in `src/Feat/` — a cohesive group of use cases, up to an entire bounded context — is a self-contained project including almost all layers: Application, Domain, Infrastructure — `Workflows/` and `Data/` folders in the code.
 
 ### Screaming Architecture
 

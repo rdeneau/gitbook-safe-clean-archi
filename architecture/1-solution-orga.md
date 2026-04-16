@@ -106,7 +106,9 @@ Foundation libraries shared across the solution.
 
 ### src/Feat
 
-Features. Each project is a DDD **bounded context**:
+Features. Each project is a **module** — a cohesive group of use cases that can range from a subset of a bounded context to an entire bounded context. The folder is named `Feat` (features) rather than `Domain` to reflect this flexibility: a module is not necessarily a 1:1 mapping with a DDD bounded context.
+
+In *Shopfoo*, the two modules happen to match bounded contexts:
 
 * **Shopfoo.Home**: Supportive bounded context — translations and user data access.
 * **Shopfoo.Product**: Product core bounded context.
