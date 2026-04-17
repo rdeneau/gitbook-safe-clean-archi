@@ -56,6 +56,8 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Apr 17, 2026] feat: ✨ new outreach article / architecture - add dates
+* \[Apr 16, 2026] fix: ✏️ wording around bounded contexts and vertical slices
 * \[Apr 14, 2026] feat: ♻️ improve instruction preparation: make their name optional, inferred with CallerMemberName attribute
 * \[Apr 08, 2026] feat: ✨ TanStack Query outreach link
 * \[Mar 30, 2026] feat: ✨ appendices/outreach page
@@ -64,8 +66,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 14, 2026] feat: ✨ document migration from program v3 to program v4
 * \[Mar 12, 2026] feat: ✅ mention completion in status.md
 * \[Mar 12, 2026] feat: 👔 mention the fake product in the list
-* \[Mar 12, 2026] feat: ✨ appendices/resources.md
-* \[Mar 12, 2026] feat: 👔 document "Adding a new product" in shopfoo/management.md
 
 </details>
 
