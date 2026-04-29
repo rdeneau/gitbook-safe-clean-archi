@@ -68,3 +68,4 @@
 
 * [Resources](appendices/resources.md)
 * [Outreach](appendices/outreach/README.md)
+  * [What if your pattern matching could call functions?](appendices/outreach/active-patterns.md)

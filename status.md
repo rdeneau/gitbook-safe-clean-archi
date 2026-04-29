@@ -5,6 +5,10 @@ icon: location-check
 
 # Status
 
+## 2026-04-29
+
+* _GitBook_: New [Outreach](appendices/outreach/README.md) article — [What if your pattern matching could call functions?](appendices/outreach/active-patterns.md) — covering F# Active Patterns illustrated with Shopfoo examples
+
 ## 2026-04-14
 
 * _Shopfoo_: Apply `[<CallerMemberName>]` in `IInstructionPreparer` extension methods

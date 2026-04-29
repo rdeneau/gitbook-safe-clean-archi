@@ -20,3 +20,5 @@ A collection of articles and posts on Bluesky and LinkedIn promoting the Safe Cl
 - Apr 17, 2026 • Promoting the [Architecture](architecture/) chapter:
   - Article on LinkedIn: [What if your compiler could enforce your architecture rules?](https://www.linkedin.com/pulse/what-your-compiler-could-enforce-architecture-rules-romain-deneau-dd1we/)
   - Related posts on [Bluesky](https://bsky.app/profile/romain-deneau.bsky.social/post/3mjofnkmuik23) and [LinkedIn](https://www.linkedin.com/posts/romain-deneau-95481143_dotnet-fsharp-cleanarchitecture-activity-7450799417080737792-13EG)
+- Apr 29, 2026 • Promoting [Tips & Tricks](tips-and-tricks/) via Active Patterns:
+  - Article: [What if your pattern matching could call functions?](active-patterns.md)
