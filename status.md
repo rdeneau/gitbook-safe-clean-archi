@@ -60,6 +60,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Apr 29, 2026] feat: 🔄️ [GITBOOK-20] fix outreach internal links
 * \[Apr 29, 2026] feat: ✨ add active-patterns.md outreach article
 * \[Apr 17, 2026] feat: ✨ new outreach article / architecture - add dates
 * \[Apr 16, 2026] fix: ✏️ wording around bounded contexts and vertical slices
@@ -69,7 +70,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 25, 2026] feat: 🔄️ [GITBOOK-19] fix addendum
 * \[Mar 25, 2026] feat: ✨ program addendum: pattern variations
 * \[Mar 14, 2026] feat: ✨ document migration from program v3 to program v4
-* \[Mar 12, 2026] feat: ✅ mention completion in status.md
 
 </details>
 
