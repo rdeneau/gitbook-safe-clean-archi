@@ -60,6 +60,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Oct 26, 2026] feat: 🔄️ [GITBOOK-21] Fix Shopfoo chapter link in the Welcome page
 * \[Apr 29, 2026] feat: 🔄️ [GITBOOK-20] fix outreach internal links
 * \[Apr 29, 2026] feat: ✨ add active-patterns.md outreach article
 * \[Apr 17, 2026] feat: ✨ new outreach article / architecture - add dates
@@ -69,7 +70,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 30, 2026] feat: ✨ appendices/outreach page
 * \[Mar 25, 2026] feat: 🔄️ [GITBOOK-19] fix addendum
 * \[Mar 25, 2026] feat: ✨ program addendum: pattern variations
-* \[Mar 14, 2026] feat: ✨ document migration from program v3 to program v4
 
 </details>
 
@@ -77,6 +77,8 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-tablet-screen">:tablet-screen:</i>  Shopfoo</summary>
 
+* \[Jul 28, 2026] switch to MIT LICENSE
+* \[Jul 28, 2026] Delete LICENSE
 * \[Apr 14, 2026] tidy: 📐 improve formatting
 * \[Apr 14, 2026] refactor: ♻️ improve instruction preparation: make their name optional, inferred with CallerMemberName attribute
 * \[Mar 12, 2026] chore: 🏷️ release 1.4.1 [skip ci]
@@ -85,7 +87,5 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Mar 12, 2026] feat: 💄 improve about page disclaimer
 * \[Mar 12, 2026] fix: ⛓️‍💥 error 404 on Azure
 * \[Mar 12, 2026] feat: 🖼️ add favicon.png
-* \[Mar 11, 2026] fix(ManagePrice): 🐛 properly prevent price decrease in case of Increase, and vice versa
-* \[Mar 11, 2026] tidy(Client.Tests): 📐 move Scenario up to the root
 
 </details>
