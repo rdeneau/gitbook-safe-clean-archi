@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout GitBook Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.UPDATE_COMMITS }}
 
-      - name: Setup .NET 9
-        uses: actions/setup-dotnet@v4
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Run Changelog Generator
         env:
