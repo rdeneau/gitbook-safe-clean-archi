@@ -65,6 +65,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Nov 19, 2026] chore: ⬆️ upgrade changelog generator to .NET 10
 * \[Nov 19, 2026] docs: 📝 add .NET 10 migration entry to status
 * \[Oct 26, 2026] feat: 🔄️ [GITBOOK-21] Fix Shopfoo chapter link in the Welcome page
 * \[Apr 29, 2026] feat: 🔄️ [GITBOOK-20] fix outreach internal links
@@ -74,7 +75,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Apr 14, 2026] feat: ♻️ improve instruction preparation: make their name optional, inferred with CallerMemberName attribute
 * \[Apr 08, 2026] feat: ✨ TanStack Query outreach link
 * \[Mar 30, 2026] feat: ✨ appendices/outreach page
-* \[Mar 25, 2026] feat: 🔄️ [GITBOOK-19] fix addendum
 
 </details>
 
