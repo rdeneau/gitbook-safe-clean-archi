@@ -65,6 +65,7 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-book-open">:book-open:</i>  GitBook</summary>
 
+* \[Nov 19, 2026] docs: 📝 add .NET 10 migration entry to status
 * \[Oct 26, 2026] feat: 🔄️ [GITBOOK-21] Fix Shopfoo chapter link in the Welcome page
 * \[Apr 29, 2026] feat: 🔄️ [GITBOOK-20] fix outreach internal links
 * \[Apr 29, 2026] feat: ✨ add active-patterns.md outreach article
@@ -74,7 +75,6 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 * \[Apr 08, 2026] feat: ✨ TanStack Query outreach link
 * \[Mar 30, 2026] feat: ✨ appendices/outreach page
 * \[Mar 25, 2026] feat: 🔄️ [GITBOOK-19] fix addendum
-* \[Mar 25, 2026] feat: ✨ program addendum: pattern variations
 
 </details>
 
@@ -82,15 +82,15 @@ This section is auto-generated. It displays the last 10 commits of both reposito
 
 <summary><i class="fa-tablet-screen">:tablet-screen:</i>  Shopfoo</summary>
 
-* \[Jul 28, 2026] switch to MIT LICENSE
-* \[Jul 28, 2026] Delete LICENSE
-* \[Apr 14, 2026] tidy: 📐 improve formatting
-* \[Apr 14, 2026] refactor: ♻️ improve instruction preparation: make their name optional, inferred with CallerMemberName attribute
-* \[Mar 12, 2026] chore: 🏷️ release 1.4.1 [skip ci]
-* \[Mar 12, 2026] fix: 🐛 FakeStore not accessible from Azure
-* \[Mar 12, 2026] chore: 🏷️ release 1.4.0 [skip ci]
-* \[Mar 12, 2026] feat: 💄 improve about page disclaimer
-* \[Mar 12, 2026] fix: ⛓️‍💥 error 404 on Azure
-* \[Mar 12, 2026] feat: 🖼️ add favicon.png
+* \[Nov 18, 2026] test: ✅ fix flaky filter books by tag test
+* \[Nov 18, 2026] chore: 🏷️ release 1.4.2 [skip ci]
+* \[Nov 18, 2026] fix: 🐛 shorten a seed description over the 512-character limit
+* \[Nov 18, 2026] fix: 🔒️ pin patched ASP.NET Core and Pkcs packages
+* \[Nov 18, 2026] test: ✅ sort books by tags on the app's flat key
+* \[Nov 18, 2026] fix: 🐛 vendor a remoting client patched for Fable 5
+* \[Nov 18, 2026] chore: ⬆️ upgrade to Fable 5.27 and Feliz 3
+* \[Jul 08, 2026] chore: update Fable compiler + Feliz
+* \[Nov 18, 2026] chore: 🔧 migrate the solution to slnx
+* \[Nov 18, 2026] test: ✅ fix flaky search books by subtitle test
 
 </details>
