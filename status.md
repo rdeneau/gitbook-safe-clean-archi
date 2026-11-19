@@ -5,6 +5,11 @@ icon: location-check
 
 # Status
 
+## 2026-11-18
+
+* _Shopfoo_: Migrate to .NET 10, Fable 5, and Feliz v3 — the improvement planned on [2026-03-12](#2026-03-12) — and to the `.slnx` solution format
+* _Shopfoo_: [Release 1.4.2](https://github.com/rdeneau/shopfoo/releases/tag/v1.4.2) deployed
+
 ## 2026-04-29
 
 * _GitBook_: New [Outreach](appendices/outreach/README.md) article — [What if your pattern matching could call functions?](appendices/outreach/active-patterns.md) — covering F# Active Patterns illustrated with Shopfoo examples
